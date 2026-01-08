@@ -13,22 +13,16 @@ import java.io.IOException;
  */
 public class App extends Application {
 
-    private static Scene scene;
-
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("/com/espoch/inflexpoint/vistaprincipal/vista-principal.fxml"), 640, 480);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/espoch/inflexpoint/vistaprincipal/vista-principal.fxml"));
+        Scene scene = new Scene(loader.load());
+        // scene = new Scene(loadFXML(""), 640, 480);
         stage.setScene(scene);
+        stage.setTitle("InflexPoint");
+        stage.setWidth(1000);
+        stage.setHeight(600);
         stage.show();
-    }
-
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
-    }
-
-    private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml));
-        return fxmlLoader.load();
     }
 
     public static void main(String[] args) {

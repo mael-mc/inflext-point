@@ -74,11 +74,14 @@ public class VistaPrincipalControlador {
     }
 
     public void onBtnInicio(ActionEvent actionEvent) {
+        cargarVista(inicio);
     }
 
     public void onBtnCalcular(ActionEvent actionEvent) {
+        cargarVista(calcular);
     }
 
     public void onBtnAyuda(ActionEvent actionEvent) {
+        cargarVista(ayuda);
     }
 }
