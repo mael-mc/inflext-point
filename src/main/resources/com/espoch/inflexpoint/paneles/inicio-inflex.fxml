@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+
+
+<AnchorPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.espoch.inflexpoint.controladores.paneles.InicioControlador">
+   <children>
+      <VBox prefHeight="600.0" prefWidth="1000.0" spacing="20.0">
+         <children>
+            <Label text="BIENVENIDO A INFLEXPOINT">
+               <font>
+                  <Font name="System Bold" size="36.0" />
+               </font>
+            </Label>
+            <HBox prefHeight="312.0" prefWidth="920.0" spacing="130.0">
+               <children>
+                  <TextFlow lineSpacing="10.0" prefHeight="344.0" prefWidth="464.0" textAlignment="JUSTIFY">
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Es una aplicación de escritorio diseñada para calcular de forma rápida y automática los puntos de inflexión de una función ingresada por el usuario. La herramienta obtiene la primera y segunda derivada, analiza dónde la concavidad cambia y muestra los resultados de manera clara y ordenada." wrappingWidth="470.57427978515625">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </TextFlow>
+                  <ImageView fitHeight="311.0" fitWidth="389.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../imagenes/grafica.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </HBox>
+            <Button mnemonicParsing="false" prefHeight="46.0" prefWidth="293.0" style="-fx-background-color: #44bdac;" text="EXPLORA EL MENÚ SUPERIOR PARA COMENZAR" textFill="WHITE" />
+         </children>
+         <padding>
+            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+         </padding>
+      </VBox>
+   </children>
+</AnchorPane>
