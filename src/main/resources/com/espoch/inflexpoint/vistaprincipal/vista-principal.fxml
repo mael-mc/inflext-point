@@ -59,14 +59,12 @@
                   <Insets left="30.0" right="5.0" />
                </padding>
                <children>
-                  <ToggleButton mnemonicParsing="false" prefHeight="30.0" style="-fx-background-color: transparent;" text="INIICO" textFill="WHITE" />
-                  <ToggleButton mnemonicParsing="false" prefHeight="30.0" style="-fx-background-color: transparent;" text="CALCULAR" textFill="WHITE" />
-                  <ToggleButton layoutX="159.0" layoutY="15.0" mnemonicParsing="false" prefHeight="30.0" style="-fx-background-color: transparent;" text="GRÁFICOS" textFill="WHITE" />
-                  <ToggleButton layoutX="278.0" layoutY="15.0" mnemonicParsing="false" prefHeight="30.0" style="-fx-background-color: transparent;" text="CONFIGURACIÓN" textFill="WHITE" />
-                  <ToggleButton layoutX="397.0" layoutY="15.0" mnemonicParsing="false" prefHeight="30.0" style="-fx-background-color: transparent;" text="AYUDA" textFill="WHITE" />
+                  <ToggleButton fx:id="btnInicio" mnemonicParsing="false" onAction="#onBtnInicio" prefHeight="30.0" style="-fx-background-color: transparent;" text="INIICO" textFill="WHITE" />
+                  <ToggleButton fx:id="btnCalcular" mnemonicParsing="false" onAction="#onBtnCalcular" prefHeight="30.0" style="-fx-background-color: transparent;" text="CALCULAR" textFill="WHITE" />
+                  <ToggleButton fx:id="btnAyuda" layoutX="397.0" layoutY="15.0" mnemonicParsing="false" onAction="#onBtnAyuda" prefHeight="30.0" style="-fx-background-color: transparent;" text="AYUDA" textFill="WHITE" />
                </children>
             </HBox>
-            <AnchorPane />
+            <AnchorPane fx:id="panelCarga" />
          </children>
       </VBox>
    </children>
