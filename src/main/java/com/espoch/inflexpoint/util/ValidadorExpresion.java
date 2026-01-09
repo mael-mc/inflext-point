@@ -13,7 +13,8 @@ import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
 public class ValidadorExpresion {
 
     // Caracteres permitidos en expresiones
-    private static final String CARACTERES_PERMITIDOS = "0123456789+-*/^().xsincogtanlreqpabdfu ";
+    // Caracteres permitidos en expresiones
+    private static final String CARACTERES_PERMITIDOS = "0123456789+-*/^().abcdefghijklmnopqrstuvwxyz ";
 
     /**
      * Valida una expresión matemática.

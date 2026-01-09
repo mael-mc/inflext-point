@@ -32,16 +32,36 @@ public class Evaluador {
         if (expr == null)
             return "";
 
-        // 1. Limpieza inicial
+        // 1. Limpieza inicial y conversión de español a inglés
+        // IMPORTANTE: Reemplazar nombres más largos primero
         String norm = expr.trim().toLowerCase()
                 .replace(" ", "")
                 .replace("²", "^2")
-                .replace("³", "^3");
+                .replace("³", "^3")
+                .replace("arcsen(", "asin(")
+                .replace("arccos(", "acos(")
+                .replace("arctan(", "atan(")
+                .replace("sen(", "sin(") // sen despues de arcsen
+                .replace("raiz(", "sqrt(");
 
         // 2. Protección de tokens (funciones y constantes)
-        // Usamos marcadores ASCII "TK#"
-        String[] tokens = { "sqrt", "sin", "cos", "tan", "log", "ln", "abs", "exp", "pi", "e" };
-        String[] placeholders = { "TK0", "TK1", "TK2", "TK3", "TK4", "TK5", "TK6", "TK7", "TK8", "TK9" };
+        // Usamos marcadores ASCII "TK" + Letra para evitar conflictos con dígitos en
+        // mult. implícita
+        // ORDEN IMPORTANTE: Tokens más largos primero
+        String[] tokens = {
+                "asin", "acos", "atan", "sqrt", // 4 chars
+                "sin", "cos", "tan", "csc", "sec", "cot", "log", "exp", "abs", // 3 chars
+                "ln", "pi", // 2 chars
+                "e" // 1 char
+        };
+
+        // Placeholders: TKA ... TKP (letras evitan detección como dígito)
+        String[] placeholders = {
+                "TKA", "TKB", "TKC", "TKD",
+                "TKE", "TKF", "TKG", "TKH", "TKI", "TKJ", "TKK", "TKL", "TKM",
+                "TKN", "TKO",
+                "TKP"
+        };
 
         for (int i = 0; i < tokens.length; i++) {
             norm = norm.replace(tokens[i], placeholders[i]);
@@ -69,17 +89,20 @@ public class Evaluador {
         // 3c. 'x' seguido de (Digito, x, (, T)
         norm = norm.replaceAll("(?<=x)(?=[\\dx\\(T])", "*");
 
-        // 3d. Constantes 'e' y 'pi' (ahora son TK8 y TK9) seguidas de (Digito, x, (, T)
+        // 3d. Constantes 'e' y 'pi' (ahora son TK14 y TK15) seguidas de (Digito, x, (,
+        // T)
         // Los Tokens terminan en digito 0-9.
-        // Ej: pi(x) -> TK8(x). No queremos TK8*(x) si es funcion, pero pi es constante.
+        // Ej: pi(x) -> TK14(x). No queremos TK14*(x) si es funcion, pero pi es
+        // constante.
         // Diferenciemos funciones de constantes si es posible.
         // sqrt(TK0) no debe llevar * después.
-        // pi(TK8) y e(TK9) SÍ pueden llevar.
+        // pi(TK14) y e(TK15) SÍ pueden llevar.
         // Pero en los placeholders, ambos son TK#.
 
         // Vamos a ser más específicos con las constantes.
-        // pi -> TK8, e -> TK9.
-        norm = norm.replaceAll("(?<=TK[89])(?=[\\dx\\(T])", "*");
+        // pi -> TK14, e -> TK15.
+        // 3d. Constantes 'pi'(TKO) y 'e'(TKP) seguidas de (Digito, x, (, T)
+        norm = norm.replaceAll("(?<=TK[OP])(?=[\\dx\\(T])", "*");
 
         // 4. Restauración de tokens
         for (int i = 0; i < tokens.length; i++) {
@@ -149,36 +172,56 @@ public class Evaluador {
             while (ch >= 'a' && ch <= 'z')
                 nextChar();
             String func = expression.substring(startPos, this.pos);
-            if (eat('(')) {
-                v = parseExpression(x);
-                eat(')');
-            } else if (func.equals("e")) {
+
+            // Primero verificar si es una constante
+            if (func.equals("e")) {
                 v = Math.E;
             } else if (func.equals("pi")) {
                 v = Math.PI;
             } else {
-                // Si no hay paréntesis, asumimos que es una variable si es 'x', pero ya lo
-                // manejamos arriba.
-                // Si llegamos aquí es una funcion mal formada o variable desconocida.
-                throw new ExpresionInvalidaException("Función desconocida: " + func);
-            }
+                // Para funciones, DEBE haber paréntesis
+                if (!eat('(')) {
+                    throw new ExpresionInvalidaException(
+                            "La función '" + func + "' requiere paréntesis: " + func + "(...)");
+                }
 
-            if (func.equals("sqrt"))
-                v = Math.sqrt(v);
-            else if (func.equals("sin"))
-                v = Math.sin(v);
-            else if (func.equals("cos"))
-                v = Math.cos(v);
-            else if (func.equals("tan"))
-                v = Math.tan(v);
-            else if (func.equals("log"))
-                v = Math.log10(v);
-            else if (func.equals("ln"))
-                v = Math.log(v);
-            else if (func.equals("abs"))
-                v = Math.abs(v);
-            else if (func.equals("exp"))
-                v = Math.exp(v);
+                // Evaluar el argumento de la función
+                v = parseExpression(x);
+                eat(')');
+
+                // Aplicar la función correspondiente
+                if (func.equals("sqrt"))
+                    v = Math.sqrt(v);
+                else if (func.equals("sin"))
+                    v = Math.sin(v);
+                else if (func.equals("cos"))
+                    v = Math.cos(v);
+                else if (func.equals("tan"))
+                    v = Math.tan(v);
+                else if (func.equals("csc"))
+                    v = 1.0 / Math.sin(v);
+                else if (func.equals("sec"))
+                    v = 1.0 / Math.cos(v);
+                else if (func.equals("cot"))
+                    v = 1.0 / Math.tan(v);
+                else if (func.equals("asin"))
+                    v = Math.asin(v);
+                else if (func.equals("acos"))
+                    v = Math.acos(v);
+                else if (func.equals("atan"))
+                    v = Math.atan(v);
+                else if (func.equals("log"))
+                    v = Math.log10(v);
+                else if (func.equals("ln"))
+                    v = Math.log(v);
+                else if (func.equals("abs"))
+                    v = Math.abs(v);
+                else if (func.equals("exp"))
+                    v = Math.exp(v);
+                else {
+                    throw new ExpresionInvalidaException("Función desconocida: " + func);
+                }
+            }
         } else {
             throw new ExpresionInvalidaException("Carácter inesperado: " + (char) ch);
         }

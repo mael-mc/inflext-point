@@ -75,6 +75,7 @@ public class GraficadorCanvas {
      */
     public void graficar(String expresion, ResultadoAnalisis resultado)
             throws ExpresionInvalidaException {
+        System.out.println("GraficadorCanvas.graficar llamado con: " + expresion);
 
         this.expresion = expresion;
         this.resultado = resultado;
@@ -280,6 +281,12 @@ public class GraficadorCanvas {
                 prevScreenY = screenY;
 
             } catch (ExpresionInvalidaException e) {
+                System.out.println("Error graficando en x=" + x + ": " + e.getMessage());
+                prevScreenX = null;
+                prevScreenY = null;
+            } catch (Exception e) {
+                System.out.println("Error INESPERADO graficando en x=" + x + ": " + e.toString());
+                e.printStackTrace();
                 prevScreenX = null;
                 prevScreenY = null;
             }

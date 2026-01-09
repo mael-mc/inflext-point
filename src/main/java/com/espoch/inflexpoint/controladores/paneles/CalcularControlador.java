@@ -130,9 +130,13 @@ public class CalcularControlador implements Initializable {
             mostrarResultadosTextuales(resultado);
 
             // 6. Graficar usando Canvas interactivo
+            System.out.println("Intentando graficar: " + expresion);
             try {
                 graficadorCanvas.graficar(expresion, resultado);
+                System.out.println("Gráfica completada exitosamente");
             } catch (Exception e) {
+                System.out.println("Excepción al graficar: " + e.getMessage());
+                e.printStackTrace();
                 mostrarAlerta("Error en Gráfica",
                         "No se pudo graficar la función: " + e.getMessage());
             }
