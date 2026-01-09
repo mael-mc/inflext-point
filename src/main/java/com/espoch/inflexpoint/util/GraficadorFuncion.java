@@ -21,5 +21,5 @@ import javafx.scene.paint.Color;
  * - Separado del controlador
  */
 public class GraficadorFuncion {
-    
+
 }

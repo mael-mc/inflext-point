@@ -29,7 +29,8 @@ public class VistaPrincipalControlador {
 
     @FXML
     public void initialize() {
-
+        cargarVista(inicio);
+        iniciarBotonesToggle();
     }
 
     private void iniciarBotonesToggle() {
@@ -67,10 +68,6 @@ public class VistaPrincipalControlador {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-
-
-
     }
 
     public void onBtnInicio(ActionEvent actionEvent) {
