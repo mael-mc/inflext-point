@@ -1,15 +1,14 @@
 package com.espoch.inflexpoint.controladores.paneles;
 
 import com.espoch.inflexpoint.modelos.calculos.AnalizadorFuncion;
-import com.espoch.inflexpoint.modelos.calculos.Evaluador;
 import com.espoch.inflexpoint.modelos.calculos.ResultadoAnalisis;
+import com.espoch.inflexpoint.modelos.excepciones.CalculoNumericoException;
+import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
+import com.espoch.inflexpoint.util.GraficadorCanvas;
 import com.espoch.inflexpoint.util.TecladoVirtual;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -18,9 +17,20 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controlador responsable por manejar la vista de cálculo.
+ * Controlador para la vista de cálculo.
+ * 
+ * Responsabilidades:
+ * - Capturar eventos de UI (clics, entrada de texto)
+ * - Validar entrada básica (campos no vacíos)
+ * - Llamar servicios de cálculo
+ * - Actualizar componentes visuales con resultados
+ * - Mostrar mensajes al usuario
+ * 
+ * NO contiene lógica de negocio ni cálculos matemáticos.
  */
 public class CalcularControlador implements Initializable {
+
+    // ===== Componentes FXML =====
 
     @FXML
     private ComboBox<String> cbTipoFuncion;
@@ -51,97 +61,147 @@ public class CalcularControlador implements Initializable {
     @FXML
     private HBox contenedorGrafica;
 
-    // Gráfica
-    private LineChart<Number, Number> lineChart;
-    private NumberAxis xAxis;
-    private NumberAxis yAxis;
+    // ===== Servicios y Utilidades =====
 
+    private AnalizadorFuncion analizador;
+    private GraficadorCanvas graficadorCanvas;
     private TecladoVirtual tecladoVirtual;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicializar ComboBox
+        // Inicializar servicios
+        analizador = new AnalizadorFuncion();
+
+        // Inicializar graficador con Canvas
+        graficadorCanvas = new GraficadorCanvas(800, 600);
+        contenedorGrafica.getChildren().add(graficadorCanvas.getCanvas());
+
+        // Hacer el canvas responsivo escuchando el contenedor (NO bind() + setSize())
+        contenedorGrafica.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.doubleValue() > 0) {
+                graficadorCanvas.setSize(newVal.doubleValue(), contenedorGrafica.getHeight());
+            }
+        });
+        contenedorGrafica.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.doubleValue() > 0) {
+                graficadorCanvas.setSize(contenedorGrafica.getWidth(), newVal.doubleValue());
+            }
+        });
+
+        // Inicializar ComboBox (solo para información, no se usa en cálculos)
         cbTipoFuncion.getItems().addAll(
                 "Lineal",
                 "Cuadrática",
                 "Trigonométrica",
                 "Logarítmica",
-                "Exponencial");
-
-        // Inicializar Gráfica
-        xAxis = new NumberAxis();
-        xAxis.setLabel("X");
-        yAxis = new NumberAxis();
-        yAxis.setLabel("f(x)");
-        lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setPrefWidth(578);
-        lineChart.setPrefHeight(350);
-        lineChart.setCreateSymbols(false); // No mostrar puntos individuales
-
-        contenedorGrafica.getChildren().add(lineChart);
+                "Exponencial",
+                "Polinómica",
+                "Racional");
     }
 
+    /**
+     * Maneja el evento de cálculo.
+     * Valida entrada, llama servicios, y actualiza UI.
+     */
     @FXML
     private void calcular(ActionEvent event) {
-        String funcion = txtFuncion.getText();
-        String tipoFuncion = cbTipoFuncion.getValue();
+        // 1. Obtener datos de entrada
+        String expresion = txtFuncion.getText();
 
-        if (funcion == null || funcion.trim().isEmpty()) {
-            mostrarAlerta("Error", "Debe ingresar una función.");
+        // 2. Validar entrada básica
+        if (!validarEntrada(expresion)) {
             return;
         }
 
-        if (!chkPuntosCriticos.isSelected() && !chkIntervalos.isSelected() &&
-                !chkMaxMin.isSelected() && !chkPuntoInflexion.isSelected() &&
-                !chkConcavidad.isSelected()) {
-            mostrarAlerta("Error", "Debe seleccionar al menos una opción de cálculo.");
-            return;
-        }
-
-        // Limpiar resultados previos
-        vboxResultadosTexto.getChildren().clear();
-        lineChart.getData().clear();
+        // 3. Limpiar resultados previos
+        limpiarResultados();
 
         try {
-            // 1. Análisis Analítico
-            AnalizadorFuncion analizador = new AnalizadorFuncion();
+            // 4. Llamar servicio de análisis
             ResultadoAnalisis resultado = analizador.analizar(
-                    funcion,
+                    expresion,
                     chkPuntosCriticos.isSelected(),
                     chkIntervalos.isSelected(),
                     chkMaxMin.isSelected(),
                     chkPuntoInflexion.isSelected(),
                     chkConcavidad.isSelected());
 
-            // Mostrar Texto
-            Label lblResumen = new Label(resultado.getResumen());
-            lblResumen.setWrapText(true);
-            lblResumen.setStyle("-fx-font-family: 'Consolas'; -fx-font-size: 14px;");
-            vboxResultadosTexto.getChildren().add(lblResumen);
+            // 5. Mostrar resultados textuales
+            mostrarResultadosTextuales(resultado);
 
-            // 2. Gráfica
-            XYChart.Series<Number, Number> series = new XYChart.Series<>();
-            series.setName(funcion);
-
-            Evaluador evaluador = new Evaluador(funcion);
-            for (double x = -10.0; x <= 10.0; x += 0.1) {
-                try {
-                    double y = evaluador.evaluar(x);
-                    // Evitar valores infinitos o NaN en la gráfica
-                    if (!Double.isNaN(y) && !Double.isInfinite(y) && Math.abs(y) < 100) {
-                        series.getData().add(new XYChart.Data<>(x, y));
-                    }
-                } catch (Exception e) {
-                    // Ignorar puntos no evaluables
-                }
+            // 6. Graficar usando Canvas interactivo
+            try {
+                graficadorCanvas.graficar(expresion, resultado);
+            } catch (Exception e) {
+                mostrarAlerta("Error en Gráfica",
+                        "No se pudo graficar la función: " + e.getMessage());
             }
-            lineChart.getData().add(series);
 
+        } catch (ExpresionInvalidaException e) {
+            mostrarAlerta("Expresión Inválida",
+                    "La expresión ingresada no es válida:\n" + e.getMessage());
+        } catch (CalculoNumericoException e) {
+            mostrarAlerta("Error de Cálculo",
+                    "Ocurrió un error durante el análisis:\n" + e.getMessage());
         } catch (Exception e) {
-            mostrarAlerta("Error de Cálculo", "No se pudo procesar la función: " + e.getMessage());
+            mostrarAlerta("Error Inesperado",
+                    "Ocurrió un error inesperado:\n" + e.getMessage());
         }
     }
 
+    /**
+     * Valida que la entrada del usuario sea correcta.
+     */
+    private boolean validarEntrada(String expresion) {
+        // Validar que la expresión no esté vacía
+        if (expresion == null || expresion.trim().isEmpty()) {
+            mostrarAlerta("Campo Vacío", "Debe ingresar una función.");
+            return false;
+        }
+
+        // Validar que al menos una opción esté seleccionada
+        if (!chkPuntosCriticos.isSelected() &&
+                !chkIntervalos.isSelected() &&
+                !chkMaxMin.isSelected() &&
+                !chkPuntoInflexion.isSelected() &&
+                !chkConcavidad.isSelected()) {
+
+            mostrarAlerta("Sin Opciones",
+                    "Debe seleccionar al menos una opción de cálculo.");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Muestra los resultados textuales en el área correspondiente.
+     */
+    private void mostrarResultadosTextuales(ResultadoAnalisis resultado) {
+        // Generar resumen usando el método de ResultadoAnalisis
+        String resumen = resultado.generarResumen();
+
+        // Crear label con el resumen
+        Label lblResumen = new Label(resumen);
+        lblResumen.setWrapText(true);
+        lblResumen.setStyle("-fx-font-family: 'Consolas'; -fx-font-size: 13px;");
+
+        // Añadir al contenedor
+        vboxResultadosTexto.getChildren().add(lblResumen);
+    }
+
+    /**
+     * Limpia los resultados anteriores.
+     */
+    private void limpiarResultados() {
+        vboxResultadosTexto.getChildren().clear();
+        // El canvas ya está en el contenedor, solo se redibuja
+    }
+
+    /**
+     * Maneja el evento de borrar.
+     * Limpia todos los campos y resultados.
+     */
     @FXML
     private void borrar(ActionEvent event) {
         txtFuncion.clear();
@@ -151,10 +211,12 @@ public class CalcularControlador implements Initializable {
         chkMaxMin.setSelected(false);
         chkPuntoInflexion.setSelected(false);
         chkConcavidad.setSelected(false);
-        vboxResultadosTexto.getChildren().clear();
-        lineChart.getData().clear();
+        limpiarResultados();
     }
 
+    /**
+     * Muestra el teclado virtual.
+     */
     @FXML
     private void mostrarTeclado(ActionEvent event) {
         if (tecladoVirtual == null) {
@@ -163,8 +225,11 @@ public class CalcularControlador implements Initializable {
         tecladoVirtual.mostrar(txtFuncion, btnTeclado);
     }
 
+    /**
+     * Muestra un cuadro de diálogo de alerta al usuario.
+     */
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(titulo);
         alert.setHeaderText(null);
         alert.setContentText(mensaje);

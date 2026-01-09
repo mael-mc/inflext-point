@@ -1,176 +1,406 @@
 package com.espoch.inflexpoint.modelos.calculos;
 
+import com.espoch.inflexpoint.modelos.entidades.Intervalo;
+import com.espoch.inflexpoint.modelos.entidades.PuntoCritico;
+import com.espoch.inflexpoint.modelos.enumeraciones.TipoIntervalo;
+import com.espoch.inflexpoint.modelos.enumeraciones.TipoPuntoCritico;
+import com.espoch.inflexpoint.modelos.excepciones.CalculoNumericoException;
+import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
+import com.espoch.inflexpoint.util.ValidadorExpresion;
+
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Servicio de análisis matemático de funciones.
+ * 
+ * Responsabilidades:
+ * - Analizar funciones para encontrar puntos críticos
+ * - Calcular puntos de inflexión
+ * - Determinar intervalos de monotonía y concavidad
+ * - Retornar resultados usando entidades del dominio
+ * 
+ * Este servicio NO maneja UI ni presentación, solo lógica de negocio.
+ */
 public class AnalizadorFuncion {
 
-    private static final double H = 0.0001; // Paso para derivadas
-    private static final double MIN_X = -10.0;
-    private static final double MAX_X = 10.0;
-    private static final double STEP = 0.1;
+    // Constantes para métodos numéricos
+    private static final double H = 0.0001; // Paso para derivadas numéricas
+    private static final double TOLERANCIA_BISECCION = 1e-6;
+    private static final int MAX_ITERACIONES_BISECCION = 50;
 
-    public ResultadoAnalisis analizar(String expresion,
+    // Rango de análisis por defecto
+    private static final double MIN_X_DEFAULT = -10.0;
+    private static final double MAX_X_DEFAULT = 10.0;
+    private static final double STEP_DEFAULT = 0.1;
+
+    /**
+     * Interfaz funcional para derivadas genéricas.
+     */
+    @FunctionalInterface
+    private interface FuncionDerivada {
+        double calcular(double x);
+    }
+
+    /**
+     * Analiza una función matemática y calcula los elementos solicitados.
+     * 
+     * @param expresion          La expresión matemática a analizar
+     * @param calcPuntosCriticos true para calcular puntos críticos
+     * @param calcIntervalos     true para calcular intervalos de monotonía
+     * @param calcMaxMin         true para clasificar máximos y mínimos
+     * @param calcInflexion      true para calcular puntos de inflexión
+     * @param calcConcavidad     true para calcular intervalos de concavidad
+     * @return ResultadoAnalisis con las entidades calculadas
+     * @throws ExpresionInvalidaException si la expresión no puede ser parseada
+     * @throws CalculoNumericoException   si ocurre un error durante los cálculos
+     */
+    public ResultadoAnalisis analizar(
+            String expresion,
             boolean calcPuntosCriticos,
             boolean calcIntervalos,
             boolean calcMaxMin,
             boolean calcInflexion,
-            boolean calcConcavidad) {
+            boolean calcConcavidad)
+            throws ExpresionInvalidaException, CalculoNumericoException {
 
-        Evaluador evaluador = new Evaluador(expresion);
-        StringBuilder resumen = new StringBuilder();
-        resumen.append("Análisis de la función: f(x) = ").append(expresion).append("\n\n");
+        return analizarEnRango(expresion, MIN_X_DEFAULT, MAX_X_DEFAULT, STEP_DEFAULT,
+                calcPuntosCriticos, calcIntervalos, calcMaxMin, calcInflexion, calcConcavidad);
+    }
 
-        List<Double> criticalPoints = new ArrayList<>();
-        List<Double> inflectionPoints = new ArrayList<>();
+    /**
+     * Analiza una función en un rango específico.
+     * 
+     * @param expresion          La expresión a analizar
+     * @param minX               Límite inferior del dominio
+     * @param maxX               Límite superior del dominio
+     * @param step               Paso de escaneo
+     * @param calcPuntosCriticos true para calcular puntos críticos
+     * @param calcIntervalos     true para calcular intervalos
+     * @param calcMaxMin         true para clasificar máx/mín
+     * @param calcInflexion      true para puntos de inflexión
+     * @param calcConcavidad     true para intervalos de concavidad
+     * @return ResultadoAnalisis con los resultados
+     * @throws ExpresionInvalidaException si la expresión es inválida
+     * @throws CalculoNumericoException   si hay errores numéricos
+     */
+    public ResultadoAnalisis analizarEnRango(
+            String expresion,
+            double minX,
+            double maxX,
+            double step,
+            boolean calcPuntosCriticos,
+            boolean calcIntervalos,
+            boolean calcMaxMin,
+            boolean calcInflexion,
+            boolean calcConcavidad)
+            throws ExpresionInvalidaException, CalculoNumericoException {
 
-        // Escaneo para encontrar puntos
-        double prevDeriv = derivada(evaluador, MIN_X);
-        double prevSecondDeriv = segundaDerivada(evaluador, MIN_X);
+        // Validar expresión
+        ValidadorExpresion.validar(expresion);
 
-        for (double x = MIN_X + STEP; x <= MAX_X; x += STEP) {
-            double currentDeriv = derivada(evaluador, x);
-            double currentSecondDeriv = segundaDerivada(evaluador, x);
-
-            // Detectar cambio de signo en primera derivada (Puntos Críticos / Max / Min)
-            if (Math.signum(currentDeriv) != Math.signum(prevDeriv)) {
-                // Refinar búsqueda (bisección simple)
-                double root = biseccionDerivada(evaluador, x - STEP, x);
-                if (!Double.isNaN(root)) {
-                    criticalPoints.add(root);
-                }
-            }
-
-            // Detectar cambio de signo en segunda derivada (Puntos Inflexión)
-            if (Math.signum(currentSecondDeriv) != Math.signum(prevSecondDeriv)) {
-                double root = biseccionSegundaDerivada(evaluador, x - STEP, x);
-                if (!Double.isNaN(root)) {
-                    inflectionPoints.add(root);
-                }
-            }
-
-            prevDeriv = currentDeriv;
-            prevSecondDeriv = currentSecondDeriv;
+        // Crear evaluador
+        Evaluador evaluador;
+        try {
+            evaluador = new Evaluador(expresion);
+        } catch (Exception e) {
+            throw new ExpresionInvalidaException("Error al parsear la expresión", e);
         }
 
-        // Generar Reporte
+        // Colecciones para resultados
+        PuntoCritico[] puntosCriticos = new PuntoCritico[0];
+        PuntoCritico[] puntosInflexion = new PuntoCritico[0];
+        Intervalo[] intervalosCrecimiento = new Intervalo[0];
+        Intervalo[] intervalosDecrecimiento = new Intervalo[0];
+        Intervalo[] intervalosConcavidad = new Intervalo[0];
+
         try {
-            if (calcPuntosCriticos) {
-                resumen.append("--- Puntos Críticos (f'(x)=0) ---\n");
-                if (criticalPoints.isEmpty())
-                    resumen.append("No se encontraron en el rango [-10, 10].\n");
-                for (Double p : criticalPoints) {
-                    resumen.append(String.format("x ≈ %.4f, y ≈ %.4f\n", p, evaluador.evaluar(p)));
+            // Encontrar puntos críticos si se solicita
+            if (calcPuntosCriticos || calcMaxMin) {
+                List<Double> raicesPrimeraDerivada = encontrarRaices(
+                        x -> derivada(evaluador, x), minX, maxX, step);
+
+                if (calcMaxMin) {
+                    // Clasificar como máximos o mínimos
+                    puntosCriticos = clasificarPuntosCriticos(evaluador, raicesPrimeraDerivada);
+                } else {
+                    // Solo puntos críticos sin clasificar
+                    puntosCriticos = crearPuntosCriticos(evaluador, raicesPrimeraDerivada, null);
                 }
-                resumen.append("\n");
             }
 
-            if (calcMaxMin) {
-                resumen.append("--- Máximos y Mínimos ---\n");
-                if (criticalPoints.isEmpty())
-                    resumen.append("No se encontraron en el rango [-10, 10].\n");
-                for (Double p : criticalPoints) {
-                    double second = segundaDerivada(evaluador, p);
-                    String tipo = (second > 0) ? "Mínimo" : (second < 0) ? "Máximo" : "Punto silla/Indeterminado";
-                    resumen.append(String.format("x ≈ %.4f -> %s\n", p, tipo));
-                }
-                resumen.append("\n");
-            }
-
-            if (calcIntervalos) {
-                resumen.append("--- Intervalos de Monotonía ---\n");
-                // Simplificado: Evaluar en puntos medios entre críticos
-                List<Double> points = new ArrayList<>();
-                points.add(MIN_X);
-                points.addAll(criticalPoints);
-                points.add(MAX_X);
-                for (int i = 0; i < points.size() - 1; i++) {
-                    double mid = (points.get(i) + points.get(i + 1)) / 2;
-                    double d = derivada(evaluador, mid);
-                    String estado = (d > 0) ? "Creciente" : "Decreciente";
-                    resumen.append(String.format("(%.2f, %.2f) -> %s\n", points.get(i), points.get(i + 1), estado));
-                }
-                resumen.append("\n");
-            }
-
+            // Encontrar puntos de inflexión si se solicita
             if (calcInflexion) {
-                resumen.append("--- Puntos de Inflexión (f''(x)=0) ---\n");
-                if (inflectionPoints.isEmpty())
-                    resumen.append("No se encontraron en el rango [-10, 10].\n");
-                for (Double p : inflectionPoints) {
-                    resumen.append(String.format("x ≈ %.4f, y ≈ %.4f\n", p, evaluador.evaluar(p)));
-                }
-                resumen.append("\n");
+                List<Double> raicesSegundaDerivada = encontrarRaices(
+                        x -> segundaDerivada(evaluador, x), minX, maxX, step);
+                puntosInflexion = crearPuntosCriticos(
+                        evaluador, raicesSegundaDerivada, TipoPuntoCritico.INFLEXION);
             }
 
-            if (calcConcavidad) {
-                resumen.append("--- Concavidad ---\n");
-                List<Double> points = new ArrayList<>();
-                points.add(MIN_X);
-                points.addAll(inflectionPoints);
-                points.add(MAX_X);
-                for (int i = 0; i < points.size() - 1; i++) {
-                    double mid = (points.get(i) + points.get(i + 1)) / 2;
-                    double sd = segundaDerivada(evaluador, mid);
-                    String concavidad = (sd > 0) ? "Cóncava Hacia Arriba (Convexa)" : "Cóncava Hacia Abajo";
-                    resumen.append(String.format("(%.2f, %.2f) -> %s\n", points.get(i), points.get(i + 1), concavidad));
+            // Calcular intervalos de monotonía si se solicita
+            if (calcIntervalos) {
+                Intervalo[] intervalosMonotonia = calcularIntervalosMonotonia(
+                        evaluador, puntosCriticos, minX, maxX);
+
+                // Separar en crecientes y decrecientes
+                List<Intervalo> crecientes = new ArrayList<>();
+                List<Intervalo> decrecientes = new ArrayList<>();
+
+                for (Intervalo intervalo : intervalosMonotonia) {
+                    if (intervalo.getTipoIntervalo() == TipoIntervalo.CRECIENTE) {
+                        crecientes.add(intervalo);
+                    } else {
+                        decrecientes.add(intervalo);
+                    }
                 }
-                resumen.append("\n");
+
+                intervalosCrecimiento = crecientes.toArray(new Intervalo[0]);
+                intervalosDecrecimiento = decrecientes.toArray(new Intervalo[0]);
+            }
+
+            // Calcular intervalos de concavidad si se solicita
+            if (calcConcavidad) {
+                intervalosConcavidad = calcularIntervalosConcavidad(
+                        evaluador, puntosInflexion, minX, maxX);
             }
 
         } catch (Exception e) {
-            resumen.append("\nError durante el análisis numérico: ").append(e.getMessage());
+            throw new CalculoNumericoException(
+                    "Error durante el análisis numérico: " + e.getMessage(), e);
         }
 
-        return new ResultadoAnalisis(resumen.toString());
+        // Crear y retornar resultado
+        return new ResultadoAnalisis(
+                puntosCriticos,
+                puntosInflexion,
+                intervalosCrecimiento,
+                intervalosDecrecimiento,
+                intervalosConcavidad,
+                "Derivada numérica", // TODO: Calcular derivada simbólica
+                "Segunda derivada numérica" // TODO: Calcular segunda derivada simbólica
+        );
     }
 
-    // Métodos Auxiliares Numéricos
+    /**
+     * Encuentra raíces de una función derivada en un rango.
+     * Método genérico que elimina duplicación de código.
+     */
+    private List<Double> encontrarRaices(
+            FuncionDerivada funcion, double minX, double maxX, double step) {
+
+        List<Double> raices = new ArrayList<>();
+        double prevValor = funcion.calcular(minX);
+
+        for (double x = minX + step; x <= maxX; x += step) {
+            double valorActual = funcion.calcular(x);
+
+            // Detectar cambio de signo
+            if (Math.signum(valorActual) != Math.signum(prevValor)) {
+                double raiz = biseccion(funcion, x - step, x);
+                if (!Double.isNaN(raiz)) {
+                    raices.add(raiz);
+                }
+            }
+
+            prevValor = valorActual;
+        }
+
+        return raices;
+    }
+
+    /**
+     * Método de bisección genérico para encontrar raíces.
+     * Elimina duplicación de biseccionDerivada y biseccionSegundaDerivada.
+     */
+    private double biseccion(FuncionDerivada funcion, double a, double b) {
+        double fa = funcion.calcular(a);
+        double fb = funcion.calcular(b);
+
+        // Verificar que hay cambio de signo
+        if (fa * fb >= 0) {
+            return Double.NaN;
+        }
+
+        double c = a;
+        for (int i = 0; i < MAX_ITERACIONES_BISECCION; i++) {
+            c = (a + b) / 2;
+            double fc = funcion.calcular(c);
+
+            // Converged
+            if (Math.abs(fc) < TOLERANCIA_BISECCION) {
+                return c;
+            }
+
+            // Actualizar intervalo
+            if (fa * fc < 0) {
+                b = c;
+                fb = fc;
+            } else {
+                a = c;
+                fa = fc;
+            }
+        }
+
+        return c;
+    }
+
+    /**
+     * Clasifica puntos críticos como máximos o mínimos usando la segunda derivada.
+     */
+    private PuntoCritico[] clasificarPuntosCriticos(Evaluador evaluador, List<Double> raices) {
+        if (raices.isEmpty()) {
+            return new PuntoCritico[0];
+        }
+
+        PuntoCritico[] puntos = new PuntoCritico[raices.size()];
+
+        for (int i = 0; i < raices.size(); i++) {
+            double x = raices.get(i);
+            double y;
+            try {
+                y = evaluador.evaluar(x);
+            } catch (ExpresionInvalidaException e) {
+                y = Double.NaN;
+            }
+            double segundaDeriv = segundaDerivada(evaluador, x);
+
+            TipoPuntoCritico tipo;
+            if (segundaDeriv > 0) {
+                tipo = TipoPuntoCritico.MINIMO;
+            } else if (segundaDeriv < 0) {
+                tipo = TipoPuntoCritico.MAXIMO;
+            } else {
+                // Indeterminado, marcar como punto crítico genérico
+                tipo = null; // Se podría tener un tipo INDETERMINADO
+            }
+
+            puntos[i] = new PuntoCritico(x, y, tipo);
+        }
+
+        return puntos;
+    }
+
+    /**
+     * Crea puntos críticos con un tipo específico (o null).
+     */
+    private PuntoCritico[] crearPuntosCriticos(
+            Evaluador evaluador, List<Double> raices, TipoPuntoCritico tipo) {
+
+        if (raices.isEmpty()) {
+            return new PuntoCritico[0];
+        }
+
+        PuntoCritico[] puntos = new PuntoCritico[raices.size()];
+
+        for (int i = 0; i < raices.size(); i++) {
+            double x = raices.get(i);
+            double y;
+            try {
+                y = evaluador.evaluar(x);
+            } catch (ExpresionInvalidaException e) {
+                y = Double.NaN;
+            }
+            puntos[i] = new PuntoCritico(x, y, tipo);
+        }
+
+        return puntos;
+    }
+
+    /**
+     * Calcula intervalos de monotonía (crecimiento/decrecimiento).
+     */
+    private Intervalo[] calcularIntervalosMonotonia(
+            Evaluador evaluador, PuntoCritico[] puntosCriticos, double minX, double maxX) {
+
+        // Crear puntos de división (límites + puntos críticos)
+        List<Double> divisiones = new ArrayList<>();
+        divisiones.add(minX);
+
+        for (PuntoCritico pc : puntosCriticos) {
+            divisiones.add(pc.getX());
+        }
+
+        divisiones.add(maxX);
+
+        // Calcular intervalos
+        List<Intervalo> intervalos = new ArrayList<>();
+
+        for (int i = 0; i < divisiones.size() - 1; i++) {
+            double inicio = divisiones.get(i);
+            double fin = divisiones.get(i + 1);
+            double puntoMedio = (inicio + fin) / 2;
+
+            double derivadaEnMedio = derivada(evaluador, puntoMedio);
+
+            TipoIntervalo tipo = (derivadaEnMedio > 0) ? TipoIntervalo.CRECIENTE : TipoIntervalo.DECRECIENTE;
+
+            intervalos.add(new Intervalo(
+                    i == 0 ? null : inicio, // null para -∞
+                    i == divisiones.size() - 2 ? null : fin, // null para +∞
+                    tipo));
+        }
+
+        return intervalos.toArray(new Intervalo[0]);
+    }
+
+    /**
+     * Calcula intervalos de concavidad.
+     */
+    private Intervalo[] calcularIntervalosConcavidad(
+            Evaluador evaluador, PuntoCritico[] puntosInflexion, double minX, double maxX) {
+
+        List<Double> divisiones = new ArrayList<>();
+        divisiones.add(minX);
+
+        for (PuntoCritico pi : puntosInflexion) {
+            divisiones.add(pi.getX());
+        }
+
+        divisiones.add(maxX);
+
+        // Calcular intervalos
+        List<Intervalo> intervalos = new ArrayList<>();
+
+        for (int i = 0; i < divisiones.size() - 1; i++) {
+            double inicio = divisiones.get(i);
+            double fin = divisiones.get(i + 1);
+            double puntoMedio = (inicio + fin) / 2;
+
+            double segundaDerivadaEnMedio = segundaDerivada(evaluador, puntoMedio);
+
+            TipoIntervalo tipo = (segundaDerivadaEnMedio > 0) ? TipoIntervalo.CONCAVIDAD_POSITIVA
+                    : TipoIntervalo.CONCAVIDAD_NEGATIVA;
+
+            intervalos.add(new Intervalo(
+                    i == 0 ? null : inicio,
+                    i == divisiones.size() - 2 ? null : fin,
+                    tipo));
+        }
+
+        return intervalos.toArray(new Intervalo[0]);
+    }
+
+    // ========== Métodos Numéricos Auxiliares ==========
+
+    /**
+     * Calcula la primera derivada numérica usando diferencias centrales.
+     */
     private double derivada(Evaluador f, double x) {
-        return (f.evaluar(x + H) - f.evaluar(x - H)) / (2 * H);
+        try {
+            return (f.evaluar(x + H) - f.evaluar(x - H)) / (2 * H);
+        } catch (ExpresionInvalidaException e) {
+            return Double.NaN;
+        }
     }
 
+    /**
+     * Calcula la segunda derivada numérica.
+     */
     private double segundaDerivada(Evaluador f, double x) {
-        return (f.evaluar(x + H) - 2 * f.evaluar(x) + f.evaluar(x - H)) / (H * H);
-    }
-
-    private double biseccionDerivada(Evaluador f, double a, double b) {
-        double fa = derivada(f, a);
-        double fb = derivada(f, b);
-        if (fa * fb >= 0)
+        try {
+            return (f.evaluar(x + H) - 2 * f.evaluar(x) + f.evaluar(x - H)) / (H * H);
+        } catch (ExpresionInvalidaException e) {
             return Double.NaN;
-
-        double c = a;
-        for (int i = 0; i < 50; i++) {
-            c = (a + b) / 2;
-            double fc = derivada(f, c);
-            if (Math.abs(fc) < 1e-6)
-                return c;
-            if (fa * fc < 0)
-                b = c;
-            else
-                a = c;
         }
-        return c;
-    }
-
-    private double biseccionSegundaDerivada(Evaluador f, double a, double b) {
-        double fa = segundaDerivada(f, a);
-        double fb = segundaDerivada(f, b);
-        if (fa * fb >= 0)
-            return Double.NaN;
-
-        double c = a;
-        for (int i = 0; i < 50; i++) {
-            c = (a + b) / 2;
-            double fc = segundaDerivada(f, c);
-            if (Math.abs(fc) < 1e-6)
-                return c;
-            if (fa * fc < 0)
-                b = c;
-            else
-                a = c;
-        }
-        return c;
     }
 }
