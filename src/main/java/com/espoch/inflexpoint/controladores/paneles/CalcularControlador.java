@@ -3,6 +3,7 @@ package com.espoch.inflexpoint.controladores.paneles;
 import com.espoch.inflexpoint.modelos.calculos.AnalizadorFuncion;
 import com.espoch.inflexpoint.modelos.calculos.Evaluador;
 import com.espoch.inflexpoint.modelos.calculos.ResultadoAnalisis;
+import com.espoch.inflexpoint.util.TecladoVirtual;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -54,6 +55,8 @@ public class CalcularControlador implements Initializable {
     private LineChart<Number, Number> lineChart;
     private NumberAxis xAxis;
     private NumberAxis yAxis;
+
+    private TecladoVirtual tecladoVirtual;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -154,7 +157,10 @@ public class CalcularControlador implements Initializable {
 
     @FXML
     private void mostrarTeclado(ActionEvent event) {
-        mostrarAlerta("Información", "Teclado virtual en desarrollo.");
+        if (tecladoVirtual == null) {
+            tecladoVirtual = new TecladoVirtual();
+        }
+        tecladoVirtual.mostrar(txtFuncion, btnTeclado);
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
