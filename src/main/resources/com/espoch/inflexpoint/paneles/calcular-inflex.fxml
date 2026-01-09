@@ -38,7 +38,7 @@
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <ComboBox prefWidth="150.0" />
+                              <ComboBox fx:id="cbTipoFuncion" prefWidth="150.0" promptText="Seleccionar..." />
                            </children>
                         </HBox>
                         <HBox prefWidth="200.0">
@@ -54,15 +54,15 @@
                            <children>
                               <VBox spacing="10.0">
                                  <children>
-                                    <RadioButton mnemonicParsing="false" text="Puntos críticos" />
-                                    <RadioButton mnemonicParsing="false" text="Intervalo en donde crece/decrece" />
-                                    <RadioButton mnemonicParsing="false" text="Máximos/Mínimos" />
+                                    <RadioButton fx:id="chkPuntosCriticos" mnemonicParsing="false" text="Puntos críticos" />
+                                    <RadioButton fx:id="chkIntervalos" mnemonicParsing="false" text="Intervalo en donde crece/decrece" />
+                                    <RadioButton fx:id="chkMaxMin" mnemonicParsing="false" text="Máximos/Mínimos" />
                                  </children>
                               </VBox>
                               <VBox spacing="10.0">
                                  <children>
-                                    <RadioButton mnemonicParsing="false" text="Punto de inflexión" />
-                                    <RadioButton layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Concavidad" />
+                                    <RadioButton fx:id="chkPuntoInflexion" mnemonicParsing="false" text="Punto de inflexión" />
+                                    <RadioButton fx:id="chkConcavidad" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Concavidad" />
                                  </children>
                               </VBox>
                            </children>
@@ -76,8 +76,8 @@
                               </Label>
                               <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                  <children>
-                                    <TextField minHeight="32.0" prefWidth="250.0" />
-                                    <Button mnemonicParsing="false">
+                                    <TextField fx:id="txtFuncion" minHeight="32.0" prefWidth="250.0" promptText="Ej: x^2 - 4x + 1" />
+                                    <Button fx:id="btnTeclado" mnemonicParsing="false" onAction="#mostrarTeclado">
                                        <graphic>
                                           <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                              <image>
@@ -95,15 +95,28 @@
                         </VBox>
                         <HBox spacing="20.0">
                            <children>
-                              <Button mnemonicParsing="false" style="-fx-background-color: #44bdac;" text="CALCULAR" textFill="WHITE" />
-                              <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" style="-fx-background-color: #E74C3C;" text="BORRAR" textFill="WHITE" />
+                              <Button fx:id="btnCalcular" mnemonicParsing="false" onAction="#calcular" style="-fx-background-color: #44bdac;" text="CALCULAR" textFill="WHITE">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="btnBorrar" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#borrar" style="-fx-background-color: #E74C3C;" text="BORRAR" textFill="WHITE">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Button>
                            </children>
                         </HBox>
+                        <VBox fx:id="vboxResultadosTexto" prefHeight="200.0" prefWidth="100.0" spacing="5.0">
+                            <!-- Aquí se mostrarán los resultados analíticos -->
+                        </VBox>
                      </children>
                   </VBox>
                   <VBox prefHeight="300.0" prefWidth="659.0" spacing="10.0">
                      <children>
-                        <HBox prefHeight="289.0" prefWidth="578.0" style="-fx-background-color: #F7F7F7;" />
+                        <HBox fx:id="contenedorGrafica" prefHeight="350.0" prefWidth="578.0" style="-fx-background-color: #F7F7F7; -fx-border-color: #CCCCCC;">
+                           <!-- Aquí irá el LineChart -->
+                        </HBox>
                         <HBox prefHeight="83.0" prefWidth="568.0">
                            <children>
                               <Label text="Resultado del cálculo">
