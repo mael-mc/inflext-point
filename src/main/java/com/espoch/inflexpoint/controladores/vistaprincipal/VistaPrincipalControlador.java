@@ -27,12 +27,15 @@ public class VistaPrincipalControlador {
     private String ayuda = "/com/espoch/inflexpoint/paneles/ayuda-inflex.fxml";
     // private String configuracion = "/com/espoch/inflexpoint/paneles/calcular-inflex.fxml";
 
+
+    // Inicializa los recursos de la vista principal
     @FXML
     public void initialize() {
         cargarVista(inicio);
         iniciarBotonesToggle();
     }
 
+    // Iniciar botones del menú en un toggleGroup
     private void iniciarBotonesToggle() {
         ToggleGroup menuToggleGroup = new ToggleGroup();
         btnInicio.setToggleGroup(menuToggleGroup);
@@ -55,6 +58,7 @@ public class VistaPrincipalControlador {
         });
     }
 
+    // Cargador de vistas
     private void cargarVista(String rutaVista) {
         // Lógica para cargar la vista desde la ruta proporcionada
         try {
@@ -70,14 +74,18 @@ public class VistaPrincipalControlador {
         }
     }
 
+    // Métodos de botones de acción
+    // Inicio
     public void onBtnInicio(ActionEvent actionEvent) {
         cargarVista(inicio);
     }
 
+    // Calcular
     public void onBtnCalcular(ActionEvent actionEvent) {
         cargarVista(calcular);
     }
 
+    // Ayuda
     public void onBtnAyuda(ActionEvent actionEvent) {
         cargarVista(ayuda);
     }
