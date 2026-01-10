@@ -55,8 +55,7 @@
                 </VBox>
             </HBox>
             
-            <Button mnemonicParsing="false" styleClass="button-primary"
-                    text="COMENZAR ANÁLISIS" prefHeight="50.0" prefWidth="250.0" />
+            <Button mnemonicParsing="false" onAction="#onComenzarAnalisis" prefHeight="50.0" prefWidth="250.0" styleClass="button-primary" text="COMENZAR ANÁLISIS" />
         </VBox>
     </VBox>
 </AnchorPane>

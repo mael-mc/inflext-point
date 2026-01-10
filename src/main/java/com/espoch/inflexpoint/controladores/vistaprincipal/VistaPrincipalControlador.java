@@ -15,6 +15,11 @@ import javafx.scene.shape.Circle;
 import java.util.Objects;
 
 public class VistaPrincipalControlador {
+    private static VistaPrincipalControlador instancia;
+
+    public static VistaPrincipalControlador getInstancia() {
+        return instancia;
+    }
 
     @FXML
     private HBox hBoxLogo;
@@ -46,6 +51,7 @@ public class VistaPrincipalControlador {
     // Inicializa los recursos de la vista principal
     @FXML
     public void initialize() {
+        instancia = this;
         cargarVista(RUTA_INICIO);
         iniciarBotonesToggle();
         aplicarMascaraCircular();
@@ -142,5 +148,10 @@ public class VistaPrincipalControlador {
                 btnCalcular.setSelected(true);
             }
         }
+    }
+
+    // Método público para navegar al panel de cálculo desde otros controladores
+    public void navegarACalcular() {
+        btnCalcular.setSelected(true);
     }
 }
