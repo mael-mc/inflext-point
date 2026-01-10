@@ -23,7 +23,7 @@ public class TecladoVirtual {
 
     private void inicializarUI() {
         VBox root = new VBox();
-        root.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #cccccc; -fx-border-width: 1px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0); -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5;");
+        root.getStyleClass().add("keyboard-card");
         root.setSpacing(10);
 
         GridPane grid = new GridPane();
@@ -65,21 +65,21 @@ public class TecladoVirtual {
         agregarBoton(grid, "-", "-", 5, 3);
 
         // Fila 4: 0, punto, borrar
-        Button btnAC = crearStyledButton("AC", "#e74c3c");
+        Button btnAC = crearStyledButton("AC", "key-button-danger");
         btnAC.setOnAction(e -> {
             if (inputField != null)
                 inputField.clear();
         });
         grid.add(btnAC, 0, 4);
 
-        Button btnDel = crearStyledButton("DEL", "#e74c3c");
+        Button btnDel = crearStyledButton("DEL", "key-button-danger");
         btnDel.setOnAction(e -> borrarCaracter());
         grid.add(btnDel, 1, 4);
 
         agregarBoton(grid, "0", "0", 2, 4);
         agregarBoton(grid, ".", ".", 3, 4);
 
-        Button btnOk = crearStyledButton("OK", "#2ecc71");
+        Button btnOk = crearStyledButton("OK", "key-button-success");
         btnOk.setOnAction(e -> popup.hide());
         grid.add(btnOk, 4, 4, 2, 1);
         btnOk.setMaxWidth(Double.MAX_VALUE);
@@ -91,32 +91,14 @@ public class TecladoVirtual {
     }
 
     private void agregarBoton(GridPane grid, String label, String value, int col, int row) {
-        Button btn = crearStyledButton(label, "#FFFFFF");
+        Button btn = crearStyledButton(label, "key-button");
         btn.setOnAction(e -> insertarTexto(value));
         grid.add(btn, col, row);
     }
 
-    private Button crearStyledButton(String text, String colorHex) {
+    private Button crearStyledButton(String text, String styleClass) {
         Button btn = new Button(text);
-        btn.setPrefWidth(45);
-        btn.setPrefHeight(40);
-
-        String textColor = (colorHex.equalsIgnoreCase("#e74c3c") || colorHex.equalsIgnoreCase("#2ecc71"))
-                ? "white"
-                : "#333333";
-
-        btn.setStyle(String.format(
-                "-fx-background-color: %s; -fx-text-fill: %s; -fx-font-weight: bold; -fx-font-size: 14px; -fx-border-color: #bdc3c7; -fx-border-radius: 3; -fx-background-radius: 3;",
-                colorHex, textColor));
-
-        // Efecto hover
-        btn.setOnMouseEntered(e -> btn.setStyle(String.format(
-                "-fx-background-color: derive(%s, -10%%); -fx-text-fill: %s; -fx-font-weight: bold; -fx-font-size: 14px; -fx-border-color: #bdc3c7; -fx-border-radius: 3; -fx-background-radius: 3;",
-                colorHex, textColor)));
-        btn.setOnMouseExited(e -> btn.setStyle(String.format(
-                "-fx-background-color: %s; -fx-text-fill: %s; -fx-font-weight: bold; -fx-font-size: 14px; -fx-border-color: #bdc3c7; -fx-border-radius: 3; -fx-background-radius: 3;",
-                colorHex, textColor)));
-
+        btn.getStyleClass().add(styleClass);
         return btn;
     }
 

@@ -8,37 +8,55 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 
-
 <AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.espoch.inflexpoint.controladores.paneles.InicioControlador">
-    <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-          AnchorPane.topAnchor="0.0">
+            fx:controller="com.espoch.inflexpoint.controladores.paneles.InicioControlador"
+            styleClass="main-container">
+    <VBox spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0" alignment="CENTER">
         <padding>
-            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/>
+            <Insets bottom="50.0" left="50.0" right="50.0" top="50.0"/>
         </padding>
-        <Label text="BIENVENIDO A INFLEXPOINT">
-            <font>
-                <Font name="System Bold" size="36.0"/>
-            </font>
-        </Label>
-        <HBox spacing="130.0" VBox.vgrow="ALWAYS">
-            <TextFlow lineSpacing="10.0" textAlignment="JUSTIFY" HBox.hgrow="ALWAYS">
-                <Text strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Es una aplicación de escritorio diseñada para calcular de forma rápida y automática los puntos de inflexión de una función ingresada por el usuario. La herramienta obtiene la primera y segunda derivada, analiza dónde la concavidad cambia y muestra los resultados de manera clara y ordenada.">
+        
+        <VBox spacing="40.0" styleClass="card" maxWidth="900.0" alignment="CENTER">
+            <padding>
+                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/>
+            </padding>
+            
+            <VBox spacing="10.0" alignment="CENTER">
+                <Label text="Bienvenido a InflexPoint" styleClass="card-title">
                     <font>
-                        <Font size="24.0"/>
+                        <Font name="System Bold" size="36.0"/>
                     </font>
-                </Text>
-            </TextFlow>
-            <ImageView pickOnBounds="true" preserveRatio="true">
-                <Image url="@../imagenes/grafica.png"/>
-            </ImageView>
-        </HBox>
-        <Button mnemonicParsing="false" prefHeight="46.0" prefWidth="293.0" style="-fx-background-color: #44bdac;"
-                text="EXPLORA EL MENÚ SUPERIOR PARA COMENZAR" textFill="WHITE"/>
+                </Label>
+                <Label text="Tu asistente académico para el análisis de funciones" styleClass="card-subtitle" />
+            </VBox>
+
+            <HBox spacing="40.0" alignment="CENTER">
+                <TextFlow lineSpacing="8.0" textAlignment="JUSTIFY" maxWidth="450.0">
+                    <Text strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-fill: -color-800;"
+                          text="Potente herramienta diseñada para calcular de forma rápida y automática los puntos de inflexión, máximos, mínimos y la concavidad de funciones matemáticas. Obtén derivadas simbólicas y visualizaciones gráficas precisas con solo unos clics.">
+                        <font>
+                            <Font size="18.0"/>
+                        </font>
+                    </Text>
+                </TextFlow>
+                <VBox styleClass="chart-container">
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </padding>
+                    <ImageView fitHeight="200.0" preserveRatio="true">
+                        <Image url="@../imagenes/grafica.png"/>
+                    </ImageView>
+                </VBox>
+            </HBox>
+            
+            <Button mnemonicParsing="false" styleClass="button-primary"
+                    text="COMENZAR ANÁLISIS" prefHeight="50.0" prefWidth="250.0" />
+        </VBox>
     </VBox>
 </AnchorPane>

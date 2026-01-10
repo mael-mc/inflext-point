@@ -1,148 +1,362 @@
-/* Estilos para los botones del menú de navegación */
+/* 
+ * MODERNO SISTEMA DE DISEÑO - INFLEXPOINT
+ * Aplicando paleta Persian Green y lineamientos de diseño educativo/profesional.
+ */
+
+.root {
+    /* Paleta Persian Green */
+    -color-50: #f2fbf9;
+    -color-100: #d3f4ed;
+    -color-200: #a6e9db;
+    -color-300: #72d6c6;
+    -color-400: #44bdac;
+    -color-500: #2a9d8f;
+    /* Color Principal */
+    -color-600: #208177;
+    -color-700: #1d6861;
+    -color-800: #1c534f;
+    -color-900: #1b4642;
+    -color-950: #0a2928;
+
+    /* Propiedades de JavaFX sobreescritas */
+    -fx-accent: -color-500;
+    -fx-focus-color: -color-300;
+    -fx-faint-focus-color: transparent;
+
+    /* Tipografía */
+    -fx-font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-900;
+}
+
+/* Background Principal */
+.main-container {
+    -fx-background-color: -color-50;
+}
+
+/* CABECERA Y NAVEGACIÓN */
+
+.header-bar {
+    -fx-background-color: -color-500;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);
+    -fx-padding: 0 20;
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.nav-bar {
+    -fx-background-color: -color-950;
+    -fx-padding: 0 20;
+}
+
 .menu-button {
     -fx-background-color: transparent;
-    -fx-text-fill: white;
+    -fx-text-fill: -color-200;
     -fx-font-weight: bold;
-    -fx-font-size: 13px;
     -fx-cursor: hand;
-    -fx-padding: 0 15 0 15;
+    -fx-alignment: CENTER;
+    -fx-padding: 0 20;
     -fx-border-color: transparent;
-    -fx-border-width: 0 0 3 0;
+    -fx-border-width: 0 0 4 0;
 }
 
 .menu-button:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-text-fill: white;
 }
 
 .menu-button:selected {
-    -fx-background-color: rgba(255, 255, 255, 0.15);
-    -fx-border-color: #2A9D8F;
-    -fx-text-fill: #44bdac;
+    -fx-background-color: rgba(42, 157, 143, 0.15);
+    -fx-text-fill: -color-300;
+    -fx-border-color: -color-500;
 }
 
-/* Barra de navegación secundaria */
-.nav-bar {
-    -fx-background-color: #264653;
+/* TARJETAS (CARDS) */
+
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 24;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.08), 15, 0, 0, 5);
 }
 
-/* Barra de cabecera principal */
-.header-bar {
-    -fx-background-color: #2A9D8F;
+.card-title {
+    -fx-text-fill: -color-900;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
 }
 
-/* Efecto para el botón de salir */
-.btn-salir {
+.card-subtitle {
+    -fx-text-fill: -color-700;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* BOTONES */
+
+.button {
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-transition: all 0.2s;
+}
+
+.button-primary {
+    -fx-background-color: -color-500;
+    -fx-text-fill: white;
+}
+
+.button-primary:hover {
+    -fx-background-color: -color-600;
+    -fx-effect: dropshadow(three-pass-box, rgba(42, 157, 143, 0.3), 10, 0, 0, 4);
+}
+
+.button-primary:pressed {
+    -fx-background-color: -color-700;
+}
+
+.button-secondary {
+    -fx-background-color: -color-50;
+    -fx-text-fill: -color-500;
+    -fx-border-color: -color-500;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+}
+
+.button-secondary:hover {
+    -fx-background-color: -color-100;
+}
+
+.button-danger {
     -fx-background-color: #E74C3C;
     -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
-    -fx-background-radius: 5;
 }
 
-.btn-salir:hover {
+.button-danger:hover {
     -fx-background-color: #C0392B;
 }
 
-/* Estilos para el panel de Ayuda */
-.help-container {
-    -fx-background-color: #F8F9FA;
+.button-icon {
+    -fx-background-color: -color-50;
+    -fx-background-radius: 8;
+    -fx-padding: 8;
 }
 
-.help-header-title {
-    -fx-text-fill: #264653;
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 0 10 0;
+.button-icon:hover {
+    -fx-background-color: -color-100;
 }
 
-.help-card {
-    -fx-background-color: white;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-border-color: #E0E0E0;
-    -fx-border-width: 1;
-    -fx-padding: 15;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 5, 0, 0, 2);
-}
+/* INPUTS */
 
-.help-card-title {
-    -fx-text-fill: #2A9D8F;
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 0 8 0;
-}
-
-.help-card-text {
-    -fx-text-fill: #555555;
-    -fx-font-size: 14px;
-    -fx-line-spacing: 5;
-}
-
-.modern-scroll-pane {
-    -fx-background-color: transparent;
-    -fx-background: transparent;
-    -fx-border-color: transparent;
-}
-
-.modern-scroll-pane .viewport {
-    -fx-background-color: transparent;
-}
-
-/* Estilos para los resultados de cálculo */
-.results-card {
+.text-field {
     -fx-background-color: white;
     -fx-background-radius: 8;
-    -fx-border-color: #E0E0E0;
+    -fx-border-color: -color-200;
+    -fx-border-radius: 8;
     -fx-border-width: 1;
-    -fx-padding: 12;
+    -fx-padding: 8 12;
+    -fx-text-fill: -color-900;
+}
+
+.text-field:focused {
+    -fx-border-color: -color-500;
+    -fx-effect: dropshadow(three-pass-box, rgba(42, 157, 143, 0.2), 8, 0, 0, 0);
+}
+
+.radio-button {
+    -fx-text-fill: -color-800;
+}
+
+.radio-button .radio {
+    -fx-background-color: white;
+    -fx-border-color: -color-300;
+    -fx-border-radius: 50%;
+}
+
+.radio-button:selected .radio .dot {
+    -fx-background-color: -color-500;
+}
+
+/* RESULTADOS */
+
+.results-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 15;
     -fx-spacing: 8;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 5, 0, 0, 2);
+    -fx-border-color: -color-100;
+    -fx-border-width: 1;
 }
 
 .results-section-title {
-    -fx-text-fill: #2A9D8F;
+    -fx-text-fill: -color-500;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-padding: 0 0 5 0;
-    -fx-border-color: #f0f0f0;
+    -fx-padding: 0 0 8 0;
+    -fx-border-color: -color-50;
     -fx-border-width: 0 0 1 0;
 }
 
-.results-item-label {
-    -fx-text-fill: #444;
-    -fx-font-size: 13px;
-    -fx-padding: 2 0;
-}
-
-.derivative-formula {
-    -fx-font-family: 'Consolas', 'Monospaced';
-    -fx-font-size: 14px;
-    -fx-text-fill: #264653;
-    -fx-background-color: #f1f3f5;
-    -fx-padding: 8;
-    -fx-background-radius: 5;
-    -fx-font-weight: bold;
-}
-
-.results-vbox {
-    -fx-spacing: 15;
-}
-
 .result-label-key {
-    -fx-text-fill: #777;
-    -fx-font-size: 11px;
+    -fx-text-fill: -color-600;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 0 5 0 0;
 }
 
 .result-label-value {
-    -fx-text-fill: #264653;
+    -fx-text-fill: -color-900;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
 
 .coordinate-badge {
-    -fx-background-color: #e9ecef;
+    -fx-background-color: -color-100;
+    -fx-text-fill: -color-700;
     -fx-padding: 2 8;
-    -fx-background-radius: 4;
+    -fx-background-radius: 6;
+}
+
+.derivative-formula {
+    -fx-font-family: "Consolas", "Monospaced", Courier New;
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-800;
+    -fx-background-color: -color-50;
+    -fx-padding: 10;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-border-color: -color-100;
+    -fx-border-width: 1;
+}
+
+.results-container {
+    -fx-background-color: -color-50;
+    -fx-background-radius: 12;
+    -fx-border-color: -color-500;
+    -fx-border-width: 0 0 0 5;
+    -fx-padding: 16;
+}
+
+.result-badge {
+    -fx-background-color: -color-100;
+    -fx-text-fill: -color-700;
+    -fx-padding: 4 12;
+    -fx-background-radius: 20;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.formula-display {
+    -fx-font-family: "Consolas", "Monospaced", Courier New;
+    -fx-font-size: 15px;
+    -fx-text-fill: -color-900;
+    -fx-background-color: white;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+    -fx-border-color: -color-100;
+    -fx-border-width: 1;
+}
+
+/* COMPONENTES ESPECIALES */
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: -color-200;
+    -fx-background-radius: 10;
+}
+
+.scroll-bar:vertical .thumb:hover,
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: -color-300;
+}
+
+/* TECLADO MATEMÁTICO */
+
+.keyboard-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 20, 0, 0, 10);
+    -fx-padding: 15;
+    -fx-border-color: -color-200;
+    -fx-border-width: 1;
+}
+
+.key-button {
+    -fx-background-color: -color-50;
+    -fx-text-fill: -color-900;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-min-width: 48;
+    -fx-min-height: 42;
+    -fx-cursor: hand;
+}
+
+.key-button:hover {
+    -fx-background-color: -color-100;
+    -fx-border-color: -color-200;
+}
+
+.key-button-active {
+    -fx-background-color: -color-500;
+    -fx-text-fill: white;
+}
+
+.key-button-danger {
+    -fx-background-color: #FEE2E2;
+    -fx-text-fill: #DC2626;
+    -fx-border-color: #FCA5A5;
+}
+
+.key-button-danger:hover {
+    -fx-background-color: #DC2626;
+    -fx-text-fill: white;
+}
+
+.key-button-success {
+    -fx-background-color: -color-100;
+    -fx-text-fill: -color-700;
+    -fx-border-color: -color-300;
+}
+
+.key-button-success:hover {
+    -fx-background-color: -color-500;
+    -fx-text-fill: white;
+}
+
+/* GRÁFICA */
+
+.chart-container {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: -color-100;
+    -fx-border-width: 1;
+    -fx-padding: 10;
+}
+
+.chart-plot-background {
+    -fx-background-color: -color-50;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: white;
 }
