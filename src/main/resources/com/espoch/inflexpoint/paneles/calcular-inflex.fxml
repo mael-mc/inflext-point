@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -12,7 +13,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
 
 <AnchorPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.espoch.inflexpoint.controladores.paneles.CalcularControlador">
    <children>
@@ -27,118 +27,125 @@
                   </Label>
                </children>
             </HBox>
-            <HBox spacing="20.0" VBox.vgrow="ALWAYS">
-               <children>
-                  <VBox minWidth="350.0" prefWidth="400.0" spacing="10.0">
+            <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #FFFFFF;" VBox.vgrow="ALWAYS">
+               <content>
+                  <HBox spacing="20.0">
                      <children>
-                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                        <VBox minWidth="350.0" prefWidth="400.0" spacing="10.0">
                            <children>
-                              <Label text="Seleccione el tipo de función">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                              </Label>
-                              <ComboBox fx:id="cbTipoFuncion" maxWidth="150.0" promptText="Seleccionar..." />
-                           </children>
-                        </HBox>
-                        <HBox>
-                           <children>
-                              <Label text="Escoja lo que desee hallar">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                        </HBox>
-                        <HBox spacing="10.0">
-                           <children>
-                              <VBox spacing="10.0">
+                              <HBox alignment="CENTER_LEFT" spacing="15.0">
                                  <children>
-                                    <RadioButton fx:id="chkPuntosCriticos" mnemonicParsing="false" text="Puntos críticos" />
-                                    <RadioButton fx:id="chkIntervalos" mnemonicParsing="false" text="Intervalo en donde crece/decrece" />
-                                    <RadioButton fx:id="chkMaxMin" mnemonicParsing="false" text="Máximos/Mínimos" />
+                                    <Label text="Seleccione el tipo de función">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <ComboBox fx:id="cbTipoFuncion" maxWidth="150.0" promptText="Seleccionar..." />
                                  </children>
-                              </VBox>
-                              <VBox spacing="10.0">
+                              </HBox>
+                              <HBox>
                                  <children>
-                                    <RadioButton fx:id="chkPuntoInflexion" mnemonicParsing="false" text="Punto de inflexión" />
-                                    <RadioButton fx:id="chkConcavidad" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Concavidad" />
+                                    <Label text="Escoja lo que desee hallar">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
                                  </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                        <VBox spacing="10.0">
-                           <children>
-                              <Label text="Ingrese la función">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Label>
+                              </HBox>
                               <HBox spacing="10.0">
                                  <children>
-                                    <TextField fx:id="txtFuncion" minHeight="32.0" prefWidth="250.0" promptText="Ej: x^2 - 4x + 1" HBox.hgrow="ALWAYS" />
-                                    <Button fx:id="btnTeclado" mnemonicParsing="false" onAction="#mostrarTeclado">
-                                       <graphic>
-                                          <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@../iconos/teclado-icono.png" />
-                                             </image>
-                                          </ImageView>
-                                       </graphic>
+                                    <VBox spacing="10.0">
+                                       <children>
+                                          <RadioButton fx:id="chkPuntosCriticos" mnemonicParsing="false" text="Puntos críticos" />
+                                          <RadioButton fx:id="chkIntervalos" mnemonicParsing="false" text="Intervalo en donde crece/decrece" />
+                                          <RadioButton fx:id="chkMaxMin" mnemonicParsing="false" text="Máximos/Mínimos" />
+                                       </children>
+                                    </VBox>
+                                    <VBox spacing="10.0">
+                                       <children>
+                                          <RadioButton fx:id="chkPuntoInflexion" mnemonicParsing="false" text="Punto de inflexión" />
+                                          <RadioButton fx:id="chkConcavidad" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Concavidad" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <VBox spacing="10.0">
+                                 <children>
+                                    <Label text="Ingrese la función">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox spacing="10.0">
+                                       <children>
+                                          <TextField fx:id="txtFuncion" minHeight="32.0" prefWidth="250.0" promptText="Ej: x^2 - 4x + 1" HBox.hgrow="ALWAYS" />
+                                          <Button fx:id="btnTeclado" mnemonicParsing="false" onAction="#mostrarTeclado">
+                                             <graphic>
+                                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@../iconos/teclado-icono.png" />
+                                                   </image>
+                                                </ImageView>
+                                             </graphic>
+                                          </Button>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                                 <padding>
+                                    <Insets top="10.0" />
+                                 </padding>
+                              </VBox>
+                              <HBox spacing="20.0">
+                                 <children>
+                                    <Button fx:id="btnCalcular" mnemonicParsing="false" onAction="#calcular" style="-fx-background-color: #44bdac;" text="CALCULAR" textFill="WHITE">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Button>
+                                    <Button fx:id="btnBorrar" mnemonicParsing="false" onAction="#borrar" style="-fx-background-color: #E74C3C;" text="BORRAR" textFill="WHITE">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
                                     </Button>
                                  </children>
                               </HBox>
                            </children>
-                           <padding>
-                              <Insets top="10.0" />
-                           </padding>
                         </VBox>
-                        <HBox spacing="20.0">
+                        <VBox spacing="10.0" HBox.hgrow="ALWAYS">
                            <children>
-                              <Button fx:id="btnCalcular" mnemonicParsing="false" onAction="#calcular" style="-fx-background-color: #44bdac;" text="CALCULAR" textFill="WHITE">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Button>
-                              <Button fx:id="btnBorrar" mnemonicParsing="false" onAction="#borrar" style="-fx-background-color: #E74C3C;" text="BORRAR" textFill="WHITE">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Button>
-                           </children>
-                        </HBox>
-                     </children>
-                  </VBox>
-                  <VBox spacing="10.0" HBox.hgrow="ALWAYS">
-                     <children>
-                        <HBox fx:id="contenedorGrafica" style="-fx-background-color: #F7F7F7; -fx-border-color: #CCCCCC;" VBox.vgrow="ALWAYS">
-                           <!-- Aquí irá el LineChart -->
-                        </HBox>
-                        <VBox spacing="5.0" VBox.vgrow="SOMETIMES" maxHeight="250.0">
-                           <children>
-                              <Label text="Resultado del cálculo">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                                 <padding>
-                                    <Insets left="10.0" />
-                                 </padding>
-                              </Label>
-                              <javafx.scene.control.ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
-                                 <content>
-                                     <VBox fx:id="vboxResultadosTexto" spacing="5.0">
-                                         <padding>
-                                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                         </padding>
-                                     </VBox>
-                                 </content>
-                              </javafx.scene.control.ScrollPane>
+                              <HBox fx:id="contenedorGrafica" minHeight="300.0" style="-fx-background-color: #F7F7F7; -fx-border-color: #CCCCCC;" VBox.vgrow="ALWAYS">
+                                 <!-- Aquí irá el LineChart -->
+                              </HBox>
+                              <VBox fx:id="vboxResultado" minHeight="250.0" spacing="5.0" style="-fx-border-color: #2A9D8F; -fx-border-width: 1; -fx-border-radius: 5;" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <Label text="Resultado del cálculo">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                       <padding>
+                                          <Insets left="10.0" top="5.0" />
+                                       </padding>
+                                    </Label>
+                                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                                       <content>
+                                           <VBox fx:id="vboxResultadosTexto" spacing="5.0">
+                                               <padding>
+                                                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                               </padding>
+                                           </VBox>
+                                       </content>
+                                    </ScrollPane>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets top="10.0" />
+                                 </VBox.margin>
+                              </VBox>
                            </children>
                         </VBox>
                      </children>
-                  </VBox>
-               </children>
-            </HBox>
+                  </HBox>
+               </content>
+            </ScrollPane>
          </children>
          <padding>
             <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />

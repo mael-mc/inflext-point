@@ -73,7 +73,7 @@ public class CalcularControlador implements Initializable {
         analizador = new AnalizadorFuncion();
 
         // Inicializar graficador con Canvas
-        graficadorCanvas = new GraficadorCanvas(800, 600);
+        graficadorCanvas = new GraficadorCanvas(400, 300);
         contenedorGrafica.getChildren().add(graficadorCanvas.getCanvas());
 
         // Hacer el canvas responsivo escuchando el contenedor (NO bind() + setSize())
