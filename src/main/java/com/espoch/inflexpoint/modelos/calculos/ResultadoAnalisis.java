@@ -24,8 +24,8 @@ public class ResultadoAnalisis {
     private String primeraDerivada;
     private String segundaDerivada;
 
-    // Constructor completo.
-
+    // Constructores
+    // Completo.
     public ResultadoAnalisis(
             PuntoCritico[] puntosCriticos,
             PuntoCritico[] puntosInflexion,
@@ -44,12 +44,7 @@ public class ResultadoAnalisis {
         this.segundaDerivada = segundaDerivada;
     }
 
-    /**
-     * Constructor simplificado para retrocompatibilidad.
-     * Crea un resultado vacío con solo el resumen.
-     * 
-     * @deprecated Usar el constructor completo con entidades
-     */
+    // Con resultado vacío con solo el resumen.
     @Deprecated
     public ResultadoAnalisis(String resumen) {
         this.puntosCriticos = new PuntoCritico[0];
@@ -62,7 +57,6 @@ public class ResultadoAnalisis {
     }
 
     // Getters
-
     public PuntoCritico[] getPuntosCriticos() {
         return puntosCriticos;
     }
@@ -92,7 +86,6 @@ public class ResultadoAnalisis {
     }
 
     // Setters
-
     public void setPuntosCriticos(PuntoCritico[] puntosCriticos) {
         this.puntosCriticos = puntosCriticos;
     }
@@ -119,74 +112,6 @@ public class ResultadoAnalisis {
 
     public void setSegundaDerivada(String segundaDerivada) {
         this.segundaDerivada = segundaDerivada;
-    }
-
-    // Genera un resumen textual completo del análisis.
-    public String generarResumen() {
-        StringBuilder resumen = new StringBuilder();
-
-        // Puntos críticos
-        if (puntosCriticos != null && puntosCriticos.length > 0) {
-            resumen.append("--- Puntos Críticos ---\n");
-            for (PuntoCritico pc : puntosCriticos) {
-                resumen.append(String.format("  %s en (%.4f, %.4f)\n",
-                        pc.getTipoPuntoCritico(), pc.getX(), pc.getY()));
-            }
-            resumen.append("\n");
-        }
-
-        // Puntos de inflexión
-        if (puntosInflexion != null && puntosInflexion.length > 0) {
-            resumen.append("--- Puntos de Inflexión ---\n");
-            for (PuntoCritico pi : puntosInflexion) {
-                resumen.append(String.format("  (%.4f, %.4f)\n",
-                        pi.getX(), pi.getY()));
-            }
-            resumen.append("\n");
-        }
-
-        // Intervalos de crecimiento
-        if (intervalosCrecimiento != null && intervalosCrecimiento.length > 0) {
-            resumen.append("--- Intervalos de Crecimiento ---\n");
-            for (Intervalo intervalo : intervalosCrecimiento) {
-                resumen.append(formatearIntervalo(intervalo)).append("\n");
-            }
-            resumen.append("\n");
-        }
-
-        // Intervalos de decrecimiento
-        if (intervalosDecrecimiento != null && intervalosDecrecimiento.length > 0) {
-            resumen.append("--- Intervalos de Decrecimiento ---\n");
-            for (Intervalo intervalo : intervalosDecrecimiento) {
-                resumen.append(formatearIntervalo(intervalo)).append("\n");
-            }
-            resumen.append("\n");
-        }
-
-        // Intervalos de concavidad
-        if (intervalosConcavidad != null && intervalosConcavidad.length > 0) {
-            resumen.append("--- Concavidad ---\n");
-            for (Intervalo intervalo : intervalosConcavidad) {
-                resumen.append(formatearIntervalo(intervalo)).append("\n");
-            }
-            resumen.append("\n");
-        }
-
-        // Derivadas
-        if (primeraDerivada != null && !primeraDerivada.isEmpty()) {
-            resumen.append("--- Derivadas ---\n");
-            resumen.append("f'(x) = ").append(primeraDerivada).append("\n");
-            if (segundaDerivada != null && !segundaDerivada.isEmpty()) {
-                resumen.append("f''(x) = ").append(segundaDerivada).append("\n");
-            }
-            resumen.append("\n");
-        }
-
-        if (resumen.length() == 0) {
-            return "No se encontraron resultados para mostrar.";
-        }
-
-        return resumen.toString();
     }
 
     /**

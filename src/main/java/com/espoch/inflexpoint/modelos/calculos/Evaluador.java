@@ -4,7 +4,7 @@ import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
 
 public class Evaluador {
 
-    private String expresion;
+    private final String expresion;
     private int pos = -1, ch;
 
     public Evaluador(String expresion) throws ExpresionInvalidaException {
@@ -35,7 +35,7 @@ public class Evaluador {
                 .replace("arcsen(", "asin(")
                 .replace("arccos(", "acos(")
                 .replace("arctan(", "atan(")
-                .replace("sen(", "sin(") // sen despues de arcsen
+                .replace("sen(", "sin(") // sen después de arcsen
                 .replace("raiz(", "sqrt(");
 
         String[] tokens = {

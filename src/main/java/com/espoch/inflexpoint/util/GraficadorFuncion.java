@@ -17,7 +17,7 @@ public class GraficadorFuncion {
 
     /**
      * Crea una gráfica completa de una función con sus puntos críticos.
-     * 
+     *
      * @param expresion La expresión matemática a graficar
      * @param resultado Los resultados del análisis (puntos críticos, inflexión)
      * @param minX      Límite inferior del dominio
@@ -144,7 +144,7 @@ public class GraficadorFuncion {
 
     /**
      * Crea una gráfica simple sin análisis.
-     * 
+     *
      * @param expresion La expresión a graficar
      * @param minX      Límite inferior
      * @param maxX      Límite superior
