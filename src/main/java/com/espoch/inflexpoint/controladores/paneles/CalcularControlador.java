@@ -179,16 +179,107 @@ public class CalcularControlador implements Initializable {
      * Muestra los resultados textuales en el área correspondiente.
      */
     private void mostrarResultadosTextuales(ResultadoAnalisis resultado) {
-        // Generar resumen usando el método de ResultadoAnalisis
-        String resumen = resultado.generarResumen();
+        vboxResultadosTexto.getChildren().clear();
 
-        // Crear label con el resumen
-        Label lblResumen = new Label(resumen);
-        lblResumen.setWrapText(true);
-        lblResumen.setStyle("-fx-font-family: 'Consolas'; -fx-font-size: 13px;");
+        // 1. Derivadas
+        if (resultado.getPrimeraDerivada() != null && !resultado.getPrimeraDerivada().isEmpty()) {
+            VBox section = createSection("DERIVADAS");
+            section.getChildren().add(createFormulaLabel("f'(x) = " + resultado.getPrimeraDerivada()));
+            if (resultado.getSegundaDerivada() != null && !resultado.getSegundaDerivada().isEmpty()) {
+                section.getChildren().add(createFormulaLabel("f''(x) = " + resultado.getSegundaDerivada()));
+            }
+            vboxResultadosTexto.getChildren().add(section);
+        }
 
-        // Añadir al contenedor
-        vboxResultadosTexto.getChildren().add(lblResumen);
+        // 2. Puntos Críticos
+        if (resultado.getPuntosCriticos() != null && resultado.getPuntosCriticos().length > 0) {
+            VBox section = createSection("PUNTOS CRÍTICOS");
+            for (com.espoch.inflexpoint.modelos.entidades.PuntoCritico pc : resultado.getPuntosCriticos()) {
+                section.getChildren().add(createItemLabel(String.format("• %s en (%.4f, %.4f)",
+                        pc.getTipoPuntoCritico(), pc.getX(), pc.getY())));
+            }
+            vboxResultadosTexto.getChildren().add(section);
+        }
+
+        // 3. Puntos de Inflexión
+        if (resultado.getPuntosInflexion() != null && resultado.getPuntosInflexion().length > 0) {
+            VBox section = createSection("PUNTOS DE INFLEXIÓN");
+            for (com.espoch.inflexpoint.modelos.entidades.PuntoCritico pi : resultado.getPuntosInflexion()) {
+                section.getChildren().add(createItemLabel(String.format("• Coordenada: (%.4f, %.4f)",
+                        pi.getX(), pi.getY())));
+            }
+            vboxResultadosTexto.getChildren().add(section);
+        }
+
+        // 4. Intervalos de Crecimiento/Decrecimiento
+        boolean hasCrec = resultado.getIntervalosCrecimiento() != null
+                && resultado.getIntervalosCrecimiento().length > 0;
+        boolean hasDecr = resultado.getIntervalosDecrecimiento() != null
+                && resultado.getIntervalosDecrecimiento().length > 0;
+
+        if (hasCrec || hasDecr) {
+            VBox section = createSection("MONOTONÍA");
+            if (hasCrec) {
+                for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado.getIntervalosCrecimiento()) {
+                    section.getChildren().add(createItemLabel("↑ Creciente: " + formatearIntervalo(inter)));
+                }
+            }
+            if (hasDecr) {
+                for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado
+                        .getIntervalosDecrecimiento()) {
+                    section.getChildren().add(createItemLabel("↓ Decreciente: " + formatearIntervalo(inter)));
+                }
+            }
+            vboxResultadosTexto.getChildren().add(section);
+        }
+
+        // 5. Concavidad
+        if (resultado.intervalosConcavidad() != null && resultado.intervalosConcavidad().length > 0) {
+            VBox section = createSection("CONCAVIDAD");
+            for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado.intervalosConcavidad()) {
+                section.getChildren().add(createItemLabel("∪/∩ Concavidad: " + formatearIntervalo(inter)));
+            }
+            vboxResultadosTexto.getChildren().add(section);
+        }
+
+        // Caso sin resultados
+        if (vboxResultadosTexto.getChildren().isEmpty()) {
+            Label lblEmpty = new Label("No se seleccionaron opciones o no se encontraron resultados.");
+            lblEmpty.setStyle("-fx-text-fill: #999; -fx-font-style: italic;");
+            vboxResultadosTexto.getChildren().add(lblEmpty);
+        }
+    }
+
+    private VBox createSection(String title) {
+        VBox card = new VBox(5);
+        card.getStyleClass().add("results-card");
+
+        Label lblTitle = new Label(title);
+        lblTitle.getStyleClass().add("results-section-title");
+        lblTitle.setMaxWidth(Double.MAX_VALUE);
+
+        card.getChildren().add(lblTitle);
+        return card;
+    }
+
+    private Label createItemLabel(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("results-item-label");
+        label.setWrapText(true);
+        return label;
+    }
+
+    private Label createFormulaLabel(String formula) {
+        Label label = new Label(formula);
+        label.getStyleClass().add("derivative-formula");
+        label.setMaxWidth(Double.MAX_VALUE);
+        return label;
+    }
+
+    private String formatearIntervalo(com.espoch.inflexpoint.modelos.entidades.Intervalo intervalo) {
+        String inicio = intervalo.getInicio() == null ? "-∞" : String.format("%.2f", intervalo.getInicio());
+        String fin = intervalo.getFin() == null ? "∞" : String.format("%.2f", intervalo.getFin());
+        return String.format("(%s, %s) → %s", inicio, fin, intervalo.getTipoIntervalo());
     }
 
     /**
