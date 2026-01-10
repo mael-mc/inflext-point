@@ -51,8 +51,7 @@ public class HistorialFuncionesControlador implements Initializable {
 
             Button btnFunc = new Button(expression);
             btnFunc.setMaxWidth(Double.MAX_VALUE);
-            btnFunc.setStyle(
-                    "-fx-background-color: transparent; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;");
+            btnFunc.setStyle("-fx-background-color: transparent; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;");
             HBox.setHgrow(btnFunc, Priority.ALWAYS);
 
             btnFunc.setOnAction(event -> {
@@ -65,8 +64,7 @@ public class HistorialFuncionesControlador implements Initializable {
             });
 
             Button btnDelete = new Button("X");
-            btnDelete.setStyle(
-                    "-fx-background-color: #ff5252; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 2 8; -fx-cursor: hand;");
+            btnDelete.setStyle("-fx-background-color: #ff5252; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 2 8; -fx-cursor: hand;");
 
             btnDelete.setOnAction(event -> {
                 GestorHistorial.getInstancia().eliminarExpresion(expression);

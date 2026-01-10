@@ -5,7 +5,7 @@ import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
 public class Evaluador {
 
     private final String expresion;
-    private int pos = -1, ch;
+    private int posicion = -1, ch;
 
     public Evaluador(String expresion) throws ExpresionInvalidaException {
         if (expresion == null || expresion.trim().isEmpty()) {
@@ -15,10 +15,10 @@ public class Evaluador {
     }
 
     public double evaluar(double x) throws ExpresionInvalidaException {
-        this.pos = -1;
+        this.posicion = -1;
         siguienteCaracter();
         double res = analizarExpresion(x);
-        if (pos < expresion.length()) {
+        if (posicion < expresion.length()) {
             throw new ExpresionInvalidaException("Carácter inesperado: " + (char) ch);
         }
         return res;
@@ -76,7 +76,7 @@ public class Evaluador {
     }
 
     private void siguienteCaracter() {
-        ch = (++pos < expresion.length()) ? expresion.charAt(pos) : -1;
+        ch = (++posicion < expresion.length()) ? expresion.charAt(posicion) : -1;
     }
 
     private boolean consumir(int charToEat) {
@@ -120,7 +120,7 @@ public class Evaluador {
             return -analizarFactor(x); // unario menos
 
         double v;
-        int startPos = this.pos;
+        int startPos = this.posicion;
         if (consumir('(')) { // paréntesis
             v = analizarExpresion(x);
             consumir(')');
@@ -130,11 +130,11 @@ public class Evaluador {
         } else if ((ch >= '0' && ch <= '9') || ch == '.') { // números
             while ((ch >= '0' && ch <= '9') || ch == '.')
                 siguienteCaracter();
-            v = Double.parseDouble(expresion.substring(startPos, this.pos));
+            v = Double.parseDouble(expresion.substring(startPos, this.posicion));
         } else if (ch >= 'a' && ch <= 'z') { // funciones
             while (ch >= 'a' && ch <= 'z')
                 siguienteCaracter();
-            String func = expresion.substring(startPos, this.pos);
+            String func = expresion.substring(startPos, this.posicion);
 
             // Primero verificar si es una constante
             if (func.equals("e")) {
