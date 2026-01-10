@@ -15,13 +15,13 @@ import javafx.scene.shape.Circle;
 import java.util.Objects;
 
 public class VistaPrincipalControlador {
-    
+
     @FXML
-    public HBox hBoxLogo;
+    private HBox hBoxLogo;
     @FXML
     private TextField txtBuscar;
     @FXML
-    public Button btnSalir;
+    private Button btnSalir;
 
     // Toggle Buttons del menú
     @FXML
@@ -37,23 +37,28 @@ public class VistaPrincipalControlador {
     @FXML
     private Circle circleLogo;
 
-    // Rutas de las vistas
-    private final String inicio = "/com/espoch/inflexpoint/paneles/inicio-inflex.fxml";
-    private final String calcular = "/com/espoch/inflexpoint/paneles/calcular-inflex.fxml";
-    private final String ayuda = "/com/espoch/inflexpoint/paneles/ayuda-inflex.fxml";
+    // Rutas de las vistas - Constantes para evitar hardcoding
+    private static final String RUTA_INICIO = "/com/espoch/inflexpoint/paneles/inicio-inflex.fxml";
+    private static final String RUTA_CALCULAR = "/com/espoch/inflexpoint/paneles/calcular-inflex.fxml";
+    private static final String RUTA_AYUDA = "/com/espoch/inflexpoint/paneles/ayuda-inflex.fxml";
+    private static final String RUTA_LOGO = "/com/espoch/inflexpoint/imagenes/Logo/inflex-point-logo.jpeg";
 
     // Inicializa los recursos de la vista principal
     @FXML
     public void initialize() {
-        cargarVista(inicio);
+        cargarVista(RUTA_INICIO);
         iniciarBotonesToggle();
         aplicarMascaraCircular();
     }
 
     // Aplicar máscara circular al logo
     private void aplicarMascaraCircular() {
-        Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/espoch/inflexpoint/imagenes/Logo/inflex-point-logo.jpeg")));
-        circleLogo.setFill(new ImagePattern(img));
+        try {
+            Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(RUTA_LOGO)));
+            circleLogo.setFill(new ImagePattern(img));
+        } catch (Exception e) {
+            System.err.println("Error al cargar el logo: " + e.getMessage());
+        }
     }
 
     // Iniciar botones del menú en un toggleGroup
@@ -63,17 +68,17 @@ public class VistaPrincipalControlador {
         btnCalcular.setToggleGroup(menuToggleGroup);
         btnAyuda.setToggleGroup(menuToggleGroup);
 
+        // Selección por defecto
+        btnInicio.setSelected(true);
+
         menuToggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Toggle selectedToggle = menuToggleGroup.getSelectedToggle();
-                if (selectedToggle != null) {
-                    if (selectedToggle.equals(btnInicio)) {
-                        // Cargar vista de inicio
-                    } else if (selectedToggle.equals(btnCalcular)) {
-                        // Cargar vista de calcular
-                    } else if (selectedToggle.equals(btnAyuda)) {
-                        // Cargar vista de ayuda
-                    }
+                if (newValue.equals(btnInicio)) {
+                    cargarVista(RUTA_INICIO);
+                } else if (newValue.equals(btnCalcular)) {
+                    cargarVista(RUTA_CALCULAR);
+                } else if (newValue.equals(btnAyuda)) {
+                    cargarVista(RUTA_AYUDA);
                 }
             }
         });
@@ -81,39 +86,41 @@ public class VistaPrincipalControlador {
 
     // Cargador de vistas
     private FXMLLoader cargarVista(String rutaVista) {
-        // Lógica para cargar la vista desde la ruta proporcionada
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaVista));
             AnchorPane vista = loader.load();
+
             panelCarga.getChildren().setAll(vista);
             AnchorPane.setTopAnchor(vista, 0.0);
             AnchorPane.setBottomAnchor(vista, 0.0);
             AnchorPane.setLeftAnchor(vista, 0.0);
             AnchorPane.setRightAnchor(vista, 0.0);
+
+            return loader;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error al cargar la vista [" + rutaVista + "]: " + e.getMessage());
+            return null;
         }
-        return null;
     }
 
     // Métodos de botones de acción
-    // Inicio
-    public void onBtnInicio(ActionEvent actionEvent) {
-        cargarVista(inicio);
+    @FXML
+    private void onBtnInicio(ActionEvent actionEvent) {
+        btnInicio.setSelected(true);
     }
 
-    // Calcular
-    public void onBtnCalcular(ActionEvent actionEvent) {
-        cargarVista(calcular);
+    @FXML
+    private void onBtnCalcular(ActionEvent actionEvent) {
+        btnCalcular.setSelected(true);
     }
 
-    // Ayuda
-    public void onBtnAyuda(ActionEvent actionEvent) {
-        cargarVista(ayuda);
+    @FXML
+    private void onBtnAyuda(ActionEvent actionEvent) {
+        btnAyuda.setSelected(true);
     }
 
-    // Salir
-    public void onBtnSalir(ActionEvent actionEvent) {
+    @FXML
+    private void onBtnSalir(ActionEvent actionEvent) {
         Platform.exit();
         System.exit(0);
     }
@@ -122,21 +129,17 @@ public class VistaPrincipalControlador {
     private void onBuscar(ActionEvent event) {
         String expresion = txtBuscar.getText();
         if (expresion != null && !expresion.trim().isEmpty()) {
-            try {
-                FXMLLoader loader = cargarVista(calcular);
+            FXMLLoader loader = cargarVista(RUTA_CALCULAR);
 
+            if (loader != null) {
                 // Obtener el controlador
                 CalcularControlador controlador = loader.getController();
-                controlador.cargarYCalcular(expresion);
-
-                // Actualizar visualmente los botones del menú
+                if (controlador != null) {
+                    controlador.cargarYCalcular(expresion);
+                }
+                // Actualizar visualmente los botones del menú (el ToggleGroup manejará el
+                // resto)
                 btnCalcular.setSelected(true);
-                // Asegurarse de que los otros botones no estén seleccionados
-                btnInicio.setSelected(false);
-                btnAyuda.setSelected(false);
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
