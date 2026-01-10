@@ -12,16 +12,20 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import java.net.URL?>
 
 <?import javafx.scene.shape.Circle?>
 <BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.espoch.inflexpoint.controladores.vistaprincipal.VistaPrincipalControlador">
+   <stylesheets>
+      <URL value="@../estilos/estilos.css" />
+   </stylesheets>
    <center>
       <AnchorPane fx:id="panelCarga" />
    </center>
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="20.0" style="-fx-background-color: #2A9D8F;">
+            <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="20.0" styleClass="header-bar">
                <children>
                   <HBox alignment="CENTER_LEFT" spacing="20.0" HBox.hgrow="SOMETIMES">
                      <children>
@@ -50,7 +54,7 @@
                               <Insets />
                            </opaqueInsets>
                         </TextField>
-                        <Button fx:id="btnSalir" mnemonicParsing="false" onAction="#onBtnSalir" prefHeight="30.0" prefWidth="60.0" style="-fx-background-color: #E74C3C;" text="SALIR" textFill="WHITE">
+                        <Button fx:id="btnSalir" mnemonicParsing="false" onAction="#onBtnSalir" prefHeight="30.0" prefWidth="60.0" styleClass="btn-salir" text="SALIR" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font>
@@ -62,14 +66,14 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
             </HBox>
-            <HBox layoutX="10.0" layoutY="10.0" style="-fx-background-color: #264653;">
+            <HBox layoutX="10.0" layoutY="10.0" styleClass="nav-bar">
                <padding>
                   <Insets left="30.0" right="5.0" />
                </padding>
                <children>
-                  <ToggleButton fx:id="btnInicio" mnemonicParsing="false" onAction="#onBtnInicio" prefHeight="30.0" style="-fx-background-color: transparent;" text="INICIO" textFill="WHITE" />
-                  <ToggleButton fx:id="btnCalcular" mnemonicParsing="false" onAction="#onBtnCalcular" prefHeight="30.0" style="-fx-background-color: transparent;" text="CALCULAR" textFill="WHITE" />
-                  <ToggleButton fx:id="btnAyuda" layoutX="397.0" layoutY="15.0" mnemonicParsing="false" onAction="#onBtnAyuda" prefHeight="30.0" style="-fx-background-color: transparent;" text="AYUDA" textFill="WHITE" />
+                  <ToggleButton fx:id="btnInicio" mnemonicParsing="false" onAction="#onBtnInicio" prefHeight="40.0" styleClass="menu-button" text="INICIO" />
+                  <ToggleButton fx:id="btnCalcular" mnemonicParsing="false" onAction="#onBtnCalcular" prefHeight="40.0" styleClass="menu-button" text="CALCULAR" />
+                  <ToggleButton fx:id="btnAyuda" layoutX="397.0" layoutY="15.0" mnemonicParsing="false" onAction="#onBtnAyuda" prefHeight="40.0" styleClass="menu-button" text="AYUDA" />
                </children>
             </HBox>
          </children>

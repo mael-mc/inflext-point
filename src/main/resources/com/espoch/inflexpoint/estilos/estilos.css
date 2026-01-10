@@ -1,0 +1,44 @@
+/* Estilos para los botones del menú de navegación */
+.menu-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-padding: 0 15 0 15;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 3 0;
+}
+
+.menu-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-button:selected {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-border-color: #2A9D8F;
+    -fx-text-fill: #44bdac;
+}
+
+/* Barra de navegación secundaria */
+.nav-bar {
+    -fx-background-color: #264653;
+}
+
+/* Barra de cabecera principal */
+.header-bar {
+    -fx-background-color: #2A9D8F;
+}
+
+/* Efecto para el botón de salir */
+.btn-salir {
+    -fx-background-color: #E74C3C;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-background-radius: 5;
+}
+
+.btn-salir:hover {
+    -fx-background-color: #C0392B;
+}
