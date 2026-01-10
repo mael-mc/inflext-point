@@ -21,6 +21,9 @@ public class VistaPrincipalControlador {
     @FXML
     private ToggleButton btnAyuda;
 
+    @FXML
+    private javafx.scene.control.TextField txtBuscar;
+
     // Panel donde se cargan las vistas
     @FXML
     private AnchorPane panelCarga;
@@ -109,5 +112,34 @@ public class VistaPrincipalControlador {
     public void onBtnSalir(ActionEvent actionEvent) {
         Platform.exit();
         System.exit(0);
+    }
+
+    @FXML
+    private void onBuscar(ActionEvent event) {
+        String expresion = txtBuscar.getText();
+        if (expresion != null && !expresion.trim().isEmpty()) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(calcular));
+                AnchorPane vista = loader.load();
+                panelCarga.getChildren().setAll(vista);
+                AnchorPane.setTopAnchor(vista, 0.0);
+                AnchorPane.setBottomAnchor(vista, 0.0);
+                AnchorPane.setLeftAnchor(vista, 0.0);
+                AnchorPane.setRightAnchor(vista, 0.0);
+
+                // Obtener el controlador
+                com.espoch.inflexpoint.controladores.paneles.CalcularControlador controlador = loader.getController();
+                controlador.cargarYCalcular(expresion);
+
+                // Actualizar visualmente los botones del menú
+                btnCalcular.setSelected(true);
+                // Asegurarse de que los otros botones no estén seleccionados
+                btnInicio.setSelected(false);
+                btnAyuda.setSelected(false);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

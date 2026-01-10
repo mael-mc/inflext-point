@@ -1,6 +1,7 @@
 package com.espoch.inflexpoint.controladores.paneles;
 
 import com.espoch.inflexpoint.modelos.calculos.AnalizadorFuncion;
+import com.espoch.inflexpoint.modelos.calculos.HistoryManager;
 import com.espoch.inflexpoint.modelos.calculos.ResultadoAnalisis;
 import com.espoch.inflexpoint.modelos.excepciones.CalculoNumericoException;
 import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
@@ -8,10 +9,15 @@ import com.espoch.inflexpoint.util.GraficadorCanvas;
 import com.espoch.inflexpoint.util.TecladoVirtual;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -31,9 +37,6 @@ import java.util.ResourceBundle;
 public class CalcularControlador implements Initializable {
 
     // ===== Componentes FXML =====
-
-    @FXML
-    private ComboBox<String> cbTipoFuncion;
 
     @FXML
     private RadioButton chkPuntosCriticos;
@@ -88,15 +91,6 @@ public class CalcularControlador implements Initializable {
             }
         });
 
-        // Inicializar ComboBox (solo para información, no se usa en cálculos)
-        cbTipoFuncion.getItems().addAll(
-                "Lineal",
-                "Cuadrática",
-                "Trigonométrica",
-                "Logarítmica",
-                "Exponencial",
-                "Polinómica",
-                "Racional");
     }
 
     /**
@@ -128,6 +122,9 @@ public class CalcularControlador implements Initializable {
 
             // 5. Mostrar resultados textuales
             mostrarResultadosTextuales(resultado);
+
+            // 5.1 Guardar en el historial
+            HistoryManager.getInstance().addExpression(expresion);
 
             // 6. Graficar usando Canvas interactivo
             System.out.println("Intentando graficar: " + expresion);
@@ -209,7 +206,6 @@ public class CalcularControlador implements Initializable {
     @FXML
     private void borrar(ActionEvent event) {
         txtFuncion.clear();
-        cbTipoFuncion.getSelectionModel().clearSelection();
         chkPuntosCriticos.setSelected(false);
         chkIntervalos.setSelected(false);
         chkMaxMin.setSelected(false);
@@ -238,5 +234,41 @@ public class CalcularControlador implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+
+    /**
+     * Carga una función y ejecuta el cálculo automáticamente.
+     */
+    public void cargarYCalcular(String expresion) {
+        txtFuncion.setText(expresion);
+        // Seleccionamos todas las opciones por defecto para un análisis completo
+        chkPuntosCriticos.setSelected(true);
+        chkIntervalos.setSelected(true);
+        chkMaxMin.setSelected(true);
+        chkPuntoInflexion.setSelected(true);
+        chkConcavidad.setSelected(true);
+
+        calcular(null);
+    }
+
+    @FXML
+    private void verHistorial(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/espoch/inflexpoint/paneles/historial-funciones-inflex.fxml"));
+            Parent root = loader.load();
+
+            HistorialFuncionesControlador controller = loader.getController();
+            controller.setCalcularControlador(this);
+
+            Stage stage = new Stage();
+            stage.setTitle("Historial de Funciones");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo abrir el historial: " + e.getMessage());
+        }
     }
 }

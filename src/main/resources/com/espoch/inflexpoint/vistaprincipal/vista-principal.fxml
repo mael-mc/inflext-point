@@ -49,7 +49,7 @@
                   </HBox>
                   <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <TextField maxWidth="400.0" prefHeight="34.0" prefWidth="261.0" promptText="Buscar..." HBox.hgrow="ALWAYS">
+                        <TextField fx:id="txtBuscar" maxWidth="400.0" onAction="#onBuscar" prefHeight="34.0" prefWidth="261.0" promptText="Buscar..." HBox.hgrow="ALWAYS">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
