@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.espoch.inflexpoint.controladores.paneles.AyudaControlador"
@@ -15,50 +16,76 @@
             <Insets bottom="30.0" left="30.0" right="30.0" top="30.0"/>
         </padding>
         
-        <Label styleClass="card-title" text="Guía de Usuario y Documentación" >
-            <padding>
-                <Insets left="5.0" />
-            </padding>
-        </Label>
+        <Label styleClass="card-title" text="Documentación y Ayuda" />
         
         <ScrollPane fitToWidth="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
             <VBox spacing="20.0">
                 <padding>
-                    <Insets bottom="15.0" right="20.0"/>
+                    <Insets bottom="20.0" right="15.0"/>
                 </padding>
                 
-                <VBox styleClass="card" spacing="10.0">
-                    <Label styleClass="card-subtitle" text="1. Guía de Inicio Rápido"/>
-                    <Label style="-fx-text-fill: -color-800; -fx-line-spacing: 4;"
-                           text="Paso 1: Diríjase a la sección 'CALCULAR'&#10;Paso 2: Seleccione los análisis estadísticos o analíticos que requiera&#10;Paso 3: Ingrese su función matemática (usando 'x' como variable independiente)&#10;Paso 4: Presione el botón 'CALCULAR' para ver el gráfico y el desglose de resultados."
-                           wrapText="true"/>
-                </VBox>
-
-                <VBox styleClass="card" spacing="10.0">
-                    <Label styleClass="card-subtitle" text="2. Sintaxis y Operadores"/>
-                    <VBox spacing="5.0" styleClass="results-container">
-                        <Label style="-fx-text-fill: -color-900; -fx-font-weight: bold;" text="Ejemplos de entrada:" />
-                        <Label style="-fx-text-fill: -color-700;" text="• Polinómica: x^3 - 4*x^2 + 2" />
-                        <Label style="-fx-text-fill: -color-700;" text="• Trigonométrica: sin(x) + cos(2*x)" />
-                        <Label style="-fx-text-fill: -color-700;" text="• Trascendente: e^x * ln(x)" />
-                        <Label style="-fx-text-fill: -color-700;" text="• Racionales: (x+1)/(x-1)" />
+                <!-- SECCIÓN 1: MANUAL DE USUARIO -->
+                <VBox styleClass="card" spacing="15.0">
+                    <Label styleClass="card-subtitle" text="1. Manual de Usuario" />
+                    <VBox spacing="10.0" styleClass="results-container">
+                        <Label style="-fx-text-fill: -color-900; -fx-font-weight: bold;" text="¿Cómo usar InflexPoint?" />
+                        <Label style="-fx-text-fill: -color-800;" wrapText="true"
+                               text="• Ingrese su función en el campo de texto (ej. x^3 - 3*x).&#10;• Seleccione los análisis deseados (puntos críticos, máximos, etc).&#10;• Presione 'CALCULAR' para generar la gráfica y el análisis analítico." />
+                        
+                        <Label style="-fx-text-fill: -color-900; -fx-font-weight: bold;" text="Sintaxis Permitida:" />
+                        <HBox spacing="10.0">
+                           <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                               <Label style="-fx-text-fill: -color-700;" text="• Potencia: x^2" />
+                               <Label style="-fx-text-fill: -color-700;" text="• Producto: 2*x" />
+                               <Label style="-fx-text-fill: -color-700;" text="• División: 1/x" />
+                           </VBox>
+                           <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                               <Label style="-fx-text-fill: -color-700;" text="• Trig: sin(x), cos(x)" />
+                               <Label style="-fx-text-fill: -color-700;" text="• Log: ln(x), log(x)" />
+                               <Label style="-fx-text-fill: -color-700;" text="• Exp: e^x" />
+                           </VBox>
+                        </HBox>
                     </VBox>
                 </VBox>
 
-                <VBox styleClass="card" spacing="10.0">
-                    <Label styleClass="card-subtitle" text="3. Conceptos Matemáticos Aplicados"/>
-                    <VBox spacing="8.0">
-                        <Label style="-fx-text-fill: -color-800;" text="• Puntos Críticos: Candidatos a ser máximos o mínimos (f'(x)=0)." wrapText="true"/>
-                        <Label style="-fx-text-fill: -color-800;" text="• Máximos/Mínimos: Extremos relativos de la función." wrapText="true"/>
-                        <Label style="-fx-text-fill: -color-800;" text="• Punto de Inflexión: Donde la curva cambia su sentido de curvatura (f''(x)=0)." wrapText="true"/>
+                <!-- SECCIÓN 2: MANUAL TÉCNICO -->
+                <VBox styleClass="card" spacing="15.0">
+                    <Label styleClass="card-subtitle" text="2. Manual Técnico" />
+                    <VBox spacing="10.0">
+                        <Label style="-fx-text-fill: -color-800;" wrapText="true"
+                               text="InflexPoint es una aplicación de escritorio desarrollada bajo una arquitectura modular en Java. Utiliza un motor de derivación simbólica para procesar funciones matemáticas de cualquier complejidad." />
+                        
+                        <VBox spacing="6.0" style="-fx-background-color: -color-50; -fx-padding: 10; -fx-background-radius: 8;">
+                           <Label style="-fx-text-fill: -color-600; -fx-font-size: 11px; -fx-font-weight: bold;" text="TECNOLOGÍAS" />
+                           <Label style="-fx-text-fill: -color-800;" text="• Java 17+ / JavaFX 21+" />
+                           <Label style="-fx-text-fill: -color-800;" text="• Maven (Gestión de Dependencias)" />
+                           <Label style="-fx-text-fill: -color-800;" text="• CSS3" />
+                        </VBox>
                     </VBox>
                 </VBox>
 
-                <VBox styleClass="card" spacing="10.0">
-                    <Label styleClass="card-subtitle" text="4. Soporte y Sugerencias"/>
-                    <Label style="-fx-text-fill: -color-800;"
-                           text="Si experimenta errores de visualización, asegúrese de haber ingresado la función correctamente siguiendo la sintaxis matemática estándar. Las funciones trigonométricas operan en radianes por defecto."
-                           wrapText="true"/>
+                <!-- SECCIÓN 3: EQUIPO DE DESARROLLO -->
+                <VBox styleClass="card" spacing="15.0">
+                    <Label styleClass="card-subtitle" text="3. Equipo de Desarrollo" />
+                    <VBox spacing="12.0">
+                        <Label style="-fx-text-fill: -color-800;" wrapText="true"
+                               text="Este proyecto ha sido desarrollado como parte de la formación académica en la Escuela Superior Politécnica de Chimborazo (ESPOCH)." />
+                        
+                        <VBox spacing="8.0" styleClass="results-container">
+                           <Label style="-fx-text-fill: -color-900; -fx-font-weight: bold;" text="Desarrolladores:" />
+                           <VBox spacing="4.0">
+                               <Label style="-fx-text-fill: -color-800;" text="• Juan Moreno" />
+                               <Label style="-fx-text-fill: -color-800;" text="• Karla Calvopiña" />
+                               <Label style="-fx-text-fill: -color-800;" text="• Glenda Alvarado" />
+                               <Label style="-fx-text-fill: -color-800;" text="• Jojanci Gómez" />
+                               <Label style="-fx-text-fill: -color-800;" text="• Andrea Quiroga" />
+                           </VBox>
+                        </VBox>
+                        
+                        <HBox alignment="CENTER" spacing="10.0" style="-fx-padding: 10 0 0 0;">
+                           <Label style="-fx-text-fill: -color-500; -fx-font-style: italic;" text="© 2026 ESPOCH - Facultad de Informática y Electrónica" />
+                        </HBox>
+                    </VBox>
                 </VBox>
             </VBox>
         </ScrollPane>
