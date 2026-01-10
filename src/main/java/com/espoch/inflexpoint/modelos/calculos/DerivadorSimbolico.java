@@ -290,21 +290,21 @@ public class DerivadorSimbolico {
         }
 
         Nodo analizarSumaResta() {
-            Nodo nodo = analizarMultDiv();
+            Nodo nodo = analizarMultiDiv();
             while (pos < entrada.length()) {
                 if (entrada.charAt(pos) == '+') {
                     pos++;
-                    nodo = new NodoSuma(nodo, analizarMultDiv());
+                    nodo = new NodoSuma(nodo, analizarMultiDiv());
                 } else if (entrada.charAt(pos) == '-') {
                     pos++;
-                    nodo = new NodoResta(nodo, analizarMultDiv());
+                    nodo = new NodoResta(nodo, analizarMultiDiv());
                 } else
                     break;
             }
             return nodo;
         }
 
-        Nodo analizarMultDiv() {
+        Nodo analizarMultiDiv() {
             Nodo nodo = analizarPotencia();
             while (pos < entrada.length()) {
                 if (entrada.charAt(pos) == '*') {

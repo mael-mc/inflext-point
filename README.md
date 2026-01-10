@@ -7,7 +7,7 @@ InflexPoint es una aplicación de escritorio desarrollada en **Java 17+ con Java
 - **Puntos críticos** (máximos, mínimos, puntos de inflexión)
 - **Intervalos de crecimiento y decrecimiento**
 - **Intervalos de concavidad**
-- **Derivadas primera y segunda** (análíticamente)
+- **Derivadas primera y segunda** (analíticamente)
 - **Representación gráfica** de la función
 
 ## Arquitectura y Diseño

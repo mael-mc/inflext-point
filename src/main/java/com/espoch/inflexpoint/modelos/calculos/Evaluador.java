@@ -153,37 +153,23 @@ public class Evaluador {
                 consumir(')');
 
                 // Aplicar la función correspondiente
-                if (func.equals("sqrt"))
-                    v = Math.sqrt(v);
-                else if (func.equals("sin"))
-                    v = Math.sin(v);
-                else if (func.equals("cos"))
-                    v = Math.cos(v);
-                else if (func.equals("tan"))
-                    v = Math.tan(v);
-                else if (func.equals("csc"))
-                    v = 1.0 / Math.sin(v);
-                else if (func.equals("sec"))
-                    v = 1.0 / Math.cos(v);
-                else if (func.equals("cot"))
-                    v = 1.0 / Math.tan(v);
-                else if (func.equals("asin"))
-                    v = Math.asin(v);
-                else if (func.equals("acos"))
-                    v = Math.acos(v);
-                else if (func.equals("atan"))
-                    v = Math.atan(v);
-                else if (func.equals("log"))
-                    v = Math.log10(v);
-                else if (func.equals("ln"))
-                    v = Math.log(v);
-                else if (func.equals("abs"))
-                    v = Math.abs(v);
-                else if (func.equals("exp"))
-                    v = Math.exp(v);
-                else {
-                    throw new ExpresionInvalidaException("Función desconocida: " + func);
-                }
+                v = switch (func) {
+                    case "sqrt" -> Math.sqrt(v);
+                    case "sin" -> Math.sin(v);
+                    case "cos" -> Math.cos(v);
+                    case "tan" -> Math.tan(v);
+                    case "csc" -> 1.0 / Math.sin(v);
+                    case "sec" -> 1.0 / Math.cos(v);
+                    case "cot" -> 1.0 / Math.tan(v);
+                    case "asin" -> Math.asin(v);
+                    case "acos" -> Math.acos(v);
+                    case "atan" -> Math.atan(v);
+                    case "log" -> Math.log10(v);
+                    case "ln" -> Math.log(v);
+                    case "abs" -> Math.abs(v);
+                    case "exp" -> Math.exp(v);
+                    default -> throw new ExpresionInvalidaException("Función desconocida: " + func);
+                };
             }
         } else {
             throw new ExpresionInvalidaException("Carácter inesperado: " + (char) ch);

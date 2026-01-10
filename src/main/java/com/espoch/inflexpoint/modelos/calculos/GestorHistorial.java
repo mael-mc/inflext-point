@@ -21,7 +21,7 @@ public class GestorHistorial {
     public void agregarExpresion(String expresion) {
         if (expresion != null && !expresion.trim().isEmpty()) {
             // No duplicar si es la última ingresada
-            if (historial.isEmpty() || !historial.get(historial.size() - 1).equals(expresion)) {
+            if (historial.isEmpty() || !historial.getLast().equals(expresion)) {
                 historial.add(expresion);
             }
         }
