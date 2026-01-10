@@ -1,12 +1,16 @@
 package com.espoch.inflexpoint.controladores.vistaprincipal;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
 
 public class VistaPrincipalControlador {
     // Toggle Buttons del menú
@@ -21,18 +25,29 @@ public class VistaPrincipalControlador {
     @FXML
     private AnchorPane panelCarga;
 
+    @FXML
+    private Circle circleLogo;
+
     // Rutas de las vistas
     private String inicio = "/com/espoch/inflexpoint/paneles/inicio-inflex.fxml";
     private String calcular = "/com/espoch/inflexpoint/paneles/calcular-inflex.fxml";
     private String ayuda = "/com/espoch/inflexpoint/paneles/ayuda-inflex.fxml";
-    // private String configuracion = "/com/espoch/inflexpoint/paneles/calcular-inflex.fxml";
-
+    // private String configuracion =
+    // "/com/espoch/inflexpoint/paneles/calcular-inflex.fxml";
 
     // Inicializa los recursos de la vista principal
     @FXML
     public void initialize() {
         cargarVista(inicio);
         iniciarBotonesToggle();
+        aplicarMascaraCircular();
+    }
+
+    // Aplicar máscara circular al logo
+    private void aplicarMascaraCircular() {
+        Image img = new Image(
+                getClass().getResourceAsStream("/com/espoch/inflexpoint/imagenes/Logo/inflex-point-logo.jpeg"));
+        circleLogo.setFill(new ImagePattern(img));
     }
 
     // Iniciar botones del menú en un toggleGroup
@@ -88,5 +103,11 @@ public class VistaPrincipalControlador {
     // Ayuda
     public void onBtnAyuda(ActionEvent actionEvent) {
         cargarVista(ayuda);
+    }
+
+    // Salir
+    public void onBtnSalir(ActionEvent actionEvent) {
+        Platform.exit();
+        System.exit(0);
     }
 }
