@@ -33,4 +33,12 @@ public class HistoryManager {
     public List<String> getHistory() {
         return new ArrayList<>(history);
     }
+
+    public void removeExpression(String expression) {
+        history.remove(expression);
+    }
+
+    public void clearHistory() {
+        history.clear();
+    }
 }
