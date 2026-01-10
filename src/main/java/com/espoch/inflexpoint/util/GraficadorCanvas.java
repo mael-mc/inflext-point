@@ -13,20 +13,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
-/**
- * Graficador interactivo usando Canvas.
- * 
- * Características:
- * - Zoom con rueda del mouse
- * - Pan (arrastre) con mouse
- * - Mostrar coordenadas al hacer hover
- * - Grafica cualquier función evaluable
- * - Marca puntos críticos visualmente
- */
 public class GraficadorCanvas {
 
-    private Canvas canvas;
-    private GraphicsContext gc;
+    private final Canvas canvas;
+    private final GraphicsContext gc;
 
     // Rango visible actual
     private double minX = -10.0;
@@ -44,9 +34,7 @@ public class GraficadorCanvas {
     private ResultadoAnalisis resultado;
     private String expresion;
 
-    /**
-     * Crea un graficador con Canvas de tamaño específico.
-     */
+    // Crea un graficador con Canvas de tamaño específico.
     public GraficadorCanvas(double width, double height) {
         canvas = new Canvas(width, height);
         gc = canvas.getGraphicsContext2D();
@@ -54,25 +42,21 @@ public class GraficadorCanvas {
         configurarEventos();
     }
 
-    /**
-     * Configura eventos de mouse para interactividad.
-     */
+    // Configura eventos de mouse para interactividad.
     private void configurarEventos() {
         // Zoom con rueda del mouse
-        canvas.setOnScroll(this::handleScroll);
+        canvas.setOnScroll(this::manejarDesplazamiento);
 
         // Pan con arrastre
-        canvas.setOnMousePressed(this::handleMousePressed);
-        canvas.setOnMouseDragged(this::handleMouseDragged);
-        canvas.setOnMouseReleased(this::handleMouseReleased);
+        canvas.setOnMousePressed(this::manejarMousePresionado);
+        canvas.setOnMouseDragged(this::manejarMouseArrastrado);
+        canvas.setOnMouseReleased(this::manejarMouseLiberado);
 
         // Mostrar coordenadas
-        canvas.setOnMouseMoved(this::handleMouseMoved);
+        canvas.setOnMouseMoved(this::manejarMouseMovido);
     }
 
-    /**
-     * Grafica una función con sus puntos críticos.
-     */
+    // Grafica una función con sus puntos críticos.
     public void graficar(String expresion, ResultadoAnalisis resultado)
             throws ExpresionInvalidaException {
         System.out.println("GraficadorCanvas.graficar llamado con: " + expresion);
@@ -84,9 +68,7 @@ public class GraficadorCanvas {
         dibujar();
     }
 
-    /**
-     * Dibuja todo el contenido del canvas.
-     */
+    // Dibuja todo el contenido del canvas.
     private void dibujar() {
         // Limpiar canvas
         gc.setFill(Color.WHITE);
@@ -112,9 +94,7 @@ public class GraficadorCanvas {
         dibujarTitulo();
     }
 
-    /**
-     * Dibuja la cuadrícula de fondo.
-     */
+    // Dibuja la cuadrícula de fondo.
     private void dibujarCuadricula() {
         gc.setStroke(Color.LIGHTGRAY);
         gc.setLineWidth(0.5);
@@ -129,21 +109,19 @@ public class GraficadorCanvas {
         // Líneas verticales
         double stepX = calcularStep(rangoX);
         for (double x = Math.ceil(minX / stepX) * stepX; x <= maxX; x += stepX) {
-            double screenX = xToScreen(x);
+            double screenX = xAPantalla(x);
             gc.strokeLine(screenX, 0, screenX, height);
         }
 
         // Líneas horizontales
         double stepY = calcularStep(rangoY);
         for (double y = Math.ceil(minY / stepY) * stepY; y <= maxY; y += stepY) {
-            double screenY = yToScreen(y);
+            double screenY = yAPantalla(y);
             gc.strokeLine(0, screenY, width, screenY);
         }
     }
 
-    /**
-     * Calcula el espaciado apropiado para la cuadrícula.
-     */
+    // Calcula el espaciado apropiado para la cuadrícula.
     private double calcularStep(double rango) {
         double[] steps = { 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100 };
         double targetLines = 10;
@@ -157,9 +135,7 @@ public class GraficadorCanvas {
         return steps[steps.length - 1];
     }
 
-    /**
-     * Dibuja los ejes X e Y.
-     */
+    // Dibuja los ejes X e Y.
     private void dibujarEjes() {
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(2);
@@ -169,7 +145,7 @@ public class GraficadorCanvas {
 
         // Eje Y (x = 0)
         if (minX <= 0 && maxX >= 0) {
-            double screenX = xToScreen(0);
+            double screenX = xAPantalla(0);
             gc.strokeLine(screenX, 0, screenX, height);
 
             // Etiqueta Y
@@ -181,7 +157,7 @@ public class GraficadorCanvas {
 
         // Eje X (y = 0)
         if (minY <= 0 && maxY >= 0) {
-            double screenY = yToScreen(0);
+            double screenY = yAPantalla(0);
             gc.strokeLine(0, screenY, width, screenY);
 
             // Etiqueta X
@@ -192,9 +168,7 @@ public class GraficadorCanvas {
         dibujarMarcasEjes();
     }
 
-    /**
-     * Dibuja las marcas numéricas en los ejes.
-     */
+    // Dibuja las marcas numéricas en los ejes.
     private void dibujarMarcasEjes() {
         gc.setFill(Color.BLACK);
         gc.setFont(Font.font(10));
@@ -207,10 +181,10 @@ public class GraficadorCanvas {
 
         // Marcas en eje X
         if (minY <= 0 && maxY >= 0) {
-            double screenY = yToScreen(0);
+            double screenY = yAPantalla(0);
             for (double x = Math.ceil(minX / stepX) * stepX; x <= maxX; x += stepX) {
                 if (Math.abs(x) > 0.001) { // Evitar el 0
-                    double screenX = xToScreen(x);
+                    double screenX = xAPantalla(x);
                     gc.fillText(String.format("%.1f", x), screenX, screenY + 15);
                 }
             }
@@ -218,19 +192,17 @@ public class GraficadorCanvas {
 
         // Marcas en eje Y
         if (minX <= 0 && maxX >= 0) {
-            double screenX = xToScreen(0);
+            double screenX = xAPantalla(0);
             for (double y = Math.ceil(minY / stepY) * stepY; y <= maxY; y += stepY) {
                 if (Math.abs(y) > 0.001) { // Evitar el 0
-                    double screenY = yToScreen(y);
+                    double screenY = yAPantalla(y);
                     gc.fillText(String.format("%.1f", y), screenX - 20, screenY + 4);
                 }
             }
         }
     }
 
-    /**
-     * Dibuja la función.
-     */
+    // Dibuja la función.
     private void dibujarFuncion() {
         gc.setStroke(Color.web("#FF6B35")); // Naranja
         gc.setLineWidth(2.5);
@@ -259,8 +231,8 @@ public class GraficadorCanvas {
                     continue;
                 }
 
-                double screenX = xToScreen(x);
-                double screenY = yToScreen(y);
+                double screenX = xAPantalla(x);
+                double screenY = yAPantalla(y);
 
                 // Verificar que esté dentro del canvas
                 if (screenY < -100 || screenY > canvas.getHeight() + 100) {
@@ -270,7 +242,7 @@ public class GraficadorCanvas {
                 }
 
                 // Dibujar línea si hay punto previo
-                if (prevScreenX != null && prevScreenY != null) {
+                if (prevScreenX != null) {
                     // Evitar líneas verticales largas (discontinuidades)
                     if (Math.abs(screenY - prevScreenY) < canvas.getHeight() / 2) {
                         gc.strokeLine(prevScreenX, prevScreenY, screenX, screenY);
@@ -285,7 +257,7 @@ public class GraficadorCanvas {
                 prevScreenX = null;
                 prevScreenY = null;
             } catch (Exception e) {
-                System.out.println("Error INESPERADO graficando en x=" + x + ": " + e.toString());
+                System.out.println("Error INESPERADO graficando en x=" + x + ": " + e);
                 e.printStackTrace();
                 prevScreenX = null;
                 prevScreenY = null;
@@ -293,9 +265,7 @@ public class GraficadorCanvas {
         }
     }
 
-    /**
-     * Dibuja los puntos críticos.
-     */
+    // Dibuja los puntos críticos.
     private void dibujarPuntosCriticos() {
         // Dibujar puntos críticos (máximos y mínimos)
         if (resultado.getPuntosCriticos() != null) {
@@ -316,12 +286,10 @@ public class GraficadorCanvas {
         }
     }
 
-    /**
-     * Dibuja un punto marcado en la gráfica.
-     */
+    // Dibuja un punto marcado en la gráfica.
     private void dibujarPunto(double x, double y, Color color, String etiqueta) {
-        double screenX = xToScreen(x);
-        double screenY = yToScreen(y);
+        double screenX = xAPantalla(x);
+        double screenY = yAPantalla(y);
 
         // Verificar que esté visible
         if (screenX < 0 || screenX > canvas.getWidth() ||
@@ -344,9 +312,7 @@ public class GraficadorCanvas {
         gc.fillText(etiqueta, screenX + 8, screenY - 8);
     }
 
-    /**
-     * Dibuja el título de la gráfica.
-     */
+    // Dibuja el título de la gráfica.
     private void dibujarTitulo() {
         if (expresion != null) {
             gc.setFill(Color.BLACK);
@@ -358,30 +324,30 @@ public class GraficadorCanvas {
 
     // ===== Conversión de coordenadas =====
 
-    private double xToScreen(double x) {
+    private double xAPantalla(double x) {
         return (x - minX) / (maxX - minX) * canvas.getWidth();
     }
 
-    private double yToScreen(double y) {
+    private double yAPantalla(double y) {
         return canvas.getHeight() - (y - minY) / (maxY - minY) * canvas.getHeight();
     }
 
-    private double screenToX(double screenX) {
+    private double pantallaAX(double screenX) {
         return minX + (screenX / canvas.getWidth()) * (maxX - minX);
     }
 
-    private double screenToY(double screenY) {
+    private double pantallaAY(double screenY) {
         return minY + ((canvas.getHeight() - screenY) / canvas.getHeight()) * (maxY - minY);
     }
 
     // ===== Manejo de eventos =====
 
-    private void handleScroll(ScrollEvent event) {
+    private void manejarDesplazamiento(ScrollEvent event) {
         double zoomFactor = event.getDeltaY() > 0 ? 0.9 : 1.1;
 
         // Zoom centrado en el mouse
-        double mouseX = screenToX(event.getX());
-        double mouseY = screenToY(event.getY());
+        double mouseX = pantallaAX(event.getX());
+        double mouseY = pantallaAY(event.getY());
 
         double rangoX = maxX - minX;
         double rangoY = maxY - minY;
@@ -398,14 +364,14 @@ public class GraficadorCanvas {
         event.consume();
     }
 
-    private void handleMousePressed(MouseEvent event) {
+    private void manejarMousePresionado(MouseEvent event) {
         isDragging = true;
         lastMouseX = event.getX();
         lastMouseY = event.getY();
         canvas.setCursor(javafx.scene.Cursor.CLOSED_HAND);
     }
 
-    private void handleMouseDragged(MouseEvent event) {
+    private void manejarMouseArrastrado(MouseEvent event) {
         if (isDragging) {
             double dx = event.getX() - lastMouseX;
             double dy = event.getY() - lastMouseY;
@@ -425,20 +391,17 @@ public class GraficadorCanvas {
         }
     }
 
-    private void handleMouseReleased(MouseEvent event) {
+    private void manejarMouseLiberado(MouseEvent event) {
         isDragging = false;
         canvas.setCursor(javafx.scene.Cursor.DEFAULT);
     }
 
-    private void handleMouseMoved(MouseEvent event) {
-        // NO redibujar todo en cada movimiento de mouse
-        // Solo mostrar coordenadas sin redibujar la función
-        // (Para evitar problemas de rendimiento)
+    private void manejarMouseMovido(MouseEvent event) {
+
     }
 
-    /**
-     * Resetea el zoom al rango original.
-     */
+    // Resetea el zoom al rango original.
+
     public void resetearZoom() {
         minX = -10.0;
         maxX = 10.0;
@@ -447,17 +410,13 @@ public class GraficadorCanvas {
         dibujar();
     }
 
-    /**
-     * Obtiene el Canvas para añadir a la UI.
-     */
+    // Obtiene el Canvas para añadir a la UI.
     public Canvas getCanvas() {
         return canvas;
     }
 
-    /**
-     * Ajusta el tamaño del canvas y redibuja.
-     */
-    public void setSize(double width, double height) {
+    // Ajusta el tamaño del canvas y redibuja.
+    public void establecerTamanio(double width, double height) {
         // Validar tamaños mínimos y máximos
         if (width <= 0 || height <= 0) {
             return; // Ignorar tamaños inválidos

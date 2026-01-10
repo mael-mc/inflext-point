@@ -1,6 +1,6 @@
 package com.espoch.inflexpoint.util;
 
-import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -9,13 +9,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 
-/**
- * Teclado virtual flotante para ingreso de expresiones matemáticas.
- */
+// Teclado virtual flotante para ingreso de expresiones matemáticas.
 public class TecladoVirtual {
 
     private final Popup popup;
-    private TextField targetField;
+    private TextField inputField;
 
     public TecladoVirtual() {
         this.popup = new Popup();
@@ -25,8 +23,7 @@ public class TecladoVirtual {
 
     private void inicializarUI() {
         VBox root = new VBox();
-        root.setStyle(
-                "-fx-background-color: #f0f0f0; -fx-border-color: #cccccc; -fx-border-width: 1px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0); -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5;");
+        root.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #cccccc; -fx-border-width: 1px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0); -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5;");
         root.setSpacing(10);
 
         GridPane grid = new GridPane();
@@ -68,39 +65,38 @@ public class TecladoVirtual {
         agregarBoton(grid, "-", "-", 5, 3);
 
         // Fila 4: 0, punto, borrar
-        Button btnAC = createStyledButton("AC", "#e74c3c");
+        Button btnAC = crearStyledButton("AC", "#e74c3c");
         btnAC.setOnAction(e -> {
-            if (targetField != null)
-                targetField.clear();
+            if (inputField != null)
+                inputField.clear();
         });
         grid.add(btnAC, 0, 4);
 
-        Button btnDel = createStyledButton("DEL", "#e74c3c");
+        Button btnDel = crearStyledButton("DEL", "#e74c3c");
         btnDel.setOnAction(e -> borrarCaracter());
         grid.add(btnDel, 1, 4);
 
         agregarBoton(grid, "0", "0", 2, 4);
         agregarBoton(grid, ".", ".", 3, 4);
 
-        Button btnOk = createStyledButton("OK", "#2ecc71");
+        Button btnOk = crearStyledButton("OK", "#2ecc71");
         btnOk.setOnAction(e -> popup.hide());
-        grid.add(btnOk, 4, 4, 2, 1); // Span 2 columnas
+        grid.add(btnOk, 4, 4, 2, 1);
         btnOk.setMaxWidth(Double.MAX_VALUE);
 
         // Estilos extra para botones específicos de números para diferenciarlos
-        // (Opcional, ya que createStyledButton usa un estilo base)
-
+        // Ya que crearStyledButton usa un estilo base
         root.getChildren().add(grid);
         popup.getContent().add(root);
     }
 
     private void agregarBoton(GridPane grid, String label, String value, int col, int row) {
-        Button btn = createStyledButton(label, "#ffffff"); // Blanco por defecto
+        Button btn = crearStyledButton(label, "#FFFFFF");
         btn.setOnAction(e -> insertarTexto(value));
         grid.add(btn, col, row);
     }
 
-    private Button createStyledButton(String text, String colorHex) {
+    private Button crearStyledButton(String text, String colorHex) {
         Button btn = new Button(text);
         btn.setPrefWidth(45);
         btn.setPrefHeight(40);
@@ -125,52 +121,45 @@ public class TecladoVirtual {
     }
 
     private void insertarTexto(String texto) {
-        if (targetField == null)
+        if (inputField == null)
             return;
 
-        int caretPos = targetField.getCaretPosition();
-        String currentText = targetField.getText();
+        int caretPos = inputField.getCaretPosition();
+        String currentText = inputField.getText();
 
         // Si no hay texto o cursor al final
         if (caretPos >= currentText.length()) {
-            targetField.appendText(texto);
+            inputField.appendText(texto);
         } else {
             // Insertar en la posición del cursor
             String newText = currentText.substring(0, caretPos) + texto + currentText.substring(caretPos);
-            targetField.setText(newText);
-            targetField.positionCaret(caretPos + texto.length());
+            inputField.setText(newText);
+            inputField.positionCaret(caretPos + texto.length());
         }
-        targetField.requestFocus();
+        inputField.requestFocus();
     }
 
     private void borrarCaracter() {
-        if (targetField == null)
+        if (inputField == null)
             return;
 
-        int caretPos = targetField.getCaretPosition();
+        int caretPos = inputField.getCaretPosition();
         if (caretPos > 0) {
-            String currentText = targetField.getText();
+            String currentText = inputField.getText();
             String newText = currentText.substring(0, caretPos - 1) + currentText.substring(caretPos);
-            targetField.setText(newText);
-            targetField.positionCaret(caretPos - 1);
+            inputField.setText(newText);
+            inputField.positionCaret(caretPos - 1);
         }
-        targetField.requestFocus();
+        inputField.requestFocus();
     }
 
-    /**
-     * Muestra el teclado vinculado al campo de texto especificado.
-     * 
-     * @param targetField El TextField donde se escribirá.
-     * @param anchorNode  El nodo visual (botón) cerca del cual aparecerá el
-     *                    teclado.
-     */
-    public void mostrar(TextField targetField, Node anchorNode) {
-        this.targetField = targetField;
+    public void mostrar(TextField inputField, Node anchorNode) {
+        this.inputField = inputField;
         if (popup.isShowing()) {
             popup.hide();
         } else {
             // Mostrar debajo del nodo ancla
-            javafx.geometry.Point2D point = anchorNode.localToScreen(0, 0);
+            Point2D point = anchorNode.localToScreen(0, 0);
             popup.show(anchorNode, point.getX(), point.getY() + anchorNode.getBoundsInLocal().getHeight() + 5);
         }
     }

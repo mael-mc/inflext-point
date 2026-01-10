@@ -3,70 +3,61 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
 
 <?import java.net.URL?>
-<AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.espoch.inflexpoint.controladores.paneles.AyudaControlador">
-   <stylesheets>
-      <URL value="@../estilos/estilos.css" />
-   </stylesheets>
-   <children>
-      <VBox spacing="25.0" styleClass="help-container" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <Label styleClass="help-header-title" text="AYUDA Y DOCUMENTACIÓN" />
-            <ScrollPane fitToWidth="true" styleClass="modern-scroll-pane" VBox.vgrow="ALWAYS">
-               <content>
-                  <VBox spacing="20.0">
-                     <children>
-                        <VBox styleClass="help-card">
-                           <children>
-                              <Label styleClass="help-card-title" text="1. Cómo usar la aplicación" />
-                              <Label styleClass="help-card-text" text="Paso 1: Seleccione el tipo de función (lineal, cuadrática, exponencial, etc.)&#10;Paso 2: Elija qué cálculo desea realizar&#10;Paso 3: Ingrese la función usando 'x' como variable&#10;Paso 4: Haga clic en 'CALCULAR'&#10;Paso 5: Observe los resultados y el gráfico" wrapText="true" />
-                           </children>
-                        </VBox>
-                        
-                        <VBox styleClass="help-card">
-                           <children>
-                              <Label styleClass="help-card-title" text="2. Sintaxis para ingresar funciones" />
-                              <Label styleClass="help-card-text" text="Ejemplos correctos:&#10;• Lineal: 2*x + 3&#10;• Cuadrática: x^2 + 2*x - 5&#10;• Exponencial: 2^x&#10;• Logarítmica: ln(x)&#10;• Trigonométrica: sin(x), cos(x), tan(x)&#10;&#10;Operadores soportados: +, -, *, /, ^&#10;Funciones: sin, cos, tan, ln, log, sqrt" wrapText="true" />
-                           </children>
-                        </VBox>
-                        
-                        <VBox styleClass="help-card">
-                           <children>
-                              <Label styleClass="help-card-title" text="3. Interpretación de resultados" />
-                              <Label styleClass="help-card-text" text="Puntos críticos:&#10;• MÁXIMO: Punto donde f'(x) = 0 y f''(x) &lt; 0&#10;• MÍNIMO: Punto donde f'(x) = 0 y f''(x) &gt; 0&#10;• INFLEXIÓN: Punto donde f''(x) = 0 y cambia concavidad&#10;&#10;Intervalos:&#10;• CRECIENTE: Donde f'(x) &gt; 0&#10;• DECRECIENTE: Donde f'(x) &lt; 0&#10;• CONCAVIDAD ARRIBA: Donde f''(x) &gt; 0&#10;• CONCAVIDAD ABAJO: Donde f''(x) &lt; 0" wrapText="true" />
-                           </children>
-                        </VBox>
-                        
-                        <VBox styleClass="help-card">
-                           <children>
-                              <Label styleClass="help-card-title" text="4. Gráfico" />
-                              <Label styleClass="help-card-text" text="El gráfico muestra:&#10;• La función en azul&#10;• Puntos máximos en rojo&#10;• Puntos mínimos en verde&#10;• Puntos de inflexión en naranja&#10;• Ejes X e Y con escala automática&#10;• Rejilla para facilitar la lectura" wrapText="true" />
-                           </children>
-                        </VBox>
-                        
-                        <VBox styleClass="help-card">
-                           <children>
-                              <Label styleClass="help-card-title" text="5. Limitaciones y consideraciones" />
-                              <Label styleClass="help-card-text" text="• No use números en exceso para evitar errores de precisión&#10;• Las funciones trigonométricas trabajan con radianes&#10;• Evite logaritmos de números negativos o cero&#10;• Las divisiones por cero se manejan automáticamente&#10;• El dominio se ajusta según el tipo de función" wrapText="true" />
-                           </children>
-                        </VBox>
-                     </children>
-                     <padding>
-                        <Insets bottom="15.0" right="20.0" />
-                     </padding>
-                  </VBox>
-               </content>
-            </ScrollPane>
-         </children>
-         <padding>
-            <Insets bottom="20.0" left="25.0" right="25.0" top="25.0" />
-         </padding>
-      </VBox>
-   </children>
+<AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.espoch.inflexpoint.controladores.paneles.AyudaControlador">
+    <stylesheets>
+        <URL value="@../estilos/estilos.css"/>
+    </stylesheets>
+    <VBox spacing="25.0" styleClass="help-container" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets bottom="20.0" left="25.0" right="25.0" top="25.0"/>
+        </padding>
+        <Label styleClass="help-header-title" text="AYUDA Y DOCUMENTACIÓN"/>
+        <ScrollPane fitToWidth="true" styleClass="modern-scroll-pane" VBox.vgrow="ALWAYS">
+            <VBox spacing="20.0">
+                <padding>
+                    <Insets bottom="15.0" right="20.0"/>
+                </padding>
+                <VBox styleClass="help-card">
+                    <Label styleClass="help-card-title" text="1. Cómo usar la aplicación"/>
+                    <Label styleClass="help-card-text"
+                           text="Paso 1: Seleccione el tipo de función (lineal, cuadrática, exponencial, etc.)&#10;Paso 2: Elija qué cálculo desea realizar&#10;Paso 3: Ingrese la función usando 'x' como variable&#10;Paso 4: Haga clic en 'CALCULAR'&#10;Paso 5: Observe los resultados y el gráfico"
+                           wrapText="true"/>
+                </VBox>
+
+                <VBox styleClass="help-card">
+                    <Label styleClass="help-card-title" text="2. Sintaxis para ingresar funciones"/>
+                    <Label styleClass="help-card-text"
+                           text="Ejemplos correctos:&#10;• Lineal: 2*x + 3&#10;• Cuadrática: x^2 + 2*x - 5&#10;• Exponencial: 2^x&#10;• Logarítmica: ln(x)&#10;• Trigonométrica: sin(x), cos(x), tan(x)&#10;&#10;Operadores soportados: +, -, *, /, ^&#10;Funciones: sin, cos, tan, ln, log, sqrt"
+                           wrapText="true"/>
+                </VBox>
+
+                <VBox styleClass="help-card">
+                    <Label styleClass="help-card-title" text="3. Interpretación de resultados"/>
+                    <Label styleClass="help-card-text"
+                           text="Puntos críticos:&#10;• MÁXIMO: Punto donde f'(x) = 0 y f''(x) &lt; 0&#10;• MÍNIMO: Punto donde f'(x) = 0 y f''(x) &gt; 0&#10;• INFLEXIÓN: Punto donde f''(x) = 0 y cambia concavidad&#10;&#10;Intervalos:&#10;• CRECIENTE: Donde f'(x) &gt; 0&#10;• DECRECIENTE: Donde f'(x) &lt; 0&#10;• CONCAVIDAD ARRIBA: Donde f''(x) &gt; 0&#10;• CONCAVIDAD ABAJO: Donde f''(x) &lt; 0"
+                           wrapText="true"/>
+                </VBox>
+
+                <VBox styleClass="help-card">
+                    <Label styleClass="help-card-title" text="4. Gráfico"/>
+                    <Label styleClass="help-card-text"
+                           text="El gráfico muestra:&#10;• La función en azul&#10;• Puntos máximos en rojo&#10;• Puntos mínimos en verde&#10;• Puntos de inflexión en naranja&#10;• Ejes X e Y con escala automática&#10;• Rejilla para facilitar la lectura"
+                           wrapText="true"/>
+                </VBox>
+
+                <VBox styleClass="help-card">
+                    <Label styleClass="help-card-title" text="5. Limitaciones y consideraciones"/>
+                    <Label styleClass="help-card-text"
+                           text="• No use números en exceso para evitar errores de precisión&#10;• Las funciones trigonométricas trabajan con radianes&#10;• Evite logaritmos de números negativos o cero&#10;• Las divisiones por cero se manejan automáticamente&#10;• El dominio se ajusta según el tipo de función"
+                           wrapText="true"/>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
 </AnchorPane>

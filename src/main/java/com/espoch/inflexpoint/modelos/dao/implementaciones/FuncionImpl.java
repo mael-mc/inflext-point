@@ -9,24 +9,25 @@ import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
 
 /**
  * Implementación del DAO para funciones matemáticas.
- * 
- * Responsabilidades:
- * - Validar entidad Funcion antes de procesarla
- * - Delegar análisis al servicio AnalizadorFuncion
- * - Manejar excepciones del servicio de manera apropiada
- * - Actuar como intermediario entre controlador y servicio
+ * RESPONSABILIDADES:
+ * 1. Validar entidad Funcion antes de procesarla
+ * 2. Delegar análisis al servicio AnalizadorFuncion
+ * 3. Manejar excepciones del servicio de manera apropiada
+ * 4. Actuar como intermediario entre controlador y servicio
  */
 public class FuncionImpl implements IFuncion {
 
-    private AnalizadorFuncion analizador;
+    private final AnalizadorFuncion analizador;
 
+    // Constructor
     public FuncionImpl() {
         this.analizador = new AnalizadorFuncion();
     }
 
+
     /**
      * Analiza una función matemática.
-     * 
+     *
      * @param funcion            La función a analizar
      * @param calcPuntosCriticos true para calcular puntos críticos
      * @param calcIntervalos     true para calcular intervalos
@@ -37,6 +38,7 @@ public class FuncionImpl implements IFuncion {
      * @throws ExpresionInvalidaException si la expresión de la función es inválida
      * @throws CalculoNumericoException   si hay errores en los cálculos
      */
+    // Función analizar
     @Override
     public ResultadoAnalisis analizar(
             Funcion funcion,
@@ -63,8 +65,7 @@ public class FuncionImpl implements IFuncion {
             double fin = funcion.getDominioFuncion().getHasta();
 
             if (inicio >= fin) {
-                throw new IllegalArgumentException(
-                        "El dominio es inválido: inicio debe ser menor que fin");
+                throw new IllegalArgumentException("El dominio es inválido: inicio debe ser menor que fin");
             }
 
             // Analizar en el dominio especificado

@@ -3,19 +3,6 @@ package com.espoch.inflexpoint.modelos.calculos;
 import com.espoch.inflexpoint.modelos.entidades.Intervalo;
 import com.espoch.inflexpoint.modelos.entidades.PuntoCritico;
 
-/**
- * Resultado del análisis matemático de una función.
- * 
- * Esta clase encapsula todos los resultados calculados por el
- * AnalizadorFuncion,
- * usando las entidades del dominio en lugar de simples Strings.
- * 
- * Responsabilidades:
- * - Almacenar puntos críticos encontrados
- * - Almacenar puntos de inflexión
- * - Almacenar intervalos de monotonía y concavidad
- * - Generar resúmenes textuales de los resultados
- */
 public class ResultadoAnalisis {
 
     // Puntos críticos (máximos y mínimos)
@@ -37,9 +24,8 @@ public class ResultadoAnalisis {
     private String primeraDerivada;
     private String segundaDerivada;
 
-    /**
-     * Constructor completo.
-     */
+    // Constructor completo.
+
     public ResultadoAnalisis(
             PuntoCritico[] puntosCriticos,
             PuntoCritico[] puntosInflexion,
@@ -135,11 +121,7 @@ public class ResultadoAnalisis {
         this.segundaDerivada = segundaDerivada;
     }
 
-    /**
-     * Genera un resumen textual completo del análisis.
-     * 
-     * @return String con el resumen formateado
-     */
+    // Genera un resumen textual completo del análisis.
     public String generarResumen() {
         StringBuilder resumen = new StringBuilder();
 
@@ -217,11 +199,7 @@ public class ResultadoAnalisis {
         return String.format("  (%s, %s) → %s", inicio, fin, intervalo.getTipoIntervalo());
     }
 
-    /**
-     * Verifica si hay algún resultado calculado.
-     * 
-     * @return true si al menos hay un resultado, false si está vacío
-     */
+    // Verifica si hay algún resultado calculado.
     public boolean tieneResultados() {
         return (puntosCriticos != null && puntosCriticos.length > 0) ||
                 (puntosInflexion != null && puntosInflexion.length > 0) ||

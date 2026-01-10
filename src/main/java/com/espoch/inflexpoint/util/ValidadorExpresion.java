@@ -4,7 +4,6 @@ import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
 
 /**
  * Utilidad para validar expresiones matemáticas antes de su evaluación.
- * 
  * Responsabilidades:
  * - Verificar paréntesis balanceados
  * - Validar caracteres permitidos
@@ -12,7 +11,6 @@ import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
  */
 public class ValidadorExpresion {
 
-    // Caracteres permitidos en expresiones
     // Caracteres permitidos en expresiones
     private static final String CARACTERES_PERMITIDOS = "0123456789+-*/^().abcdefghijklmnopqrstuvwxyz ";
 
@@ -23,7 +21,7 @@ public class ValidadorExpresion {
      * @throws ExpresionInvalidaException si la expresión es inválida
      */
     public static void validar(String expresion) throws ExpresionInvalidaException {
-        if (expresion == null || expresion.trim().isEmpty()) {
+        if (expresion == null || expresion.trim().isEmpty()) { // Eliminar espacios en blanco al inicio y final
             throw new ExpresionInvalidaException("La expresión no puede estar vacía");
         }
 
@@ -39,10 +37,9 @@ public class ValidadorExpresion {
         String expr = expresion.toLowerCase().replace(" ", "");
 
         for (int i = 0; i < expr.length(); i++) {
-            char c = expr.charAt(i);
-            if (CARACTERES_PERMITIDOS.indexOf(c) == -1) {
-                throw new ExpresionInvalidaException(
-                        "Carácter no permitido: '" + c + "' en posición " + i);
+            char caracter = expr.charAt(i);
+            if (CARACTERES_PERMITIDOS.indexOf(caracter) == -1) { // Busca el caracter en el string
+                throw new ExpresionInvalidaException("Carácter no permitido: '" + caracter + "' en posición " + i);
             }
         }
     }
@@ -51,26 +48,26 @@ public class ValidadorExpresion {
      * Verifica que los paréntesis estén balanceados.
      */
     private static void validarParentesis(String expresion) throws ExpresionInvalidaException {
-        int balance = 0;
+        int balanceParentesis = 0;
 
         for (int i = 0; i < expresion.length(); i++) {
-            char c = expresion.charAt(i);
-            if (c == '(') {
-                balance++;
-            } else if (c == ')') {
-                balance--;
+            char caracter = expresion.charAt(i);
+            if (caracter == '(') {
+                balanceParentesis++;
+            } else if (caracter == ')') {
+                balanceParentesis--;
             }
 
-            // Si balance es negativo, hay más ')' que '('
-            if (balance < 0) {
-                throw new ExpresionInvalidaException(
-                        "Paréntesis de cierre sin apertura en posición " + i);
+            // Si balanceParentesis es negativo, hay más ')' que '('
+            if (balanceParentesis < 0) {
+                throw new ExpresionInvalidaException("Paréntesis de cierre sin apertura en posición " + i);
             }
         }
 
-        if (balance > 0) {
+        // Muestra la cantidad de paréntesis faltantes
+        if (balanceParentesis > 0) {
             throw new ExpresionInvalidaException(
-                    "Faltan " + balance + " paréntesis de cierre");
+                    "Faltan " + balanceParentesis + " paréntesis de cierre");
         }
     }
 
@@ -92,15 +89,14 @@ public class ValidadorExpresion {
                     // Excluir casos donde uno es unario
                     if (i > 0 || !((actual == '+' || actual == '-'))) {
                         throw new ExpresionInvalidaException(
-                                "Operadores consecutivos inválidos: '" + actual + siguiente +
-                                        "' en posición " + i);
+                                "Operadores consecutivos inválidos: '" + actual + siguiente + "' en posición " + i);
                     }
                 }
             }
         }
 
         // Verificar que no termine con operador binario
-        if (expr.length() > 0) {
+        if (!expr.isEmpty()) {
             char ultimo = expr.charAt(expr.length() - 1);
             if (esOperadorBinario(ultimo) && ultimo != ')') {
                 throw new ExpresionInvalidaException(

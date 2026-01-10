@@ -1,6 +1,6 @@
 package com.espoch.inflexpoint.controladores.paneles;
 
-import com.espoch.inflexpoint.modelos.calculos.HistoryManager;
+import com.espoch.inflexpoint.modelos.calculos.GestorHistorial;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -36,13 +36,13 @@ public class HistorialFuncionesControlador implements Initializable {
 
     @FXML
     private void onLimpiarHistorial(ActionEvent event) {
-        HistoryManager.getInstance().clearHistory();
+        GestorHistorial.getInstancia().limpiarHistorial();
         vboxHistorial.getChildren().clear();
     }
 
     private void cargarHistorial() {
         vboxHistorial.getChildren().clear();
-        List<String> history = HistoryManager.getInstance().getHistory();
+        List<String> history = GestorHistorial.getInstancia().getHistorial();
 
         for (String expression : history) {
             HBox itemContainer = new HBox(5);
@@ -69,7 +69,7 @@ public class HistorialFuncionesControlador implements Initializable {
                     "-fx-background-color: #ff5252; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 2 8; -fx-cursor: hand;");
 
             btnDelete.setOnAction(event -> {
-                HistoryManager.getInstance().removeExpression(expression);
+                GestorHistorial.getInstancia().eliminarExpresion(expression);
                 cargarHistorial();
             });
 

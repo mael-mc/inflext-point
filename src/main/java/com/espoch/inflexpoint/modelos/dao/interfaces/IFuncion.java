@@ -5,16 +5,13 @@ import com.espoch.inflexpoint.modelos.entidades.Funcion;
 import com.espoch.inflexpoint.modelos.excepciones.CalculoNumericoException;
 import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
 
-/**
- * Interfaz DAO para operaciones con funciones matemáticas.
- * 
- * Define el contrato para el análisis de funciones.
- */
+    // Interfaz DAO para operaciones con funciones matemáticas.
+    // Define el contrato para el análisis de funciones.
 public interface IFuncion {
 
     /**
-     * Analiza una función matemática calculando los elementos solicitados.
-     * 
+     * // Analiza una función matemática calculando los elementos solicitados.
+     *
      * @param funcion            La función a analizar
      * @param calcPuntosCriticos true para calcular puntos críticos
      * @param calcIntervalos     true para calcular intervalos de monotonía

@@ -5,8 +5,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -23,60 +21,55 @@
       <AnchorPane fx:id="panelCarga" />
    </center>
    <top>
-      <VBox BorderPane.alignment="CENTER">
-         <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="20.0" styleClass="header-bar">
-               <children>
-                  <HBox alignment="CENTER_LEFT" spacing="20.0" HBox.hgrow="SOMETIMES">
-                     <children>
-                        <HBox fx:id="hboxLogo" alignment="CENTER" maxHeight="40.0" minWidth="40.0" prefWidth="40.0">
-                           <children>
-                              <Circle fx:id="circleLogo" fill="WHITE" radius="17.5" stroke="#ffffff" strokeType="INSIDE" />
-                           </children>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <HBox.margin>
-                              <Insets left="20.0" />
-                           </HBox.margin>
-                        </HBox>
-                        <Label alignment="TOP_LEFT" minWidth="232.0" prefHeight="54.0" prefWidth="232.0" text="INFLEX POINT" textFill="WHITE">
-                           <font>
-                              <Font name="System Bold" size="30.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
-                     <children>
-                        <TextField fx:id="txtBuscar" maxWidth="400.0" onAction="#onBuscar" prefHeight="34.0" prefWidth="261.0" promptText="Buscar..." HBox.hgrow="ALWAYS">
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </TextField>
-                        <Button fx:id="btnSalir" mnemonicParsing="false" onAction="#onBtnSalir" prefHeight="30.0" prefWidth="60.0" styleClass="btn-salir" text="SALIR" textFill="WHITE">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Button>
-                     </children>
-                  </HBox>
-               </children>
+       <VBox BorderPane.alignment="CENTER">
+           <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="20.0" styleClass="header-bar">
                <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
                </padding>
-            </HBox>
-            <HBox layoutX="10.0" layoutY="10.0" styleClass="nav-bar">
+               <HBox alignment="CENTER_LEFT" spacing="20.0" HBox.hgrow="SOMETIMES">
+                   <HBox fx:id="hBoxLogo" alignment="CENTER" maxHeight="40.0" minWidth="40.0" prefWidth="40.0">
+                       <opaqueInsets>
+                           <Insets/>
+                       </opaqueInsets>
+                       <HBox.margin>
+                           <Insets left="20.0"/>
+                       </HBox.margin>
+                       <Circle fx:id="circleLogo" fill="WHITE" radius="17.5" stroke="#ffffff"
+                               strokeType="INSIDE"/>
+                   </HBox>
+                   <Label alignment="TOP_LEFT" minWidth="232.0" prefHeight="54.0" prefWidth="232.0"
+                          text="INFLEX POINT" textFill="WHITE">
+                       <font>
+                           <Font name="System Bold" size="30.0"/>
+                       </font>
+                   </Label>
+               </HBox>
+               <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
+                   <TextField fx:id="txtBuscar" maxWidth="400.0" onAction="#onBuscar" prefHeight="34.0"
+                              prefWidth="261.0" promptText="Buscar..." HBox.hgrow="ALWAYS">
+                       <opaqueInsets>
+                           <Insets/>
+                       </opaqueInsets>
+                   </TextField>
+                   <Button fx:id="btnSalir" mnemonicParsing="false" onAction="#onBtnSalir" prefHeight="30.0"
+                           prefWidth="60.0" styleClass="btn-salir" text="SALIR" textFill="WHITE">
+                       <font>
+                           <Font name="System Bold" size="12.0"/>
+                       </font>
+                   </Button>
+               </HBox>
+           </HBox>
+           <HBox layoutX="10.0" layoutY="10.0" styleClass="nav-bar">
                <padding>
-                  <Insets left="30.0" right="5.0" />
+                   <Insets left="30.0" right="5.0"/>
                </padding>
-               <children>
-                  <ToggleButton fx:id="btnInicio" mnemonicParsing="false" onAction="#onBtnInicio" prefHeight="40.0" styleClass="menu-button" text="INICIO" />
-                  <ToggleButton fx:id="btnCalcular" mnemonicParsing="false" onAction="#onBtnCalcular" prefHeight="40.0" styleClass="menu-button" text="CALCULAR" />
-                  <ToggleButton fx:id="btnAyuda" layoutX="397.0" layoutY="15.0" mnemonicParsing="false" onAction="#onBtnAyuda" prefHeight="40.0" styleClass="menu-button" text="AYUDA" />
-               </children>
-            </HBox>
-         </children>
-      </VBox>
+               <ToggleButton fx:id="btnInicio" mnemonicParsing="false" onAction="#onBtnInicio" prefHeight="40.0"
+                             styleClass="menu-button" text="INICIO"/>
+               <ToggleButton fx:id="btnCalcular" mnemonicParsing="false" onAction="#onBtnCalcular" prefHeight="40.0"
+                             styleClass="menu-button" text="CALCULAR"/>
+               <ToggleButton fx:id="btnAyuda" layoutX="397.0" layoutY="15.0" mnemonicParsing="false"
+                             onAction="#onBtnAyuda" prefHeight="40.0" styleClass="menu-button" text="AYUDA"/>
+           </HBox>
+       </VBox>
    </top>
 </BorderPane>

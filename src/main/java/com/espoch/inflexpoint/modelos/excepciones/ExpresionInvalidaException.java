@@ -3,7 +3,6 @@ package com.espoch.inflexpoint.modelos.excepciones;
 /**
  * Excepción lanzada cuando una expresión matemática no puede ser parseada o
  * evaluada.
- * 
  * Ejemplos de casos:
  * - Paréntesis desbalanceados: "sin(x"
  * - Caracteres inválidos: "x + @ 2"

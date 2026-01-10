@@ -9,17 +9,6 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 
-/**
- * Utilidad para graficar funciones matemáticas.
- * 
- * Responsabilidades:
- * - Crear gráficas LineChart configuradas
- * - Evaluar funciones en un rango
- * - Marcar puntos críticos visualmente
- * - Aplicar estilos apropiados
- * 
- * Esta clase NO maneja lógica de negocio, solo presentación visual.
- */
 public class GraficadorFuncion {
 
     // Límite de valores para evitar gráficas distorsionadas
@@ -65,15 +54,13 @@ public class GraficadorFuncion {
 
         // Añadir puntos críticos si existen
         if (resultado != null) {
-            añadirPuntosCriticos(lineChart, resultado);
+            addPuntosCriticos(lineChart, resultado);
         }
 
         return lineChart;
     }
 
-    /**
-     * Crea una serie de datos evaluando la función en un rango.
-     */
+    // Crea una serie de datos evaluando la función en un rango.
     private XYChart.Series<Number, Number> crearSerieFuncion(
             String expresion, double minX, double maxX, double step)
             throws ExpresionInvalidaException {
@@ -100,10 +87,8 @@ public class GraficadorFuncion {
         return serie;
     }
 
-    /**
-     * Añade marcadores visuales para puntos críticos.
-     */
-    private void añadirPuntosCriticos(
+    // Añade marcadores visuales para puntos críticos.
+    private void addPuntosCriticos(
             LineChart<Number, Number> lineChart,
             ResultadoAnalisis resultado) {
 
@@ -152,14 +137,9 @@ public class GraficadorFuncion {
         }
     }
 
-    /**
-     * Aplica estilos visuales a una serie de puntos.
-     * Los estilos se aplicarán automáticamente por JavaFX chart.
-     */
     private void aplicarEstiloPuntos(
             XYChart.Series<Number, Number> serie, String colorName) {
-        // Los estilos se manejan automáticamente por el LineChart
-        // Se pueden personalizar via CSS si es necesario
+
     }
 
     /**

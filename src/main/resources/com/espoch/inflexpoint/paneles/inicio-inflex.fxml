@@ -13,38 +13,32 @@
 <?import javafx.scene.text.TextFlow?>
 
 
-<AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.espoch.inflexpoint.controladores.paneles.InicioControlador">
-   <children>
-      <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <Label text="BIENVENIDO A INFLEXPOINT">
-               <font>
-                  <Font name="System Bold" size="36.0" />
-               </font>
-            </Label>
-            <HBox spacing="130.0" VBox.vgrow="ALWAYS">
-               <children>
-                  <TextFlow lineSpacing="10.0" textAlignment="JUSTIFY" HBox.hgrow="ALWAYS">
-                     <children>
-                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Es una aplicación de escritorio diseñada para calcular de forma rápida y automática los puntos de inflexión de una función ingresada por el usuario. La herramienta obtiene la primera y segunda derivada, analiza dónde la concavidad cambia y muestra los resultados de manera clara y ordenada.">
-                           <font>
-                              <Font size="24.0" />
-                           </font>
-                        </Text>
-                     </children>
-                  </TextFlow>
-                  <ImageView pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../imagenes/grafica.png" />
-                     </image>
-                  </ImageView>
-               </children>
-            </HBox>
-            <Button mnemonicParsing="false" prefHeight="46.0" prefWidth="293.0" style="-fx-background-color: #44bdac;" text="EXPLORA EL MENÚ SUPERIOR PARA COMENZAR" textFill="WHITE" />
-         </children>
-         <padding>
-            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
-         </padding>
-      </VBox>
-   </children>
+<AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.espoch.inflexpoint.controladores.paneles.InicioControlador">
+    <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/>
+        </padding>
+        <Label text="BIENVENIDO A INFLEXPOINT">
+            <font>
+                <Font name="System Bold" size="36.0"/>
+            </font>
+        </Label>
+        <HBox spacing="130.0" VBox.vgrow="ALWAYS">
+            <TextFlow lineSpacing="10.0" textAlignment="JUSTIFY" HBox.hgrow="ALWAYS">
+                <Text strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Es una aplicación de escritorio diseñada para calcular de forma rápida y automática los puntos de inflexión de una función ingresada por el usuario. La herramienta obtiene la primera y segunda derivada, analiza dónde la concavidad cambia y muestra los resultados de manera clara y ordenada.">
+                    <font>
+                        <Font size="24.0"/>
+                    </font>
+                </Text>
+            </TextFlow>
+            <ImageView pickOnBounds="true" preserveRatio="true">
+                <Image url="@../imagenes/grafica.png"/>
+            </ImageView>
+        </HBox>
+        <Button mnemonicParsing="false" prefHeight="46.0" prefWidth="293.0" style="-fx-background-color: #44bdac;"
+                text="EXPLORA EL MENÚ SUPERIOR PARA COMENZAR" textFill="WHITE"/>
+    </VBox>
 </AnchorPane>

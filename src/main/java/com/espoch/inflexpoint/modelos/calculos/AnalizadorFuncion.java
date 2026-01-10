@@ -13,26 +13,24 @@ import java.util.List;
 
 /**
  * Servicio de análisis matemático de funciones.
- * 
  * Responsabilidades:
  * - Analizar funciones para encontrar puntos críticos
  * - Calcular puntos de inflexión
  * - Determinar intervalos de monotonía y concavidad
  * - Retornar resultados usando entidades del dominio
- * 
  * Este servicio NO maneja UI ni presentación, solo lógica de negocio.
  */
 public class AnalizadorFuncion {
 
     // Constantes para métodos numéricos
-    private static final double H = 0.0001; // Paso para derivadas numéricas
+    private static final double PASO_DERIVADA = 0.0001;
     private static final double TOLERANCIA_BISECCION = 1e-6;
     private static final int MAX_ITERACIONES_BISECCION = 50;
 
     // Rango de análisis por defecto
-    private static final double MIN_X_DEFAULT = -10.0;
-    private static final double MAX_X_DEFAULT = 10.0;
-    private static final double STEP_DEFAULT = 0.1;
+    private static final double MIN_X_DEFECTO = -10.0;
+    private static final double MAX_X_DEFECTO = 10.0;
+    private static final double PASO_DEFECTO = 0.1;
 
     /**
      * Interfaz funcional para derivadas genéricas.
@@ -64,26 +62,10 @@ public class AnalizadorFuncion {
             boolean calcConcavidad)
             throws ExpresionInvalidaException, CalculoNumericoException {
 
-        return analizarEnRango(expresion, MIN_X_DEFAULT, MAX_X_DEFAULT, STEP_DEFAULT,
+        return analizarEnRango(expresion, MIN_X_DEFECTO, MAX_X_DEFECTO, PASO_DEFECTO,
                 calcPuntosCriticos, calcIntervalos, calcMaxMin, calcInflexion, calcConcavidad);
     }
 
-    /**
-     * Analiza una función en un rango específico.
-     * 
-     * @param expresion          La expresión a analizar
-     * @param minX               Límite inferior del dominio
-     * @param maxX               Límite superior del dominio
-     * @param step               Paso de escaneo
-     * @param calcPuntosCriticos true para calcular puntos críticos
-     * @param calcIntervalos     true para calcular intervalos
-     * @param calcMaxMin         true para clasificar máx/mín
-     * @param calcInflexion      true para puntos de inflexión
-     * @param calcConcavidad     true para intervalos de concavidad
-     * @return ResultadoAnalisis con los resultados
-     * @throws ExpresionInvalidaException si la expresión es inválida
-     * @throws CalculoNumericoException   si hay errores numéricos
-     */
     public ResultadoAnalisis analizarEnRango(
             String expresion,
             double minX,
@@ -211,10 +193,6 @@ public class AnalizadorFuncion {
         return raices;
     }
 
-    /**
-     * Método de bisección genérico para encontrar raíces.
-     * Elimina duplicación de biseccionDerivada y biseccionSegundaDerivada.
-     */
     private double biseccion(FuncionDerivada funcion, double a, double b) {
         double fa = funcion.calcular(a);
         double fb = funcion.calcular(b);
@@ -247,9 +225,6 @@ public class AnalizadorFuncion {
         return c;
     }
 
-    /**
-     * Clasifica puntos críticos como máximos o mínimos usando la segunda derivada.
-     */
     private PuntoCritico[] clasificarPuntosCriticos(Evaluador evaluador, List<Double> raices) {
         if (raices.isEmpty()) {
             return new PuntoCritico[0];
@@ -383,25 +358,18 @@ public class AnalizadorFuncion {
         return intervalos.toArray(new Intervalo[0]);
     }
 
-    // ========== Métodos Numéricos Auxiliares ==========
-
-    /**
-     * Calcula la primera derivada numérica usando diferencias centrales.
-     */
     private double derivada(Evaluador f, double x) {
         try {
-            return (f.evaluar(x + H) - f.evaluar(x - H)) / (2 * H);
+            return (f.evaluar(x + PASO_DERIVADA) - f.evaluar(x - PASO_DERIVADA)) / (2 * PASO_DERIVADA);
         } catch (ExpresionInvalidaException e) {
             return Double.NaN;
         }
     }
 
-    /**
-     * Calcula la segunda derivada numérica.
-     */
     private double segundaDerivada(Evaluador f, double x) {
         try {
-            return (f.evaluar(x + H) - 2 * f.evaluar(x) + f.evaluar(x - H)) / (H * H);
+            return (f.evaluar(x + PASO_DERIVADA) - 2 * f.evaluar(x) + f.evaluar(x - PASO_DERIVADA))
+                    / (PASO_DERIVADA * PASO_DERIVADA);
         } catch (ExpresionInvalidaException e) {
             return Double.NaN;
         }

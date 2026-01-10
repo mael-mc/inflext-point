@@ -4,15 +4,21 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 
 public class VistaPrincipalControlador {
+
+    @FXML
+    public HBox hBoxLogo;
+    public Button btnSalir;
     // Toggle Buttons del menú
     @FXML
     private ToggleButton btnInicio;

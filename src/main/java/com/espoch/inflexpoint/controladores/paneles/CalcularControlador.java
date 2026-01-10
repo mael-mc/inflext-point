@@ -1,7 +1,7 @@
 package com.espoch.inflexpoint.controladores.paneles;
 
 import com.espoch.inflexpoint.modelos.calculos.AnalizadorFuncion;
-import com.espoch.inflexpoint.modelos.calculos.HistoryManager;
+import com.espoch.inflexpoint.modelos.calculos.GestorHistorial;
 import com.espoch.inflexpoint.modelos.calculos.ResultadoAnalisis;
 import com.espoch.inflexpoint.modelos.excepciones.CalculoNumericoException;
 import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
@@ -24,17 +24,16 @@ import java.util.ResourceBundle;
 
 /**
  * Controlador para la vista de cálculo.
- * 
  * Responsabilidades:
  * - Capturar eventos de UI (clics, entrada de texto)
  * - Validar entrada básica (campos no vacíos)
  * - Llamar servicios de cálculo
  * - Actualizar componentes visuales con resultados
  * - Mostrar mensajes al usuario
- * 
  * NO contiene lógica de negocio ni cálculos matemáticos.
  */
 public class CalcularControlador implements Initializable {
+    public VBox vboxResultado;
 
     // ===== Componentes FXML =====
 
@@ -82,12 +81,12 @@ public class CalcularControlador implements Initializable {
         // Hacer el canvas responsivo escuchando el contenedor (NO bind() + setSize())
         contenedorGrafica.widthProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.doubleValue() > 0) {
-                graficadorCanvas.setSize(newVal.doubleValue(), contenedorGrafica.getHeight());
+                graficadorCanvas.establecerTamanio(newVal.doubleValue(), contenedorGrafica.getHeight());
             }
         });
         contenedorGrafica.heightProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.doubleValue() > 0) {
-                graficadorCanvas.setSize(contenedorGrafica.getWidth(), newVal.doubleValue());
+                graficadorCanvas.establecerTamanio(contenedorGrafica.getWidth(), newVal.doubleValue());
             }
         });
 
@@ -124,7 +123,7 @@ public class CalcularControlador implements Initializable {
             mostrarResultadosTextuales(resultado);
 
             // 5.1 Guardar en el historial
-            HistoryManager.getInstance().addExpression(expresion);
+            GestorHistorial.getInstancia().agregarExpresion(expresion);
 
             // 6. Graficar usando Canvas interactivo
             System.out.println("Intentando graficar: " + expresion);
@@ -150,9 +149,8 @@ public class CalcularControlador implements Initializable {
         }
     }
 
-    /**
-     * Valida que la entrada del usuario sea correcta.
-     */
+    // Válida que la entrada del usuario sea correcta.
+
     private boolean validarEntrada(String expresion) {
         // Validar que la expresión no esté vacía
         if (expresion == null || expresion.trim().isEmpty()) {
@@ -175,27 +173,26 @@ public class CalcularControlador implements Initializable {
         return true;
     }
 
-    /**
-     * Muestra los resultados textuales en el área correspondiente.
-     */
+
+    //  Muestra los resultados textuales en el área correspondiente.
     private void mostrarResultadosTextuales(ResultadoAnalisis resultado) {
         vboxResultadosTexto.getChildren().clear();
 
         // 1. Derivadas
         if (resultado.getPrimeraDerivada() != null && !resultado.getPrimeraDerivada().isEmpty()) {
-            VBox section = createSection("𝑓'(𝑥) DERIVADAS");
-            section.getChildren().add(createFormulaLabel("f'(x) = " + resultado.getPrimeraDerivada()));
+            VBox section = crearSeccion("𝑓'(𝑥) DERIVADAS");
+            section.getChildren().add(crearEtiquetaFormula("f'(x) = " + resultado.getPrimeraDerivada()));
             if (resultado.getSegundaDerivada() != null && !resultado.getSegundaDerivada().isEmpty()) {
-                section.getChildren().add(createFormulaLabel("f''(x) = " + resultado.getSegundaDerivada()));
+                section.getChildren().add(crearEtiquetaFormula("f''(x) = " + resultado.getSegundaDerivada()));
             }
             vboxResultadosTexto.getChildren().add(section);
         }
 
         // 2. Puntos Críticos
         if (resultado.getPuntosCriticos() != null && resultado.getPuntosCriticos().length > 0) {
-            VBox section = createSection("📍 PUNTOS CRÍTICOS");
+            VBox section = crearSeccion("PUNTOS CRÍTICOS");
             for (com.espoch.inflexpoint.modelos.entidades.PuntoCritico pc : resultado.getPuntosCriticos()) {
-                section.getChildren().add(createDualLabel(pc.getTipoPuntoCritico() + ":",
+                section.getChildren().add(crearEtiquetaDual(pc.getTipoPuntoCritico() + ":",
                         String.format("(%.4f, %.4f)", pc.getX(), pc.getY())));
             }
             vboxResultadosTexto.getChildren().add(section);
@@ -203,31 +200,31 @@ public class CalcularControlador implements Initializable {
 
         // 3. Puntos de Inflexión
         if (resultado.getPuntosInflexion() != null && resultado.getPuntosInflexion().length > 0) {
-            VBox section = createSection("💠 PUNTOS DE INFLEXIÓN");
+            VBox section = crearSeccion("PUNTOS DE INFLEXIÓN");
             for (com.espoch.inflexpoint.modelos.entidades.PuntoCritico pi : resultado.getPuntosInflexion()) {
-                section.getChildren().add(createDualLabel("Inflexión en:",
+                section.getChildren().add(crearEtiquetaDual("Inflexión en:",
                         String.format("(%.4f, %.4f)", pi.getX(), pi.getY())));
             }
             vboxResultadosTexto.getChildren().add(section);
         }
 
         // 4. Intervalos de Crecimiento/Decrecimiento
-        boolean hasCrec = resultado.getIntervalosCrecimiento() != null
+        boolean hasCrecimiento = resultado.getIntervalosCrecimiento() != null
                 && resultado.getIntervalosCrecimiento().length > 0;
         boolean hasDecr = resultado.getIntervalosDecrecimiento() != null
                 && resultado.getIntervalosDecrecimiento().length > 0;
 
-        if (hasCrec || hasDecr) {
-            VBox section = createSection("📈 MONOTONÍA");
-            if (hasCrec) {
+        if (hasCrecimiento || hasDecr) {
+            VBox section = crearSeccion("INTERVALOS");
+            if (hasCrecimiento) {
                 for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado.getIntervalosCrecimiento()) {
-                    section.getChildren().add(createDualLabel("Creciente:", formatearIntervalo(inter)));
+                    section.getChildren().add(crearEtiquetaDual("Creciente:", formatearIntervalo(inter)));
                 }
             }
             if (hasDecr) {
                 for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado
                         .getIntervalosDecrecimiento()) {
-                    section.getChildren().add(createDualLabel("Decreciente:", formatearIntervalo(inter)));
+                    section.getChildren().add(crearEtiquetaDual("Decreciente:", formatearIntervalo(inter)));
                 }
             }
             vboxResultadosTexto.getChildren().add(section);
@@ -235,11 +232,11 @@ public class CalcularControlador implements Initializable {
 
         // 5. Concavidad
         if (resultado.intervalosConcavidad() != null && resultado.intervalosConcavidad().length > 0) {
-            VBox section = createSection("☯ CONCAVIDAD");
+            VBox section = crearSeccion("CONCAVIDAD");
             for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado.intervalosConcavidad()) {
                 String label = inter.getTipoIntervalo().toString().contains("POSITIVA") ? "Cóncava (∪):"
                         : "Convexa (∩):";
-                section.getChildren().add(createDualLabel(label, formatearIntervalo(inter)));
+                section.getChildren().add(crearEtiquetaDual(label, formatearIntervalo(inter)));
             }
             vboxResultadosTexto.getChildren().add(section);
         }
@@ -259,7 +256,7 @@ public class CalcularControlador implements Initializable {
         }
     }
 
-    private VBox createSection(String title) {
+    private VBox crearSeccion(String title) {
         VBox card = new VBox(8);
         card.getStyleClass().add("results-card");
 
@@ -271,7 +268,7 @@ public class CalcularControlador implements Initializable {
         return card;
     }
 
-    private HBox createDualLabel(String key, String value) {
+    private HBox crearEtiquetaDual(String key, String value) {
         HBox hbox = new HBox(5);
         hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
@@ -288,7 +285,7 @@ public class CalcularControlador implements Initializable {
         return hbox;
     }
 
-    private Label createFormulaLabel(String formula) {
+    private Label crearEtiquetaFormula(String formula) {
         Label label = new Label(formula);
         label.getStyleClass().add("derivative-formula");
         label.setMaxWidth(Double.MAX_VALUE);

@@ -1,69 +1,63 @@
 package com.espoch.inflexpoint.modelos.calculos;
 
-/**
- * Motor de diferenciación simbólica avanzada.
- * Utiliza un Árbol de Sintaxis Abstracta (AST) para aplicar reglas de
- * derivación
- * como la regla de la cadena, producto, cociente y potencias.
- */
 public class DerivadorSimbolico {
 
     public static String derivar(String expresion) {
         if (expresion == null || expresion.trim().isEmpty())
             return "0";
         try {
-            String cleanExpr = normalize(expresion);
-            Parser parser = new Parser(cleanExpr);
-            Node ast = parser.parse();
-            Node derived = ast.diff();
-            return derived.simplify().toString();
+            String expresionLimpia = normalizar(expresion);
+            Analizador analizador = new Analizador(expresionLimpia);
+            Nodo ast = analizador.analizar();
+            Nodo derivado = ast.derivar();
+            return derivado.simplificar().toString();
         } catch (Exception e) {
             return "d/dx[" + expresion + "]";
         }
     }
 
-    private static String normalize(String expr) {
-        return expr.toLowerCase().replaceAll("\\s+", "")
+    private static String normalizar(String expresion) {
+        return expresion.toLowerCase().replaceAll("\\s+", "")
                 .replace("sen", "sin")
                 .replace("raiz", "sqrt");
     }
 
-    interface Node {
-        Node diff();
+    interface Nodo {
+        Nodo derivar();
 
-        Node simplify();
+        Nodo simplificar();
 
         String toString();
     }
 
-    static class ConstantNode implements Node {
-        double val;
+    static class NodoConstante implements Nodo {
+        double valor;
 
-        ConstantNode(double v) {
-            this.val = v;
+        NodoConstante(double v) {
+            this.valor = v;
         }
 
-        public Node diff() {
-            return new ConstantNode(0);
+        public Nodo derivar() {
+            return new NodoConstante(0);
         }
 
-        public Node simplify() {
+        public Nodo simplificar() {
             return this;
         }
 
         public String toString() {
-            if (val == (long) val)
-                return String.valueOf((long) val);
-            return String.format("%.2f", val);
+            if (valor == (long) valor)
+                return String.valueOf((long) valor);
+            return String.format("%.2f", valor);
         }
     }
 
-    static class VarNode implements Node {
-        public Node diff() {
-            return new ConstantNode(1);
+    static class NodoVariable implements Nodo {
+        public Nodo derivar() {
+            return new NodoConstante(1);
         }
 
-        public Node simplify() {
+        public Nodo simplificar() {
             return this;
         }
 
@@ -72,306 +66,308 @@ public class DerivadorSimbolico {
         }
     }
 
-    static class AddNode implements Node {
-        Node left, right;
+    static class NodoSuma implements Nodo {
+        Nodo izquierda, derecha;
 
-        AddNode(Node l, Node r) {
-            left = l;
-            right = r;
+        NodoSuma(Nodo l, Nodo r) {
+            izquierda = l;
+            derecha = r;
         }
 
-        public Node diff() {
-            return new AddNode(left.diff(), right.diff());
+        public Nodo derivar() {
+            return new NodoSuma(izquierda.derivar(), derecha.derivar());
         }
 
-        public Node simplify() {
-            Node sl = left.simplify();
-            Node sr = right.simplify();
-            if (sl instanceof ConstantNode && ((ConstantNode) sl).val == 0)
+        public Nodo simplificar() {
+            Nodo sl = izquierda.simplificar();
+            Nodo sr = derecha.simplificar();
+            if (sl instanceof NodoConstante && ((NodoConstante) sl).valor == 0)
                 return sr;
-            if (sr instanceof ConstantNode && ((ConstantNode) sr).val == 0)
+            if (sr instanceof NodoConstante && ((NodoConstante) sr).valor == 0)
                 return sl;
-            if (sl instanceof ConstantNode && sr instanceof ConstantNode)
-                return new ConstantNode(((ConstantNode) sl).val + ((ConstantNode) sr).val);
-            return new AddNode(sl, sr);
+            if (sl instanceof NodoConstante && sr instanceof NodoConstante)
+                return new NodoConstante(((NodoConstante) sl).valor + ((NodoConstante) sr).valor);
+            return new NodoSuma(sl, sr);
         }
 
         public String toString() {
-            return "(" + left + " + " + right + ")";
+            return "(" + izquierda + " + " + derecha + ")";
         }
     }
 
-    static class SubNode implements Node {
-        Node left, right;
+    static class NodoResta implements Nodo {
+        Nodo izquierda, derecha;
 
-        SubNode(Node l, Node r) {
-            left = l;
-            right = r;
+        NodoResta(Nodo l, Nodo r) {
+            izquierda = l;
+            derecha = r;
         }
 
-        public Node diff() {
-            return new SubNode(left.diff(), right.diff());
+        public Nodo derivar() {
+            return new NodoResta(izquierda.derivar(), derecha.derivar());
         }
 
-        public Node simplify() {
-            Node sl = left.simplify();
-            Node sr = right.simplify();
-            if (sr instanceof ConstantNode && ((ConstantNode) sr).val == 0)
+        public Nodo simplificar() {
+            Nodo sl = izquierda.simplificar();
+            Nodo sr = derecha.simplificar();
+            if (sr instanceof NodoConstante && ((NodoConstante) sr).valor == 0)
                 return sl;
-            if (sl instanceof ConstantNode && sr instanceof ConstantNode)
-                return new ConstantNode(((ConstantNode) sl).val - ((ConstantNode) sr).val);
-            return new SubNode(sl, sr);
+            if (sl instanceof NodoConstante && sr instanceof NodoConstante)
+                return new NodoConstante(((NodoConstante) sl).valor - ((NodoConstante) sr).valor);
+            return new NodoResta(sl, sr);
         }
 
         public String toString() {
-            return "(" + left + " - " + right + ")";
+            return "(" + izquierda + " - " + derecha + ")";
         }
     }
 
-    static class MulNode implements Node {
-        Node left, right;
+    static class NodoMultiplicacion implements Nodo {
+        Nodo izquierda, derecha;
 
-        MulNode(Node l, Node r) {
-            left = l;
-            right = r;
+        NodoMultiplicacion(Nodo l, Nodo r) {
+            izquierda = l;
+            derecha = r;
         }
 
-        public Node diff() {
-            return new AddNode(new MulNode(left.diff(), right), new MulNode(left, right.diff()));
+        public Nodo derivar() {
+            return new NodoSuma(new NodoMultiplicacion(izquierda.derivar(), derecha),
+                    new NodoMultiplicacion(izquierda, derecha.derivar()));
         }
 
-        public Node simplify() {
-            Node sl = left.simplify();
-            Node sr = right.simplify();
-            if (sl instanceof ConstantNode) {
-                double v = ((ConstantNode) sl).val;
+        public Nodo simplificar() {
+            Nodo sl = izquierda.simplificar();
+            Nodo sr = derecha.simplificar();
+            if (sl instanceof NodoConstante) {
+                double v = ((NodoConstante) sl).valor;
                 if (v == 0)
-                    return new ConstantNode(0);
+                    return new NodoConstante(0);
                 if (v == 1)
                     return sr;
             }
-            if (sr instanceof ConstantNode) {
-                double v = ((ConstantNode) sr).val;
+            if (sr instanceof NodoConstante) {
+                double v = ((NodoConstante) sr).valor;
                 if (v == 0)
-                    return new ConstantNode(0);
+                    return new NodoConstante(0);
                 if (v == 1)
                     return sl;
             }
-            if (sl instanceof ConstantNode && sr instanceof ConstantNode)
-                return new ConstantNode(((ConstantNode) sl).val * ((ConstantNode) sr).val);
-            return new MulNode(sl, sr);
+            if (sl instanceof NodoConstante && sr instanceof NodoConstante)
+                return new NodoConstante(((NodoConstante) sl).valor * ((NodoConstante) sr).valor);
+            return new NodoMultiplicacion(sl, sr);
         }
 
         public String toString() {
-            return left + "*" + right;
+            return izquierda + "*" + derecha;
         }
     }
 
-    static class DivNode implements Node {
-        Node left, right;
+    static class NodoDivision implements Nodo {
+        Nodo izquierda, derecha;
 
-        DivNode(Node l, Node r) {
-            left = l;
-            right = r;
+        NodoDivision(Nodo l, Nodo r) {
+            izquierda = l;
+            derecha = r;
         }
 
-        public Node diff() {
-            return new DivNode(
-                    new SubNode(new MulNode(left.diff(), right), new MulNode(left, right.diff())),
-                    new PowNode(right, new ConstantNode(2)));
+        public Nodo derivar() {
+            return new NodoDivision(
+                    new NodoResta(new NodoMultiplicacion(izquierda.derivar(), derecha),
+                            new NodoMultiplicacion(izquierda, derecha.derivar())),
+                    new NodoPotencia(derecha, new NodoConstante(2)));
         }
 
-        public Node simplify() {
-            Node sl = left.simplify();
-            Node sr = right.simplify();
-            if (sl instanceof ConstantNode && ((ConstantNode) sl).val == 0)
-                return new ConstantNode(0);
-            if (sr instanceof ConstantNode && ((ConstantNode) sr).val == 1)
+        public Nodo simplificar() {
+            Nodo sl = izquierda.simplificar();
+            Nodo sr = derecha.simplificar();
+            if (sl instanceof NodoConstante && ((NodoConstante) sl).valor == 0)
+                return new NodoConstante(0);
+            if (sr instanceof NodoConstante && ((NodoConstante) sr).valor == 1)
                 return sl;
-            return new DivNode(sl, sr);
+            return new NodoDivision(sl, sr);
         }
 
         public String toString() {
-            return "(" + left + "/" + right + ")";
+            return "(" + izquierda + "/" + derecha + ")";
         }
     }
 
-    static class PowNode implements Node {
-        Node base, exp;
+    static class NodoPotencia implements Nodo {
+        Nodo base, exponente;
 
-        PowNode(Node b, Node e) {
+        NodoPotencia(Nodo b, Nodo e) {
             base = b;
-            exp = e;
+            exponente = e;
         }
 
-        public Node diff() {
-            Node se = exp.simplify();
-            if (se instanceof ConstantNode) {
-                double n = ((ConstantNode) se).val;
-                return new MulNode(
-                        new MulNode(new ConstantNode(n), new PowNode(base, new ConstantNode(n - 1))),
-                        base.diff());
+        public Nodo derivar() {
+            Nodo se = exponente.simplificar();
+            if (se instanceof NodoConstante) {
+                double n = ((NodoConstante) se).valor;
+                return new NodoMultiplicacion(
+                        new NodoMultiplicacion(new NodoConstante(n), new NodoPotencia(base, new NodoConstante(n - 1))),
+                        base.derivar());
             }
-            return new ConstantNode(0);
+            return new NodoConstante(0);
         }
 
-        public Node simplify() {
-            Node sb = base.simplify();
-            Node se = exp.simplify();
-            if (se instanceof ConstantNode) {
-                double v = ((ConstantNode) se).val;
+        public Nodo simplificar() {
+            Nodo sb = base.simplificar();
+            Nodo se = exponente.simplificar();
+            if (se instanceof NodoConstante) {
+                double v = ((NodoConstante) se).valor;
                 if (v == 0)
-                    return new ConstantNode(1);
+                    return new NodoConstante(1);
                 if (v == 1)
                     return sb;
             }
-            return new PowNode(sb, se);
+            return new NodoPotencia(sb, se);
         }
 
         public String toString() {
-            return "(" + base + "^" + exp + ")";
+            return "(" + base + "^" + exponente + ")";
         }
     }
 
-    static class FuncNode implements Node {
-        String name;
-        Node arg;
+    static class NodoFuncion implements Nodo {
+        String nombre;
+        Nodo argumento;
 
-        FuncNode(String n, Node a) {
-            name = n;
-            arg = a;
+        NodoFuncion(String n, Nodo a) {
+            nombre = n;
+            argumento = a;
         }
 
-        public Node diff() {
-            Node innerDiff = arg.diff();
-            Node outerDiff;
-            switch (name) {
+        public Nodo derivar() {
+            Nodo derivadoInterno = argumento.derivar();
+            Nodo derivadoExterno;
+            switch (nombre) {
                 case "sin":
-                    outerDiff = new FuncNode("cos", arg);
+                    derivadoExterno = new NodoFuncion("cos", argumento);
                     break;
                 case "cos":
-                    outerDiff = new MulNode(new ConstantNode(-1), new FuncNode("sin", arg));
+                    derivadoExterno = new NodoMultiplicacion(new NodoConstante(-1), new NodoFuncion("sin", argumento));
                     break;
                 case "tan":
-                    outerDiff = new PowNode(new FuncNode("sec", arg), new ConstantNode(2));
+                    derivadoExterno = new NodoPotencia(new NodoFuncion("sec", argumento), new NodoConstante(2));
                     break;
                 case "ln":
-                    outerDiff = new DivNode(new ConstantNode(1), arg);
+                    derivadoExterno = new NodoDivision(new NodoConstante(1), argumento);
                     break;
                 case "exp":
-                    outerDiff = new FuncNode("exp", arg);
+                    derivadoExterno = new NodoFuncion("exp", argumento);
                     break;
                 case "sqrt":
-                    outerDiff = new DivNode(new ConstantNode(1),
-                            new MulNode(new ConstantNode(2), new FuncNode("sqrt", arg)));
+                    derivadoExterno = new NodoDivision(new NodoConstante(1),
+                            new NodoMultiplicacion(new NodoConstante(2), new NodoFuncion("sqrt", argumento)));
                     break;
                 default:
-                    return new ConstantNode(0);
+                    return new NodoConstante(0);
             }
-            return new MulNode(outerDiff, innerDiff);
+            return new NodoMultiplicacion(derivadoExterno, derivadoInterno);
         }
 
-        public Node simplify() {
-            Node sa = arg.simplify();
-            return new FuncNode(name, sa);
+        public Nodo simplificar() {
+            Nodo sa = argumento.simplificar();
+            return new NodoFuncion(nombre, sa);
         }
 
         public String toString() {
-            return name + "(" + arg + ")";
+            return nombre + "(" + argumento + ")";
         }
     }
 
-    static class Parser {
-        String input;
+    static class Analizador {
+        String entrada;
         int pos = 0;
 
-        Parser(String s) {
-            input = s;
+        Analizador(String s) {
+            entrada = s;
         }
 
-        Node parse() {
-            return parseAddSub();
+        Nodo analizar() {
+            return analizarSumaResta();
         }
 
-        Node parseAddSub() {
-            Node node = parseMulDiv();
-            while (pos < input.length()) {
-                if (input.charAt(pos) == '+') {
+        Nodo analizarSumaResta() {
+            Nodo nodo = analizarMultDiv();
+            while (pos < entrada.length()) {
+                if (entrada.charAt(pos) == '+') {
                     pos++;
-                    node = new AddNode(node, parseMulDiv());
-                } else if (input.charAt(pos) == '-') {
+                    nodo = new NodoSuma(nodo, analizarMultDiv());
+                } else if (entrada.charAt(pos) == '-') {
                     pos++;
-                    node = new SubNode(node, parseMulDiv());
+                    nodo = new NodoResta(nodo, analizarMultDiv());
                 } else
                     break;
             }
-            return node;
+            return nodo;
         }
 
-        Node parseMulDiv() {
-            Node node = parsePow();
-            while (pos < input.length()) {
-                if (input.charAt(pos) == '*') {
+        Nodo analizarMultDiv() {
+            Nodo nodo = analizarPotencia();
+            while (pos < entrada.length()) {
+                if (entrada.charAt(pos) == '*') {
                     pos++;
-                    node = new MulNode(node, parsePow());
-                } else if (input.charAt(pos) == '/') {
+                    nodo = new NodoMultiplicacion(nodo, analizarPotencia());
+                } else if (entrada.charAt(pos) == '/') {
                     pos++;
-                    node = new DivNode(node, parsePow());
+                    nodo = new NodoDivision(nodo, analizarPotencia());
                 } else
                     break;
             }
-            return node;
+            return nodo;
         }
 
-        Node parsePow() {
-            Node node = parseFactor();
-            if (pos < input.length() && input.charAt(pos) == '^') {
+        Nodo analizarPotencia() {
+            Nodo nodo = analizarFactor();
+            if (pos < entrada.length() && entrada.charAt(pos) == '^') {
                 pos++;
-                node = new PowNode(node, parsePow());
+                nodo = new NodoPotencia(nodo, analizarPotencia());
             }
-            return node;
+            return nodo;
         }
 
-        Node parseFactor() {
-            if (pos >= input.length())
-                return new ConstantNode(0);
-            char c = input.charAt(pos);
+        Nodo analizarFactor() {
+            if (pos >= entrada.length())
+                return new NodoConstante(0);
+            char c = entrada.charAt(pos);
             if (c == '(') {
                 pos++;
-                Node n = parseAddSub();
-                if (pos < input.length() && input.charAt(pos) == ')')
+                Nodo n = analizarSumaResta();
+                if (pos < entrada.length() && entrada.charAt(pos) == ')')
                     pos++;
                 return n;
             }
             if (c == 'x') {
                 pos++;
-                return new VarNode();
+                return new NodoVariable();
             }
             if (Character.isDigit(c)) {
                 int start = pos;
-                while (pos < input.length() && (Character.isDigit(input.charAt(pos)) || input.charAt(pos) == '.'))
+                while (pos < entrada.length() && (Character.isDigit(entrada.charAt(pos)) || entrada.charAt(pos) == '.'))
                     pos++;
-                return new ConstantNode(Double.parseDouble(input.substring(start, pos)));
+                return new NodoConstante(Double.parseDouble(entrada.substring(start, pos)));
             }
             if (Character.isLetter(c)) {
                 int start = pos;
-                while (pos < input.length() && Character.isLetter(input.charAt(pos)))
+                while (pos < entrada.length() && Character.isLetter(entrada.charAt(pos)))
                     pos++;
-                String name = input.substring(start, pos);
-                if (name.equals("e"))
-                    return new ConstantNode(Math.E);
-                if (name.equals("pi"))
-                    return new ConstantNode(Math.PI);
-                if (pos < input.length() && input.charAt(pos) == '(') {
+                String nombreFunc = entrada.substring(start, pos);
+                if (nombreFunc.equals("e"))
+                    return new NodoConstante(Math.E);
+                if (nombreFunc.equals("pi"))
+                    return new NodoConstante(Math.PI);
+                if (pos < entrada.length() && entrada.charAt(pos) == '(') {
                     pos++;
-                    Node arg = parseAddSub();
-                    if (pos < input.length() && input.charAt(pos) == ')')
+                    Nodo arg = analizarSumaResta();
+                    if (pos < entrada.length() && entrada.charAt(pos) == ')')
                         pos++;
-                    return new FuncNode(name, arg);
+                    return new NodoFuncion(nombreFunc, arg);
                 }
-                return new VarNode(); // Fallback if name is just 'x' or similar
+                return new NodoVariable();
             }
-            return new ConstantNode(0);
+            return new NodoConstante(0);
         }
     }
 }

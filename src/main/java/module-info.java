@@ -15,4 +15,5 @@ module com.espoch.inflexpoint {
     exports com.espoch.inflexpoint.modelos.enumeraciones;
     exports com.espoch.inflexpoint.modelos.dao.interfaces;
     exports com.espoch.inflexpoint.modelos.dao.implementaciones;
+    exports com.espoch.inflexpoint.modelos.excepciones;
 }

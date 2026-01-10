@@ -1,7 +1,6 @@
-package com.espoch.inflexpoint.test;
+package com.espoch.inflexpoint.app;
 
 import com.espoch.inflexpoint.modelos.calculos.Evaluador;
-import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
 
 public class TestEvaluador {
     public static void main(String[] args) {

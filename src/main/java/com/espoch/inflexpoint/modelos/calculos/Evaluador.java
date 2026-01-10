@@ -2,38 +2,32 @@ package com.espoch.inflexpoint.modelos.calculos;
 
 import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
 
-/**
- * Clase auxiliar para evaluar expresiones matemáticas.
- * Implementa un parser recursivo simple.
- */
 public class Evaluador {
 
-    private String expression;
+    private String expresion;
     private int pos = -1, ch;
 
-    public Evaluador(String expression) throws ExpresionInvalidaException {
-        if (expression == null || expression.trim().isEmpty()) {
+    public Evaluador(String expresion) throws ExpresionInvalidaException {
+        if (expresion == null || expresion.trim().isEmpty()) {
             throw new ExpresionInvalidaException("La expresión no puede estar vacía");
         }
-        this.expression = normalize(expression);
+        this.expresion = normalizar(expresion);
     }
 
     public double evaluar(double x) throws ExpresionInvalidaException {
         this.pos = -1;
-        nextChar();
-        double res = parseExpression(x);
-        if (pos < expression.length()) {
+        siguienteCaracter();
+        double res = analizarExpresion(x);
+        if (pos < expresion.length()) {
             throw new ExpresionInvalidaException("Carácter inesperado: " + (char) ch);
         }
         return res;
     }
 
-    private String normalize(String expr) {
+    private String normalizar(String expr) {
         if (expr == null)
             return "";
 
-        // 1. Limpieza inicial y conversión de español a inglés
-        // IMPORTANTE: Reemplazar nombres más largos primero
         String norm = expr.trim().toLowerCase()
                 .replace(" ", "")
                 .replace("²", "^2")
@@ -44,10 +38,6 @@ public class Evaluador {
                 .replace("sen(", "sin(") // sen despues de arcsen
                 .replace("raiz(", "sqrt(");
 
-        // 2. Protección de tokens (funciones y constantes)
-        // Usamos marcadores ASCII "TK" + Letra para evitar conflictos con dígitos en
-        // mult. implícita
-        // ORDEN IMPORTANTE: Tokens más largos primero
         String[] tokens = {
                 "asin", "acos", "atan", "sqrt", // 4 chars
                 "sin", "cos", "tan", "csc", "sec", "cot", "log", "exp", "abs", // 3 chars
@@ -55,7 +45,6 @@ public class Evaluador {
                 "e" // 1 char
         };
 
-        // Placeholders: TKA ... TKP (letras evitan detección como dígito)
         String[] placeholders = {
                 "TKA", "TKB", "TKC", "TKD",
                 "TKE", "TKF", "TKG", "TKH", "TKI", "TKJ", "TKK", "TKL", "TKM",
@@ -67,19 +56,6 @@ public class Evaluador {
             norm = norm.replace(tokens[i], placeholders[i]);
         }
 
-        // 3. Inserción de multiplicación implícita (*)
-        // Reglas:
-        // - Digito seguido de Letra, '(', o Token
-        // - Letra (x) seguido de Digito, Letra, '(', o Token (excluyendo x seguido de
-        // token, pero x es variable única aqui y tokens están protegidos)
-        // - ')' seguido de Digito, Letra, '(', o Token
-
-        // Helpers regex:
-        // Digitos: \\d
-        // Letra (variable x): x
-        // Token Start: T (de TK#)
-        // Abre Parentesis: \\(
-
         // 3a. Digito seguido de (x, (, T)
         norm = norm.replaceAll("(?<=\\d)(?=[x\\(T])", "*");
 
@@ -89,19 +65,6 @@ public class Evaluador {
         // 3c. 'x' seguido de (Digito, x, (, T)
         norm = norm.replaceAll("(?<=x)(?=[\\dx\\(T])", "*");
 
-        // 3d. Constantes 'e' y 'pi' (ahora son TK14 y TK15) seguidas de (Digito, x, (,
-        // T)
-        // Los Tokens terminan en digito 0-9.
-        // Ej: pi(x) -> TK14(x). No queremos TK14*(x) si es funcion, pero pi es
-        // constante.
-        // Diferenciemos funciones de constantes si es posible.
-        // sqrt(TK0) no debe llevar * después.
-        // pi(TK14) y e(TK15) SÍ pueden llevar.
-        // Pero en los placeholders, ambos son TK#.
-
-        // Vamos a ser más específicos con las constantes.
-        // pi -> TK14, e -> TK15.
-        // 3d. Constantes 'pi'(TKO) y 'e'(TKP) seguidas de (Digito, x, (, T)
         norm = norm.replaceAll("(?<=TK[OP])(?=[\\dx\\(T])", "*");
 
         // 4. Restauración de tokens
@@ -112,66 +75,66 @@ public class Evaluador {
         return norm;
     }
 
-    private void nextChar() {
-        ch = (++pos < expression.length()) ? expression.charAt(pos) : -1;
+    private void siguienteCaracter() {
+        ch = (++pos < expresion.length()) ? expresion.charAt(pos) : -1;
     }
 
-    private boolean eat(int charToEat) {
+    private boolean consumir(int charToEat) {
         while (ch == ' ')
-            nextChar();
+            siguienteCaracter();
         if (ch == charToEat) {
-            nextChar();
+            siguienteCaracter();
             return true;
         }
         return false;
     }
 
-    private double parseExpression(double x) throws ExpresionInvalidaException {
-        double v = parseTerm(x);
+    private double analizarExpresion(double x) throws ExpresionInvalidaException {
+        double v = analizarTermino(x);
         for (;;) {
-            if (eat('+'))
-                v += parseTerm(x); // suma
-            else if (eat('-'))
-                v -= parseTerm(x); // resta
+            if (consumir('+'))
+                v += analizarTermino(x); // suma
+            else if (consumir('-'))
+                v -= analizarTermino(x); // resta
             else
                 return v;
         }
     }
 
-    private double parseTerm(double x) throws ExpresionInvalidaException {
-        double v = parseFactor(x);
+    private double analizarTermino(double x) throws ExpresionInvalidaException {
+        double v = analizarFactor(x);
         for (;;) {
-            if (eat('*'))
-                v *= parseFactor(x); // multiplicación
-            else if (eat('/'))
-                v /= parseFactor(x); // división
+            if (consumir('*'))
+                v *= analizarFactor(x); // multiplicación
+            else if (consumir('/'))
+                v /= analizarFactor(x); // división
             else
                 return v;
         }
     }
 
-    private double parseFactor(double x) throws ExpresionInvalidaException {
-        if (eat('+'))
-            return parseFactor(x); // unario más
-        if (eat('-'))
-            return -parseFactor(x); // unario menos
+    private double analizarFactor(double x) throws ExpresionInvalidaException {
+        if (consumir('+'))
+            return analizarFactor(x); // unario más
+        if (consumir('-'))
+            return -analizarFactor(x); // unario menos
 
         double v;
         int startPos = this.pos;
-        if (eat('(')) { // paréntesis
-            v = parseExpression(x);
-            eat(')');
+        if (consumir('(')) { // paréntesis
+            v = analizarExpresion(x);
+            consumir(')');
         } else if (ch == 'x' || ch == 'X') { // variable literal
-            nextChar();
+            siguienteCaracter();
             v = x;
         } else if ((ch >= '0' && ch <= '9') || ch == '.') { // números
             while ((ch >= '0' && ch <= '9') || ch == '.')
-                nextChar();
-            v = Double.parseDouble(expression.substring(startPos, this.pos));
+                siguienteCaracter();
+            v = Double.parseDouble(expresion.substring(startPos, this.pos));
         } else if (ch >= 'a' && ch <= 'z') { // funciones
             while (ch >= 'a' && ch <= 'z')
-                nextChar();
-            String func = expression.substring(startPos, this.pos);
+                siguienteCaracter();
+            String func = expresion.substring(startPos, this.pos);
 
             // Primero verificar si es una constante
             if (func.equals("e")) {
@@ -180,14 +143,14 @@ public class Evaluador {
                 v = Math.PI;
             } else {
                 // Para funciones, DEBE haber paréntesis
-                if (!eat('(')) {
+                if (!consumir('(')) {
                     throw new ExpresionInvalidaException(
                             "La función '" + func + "' requiere paréntesis: " + func + "(...)");
                 }
 
                 // Evaluar el argumento de la función
-                v = parseExpression(x);
-                eat(')');
+                v = analizarExpresion(x);
+                consumir(')');
 
                 // Aplicar la función correspondiente
                 if (func.equals("sqrt"))
@@ -226,8 +189,8 @@ public class Evaluador {
             throw new ExpresionInvalidaException("Carácter inesperado: " + (char) ch);
         }
 
-        if (eat('^'))
-            v = Math.pow(v, parseFactor(x)); // exponenciación
+        if (consumir('^'))
+            v = Math.pow(v, analizarFactor(x)); // exponenciación
 
         return v;
     }
