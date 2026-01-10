@@ -7,6 +7,8 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
+
 public class App extends Application {
 
     @Override
@@ -15,7 +17,7 @@ public class App extends Application {
         Scene scene = new Scene(loader.load());
         stage.setScene(scene);
         stage.setTitle("InflexPoint");
-        stage.getIcons().add(new Image(getClass().getResourceAsStream("/com/espoch/inflexpoint/imagenes/Logo/inflex-point-logo.jpeg")));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/espoch/inflexpoint/imagenes/Logo/inflex-point-logo.jpeg"))));
         stage.setWidth(1000);
         stage.setHeight(600);
         stage.show();
