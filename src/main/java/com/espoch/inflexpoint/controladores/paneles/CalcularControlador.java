@@ -183,7 +183,7 @@ public class CalcularControlador implements Initializable {
 
         // 1. Derivadas
         if (resultado.getPrimeraDerivada() != null && !resultado.getPrimeraDerivada().isEmpty()) {
-            VBox section = createSection("DERIVADAS");
+            VBox section = createSection("𝑓'(𝑥) DERIVADAS");
             section.getChildren().add(createFormulaLabel("f'(x) = " + resultado.getPrimeraDerivada()));
             if (resultado.getSegundaDerivada() != null && !resultado.getSegundaDerivada().isEmpty()) {
                 section.getChildren().add(createFormulaLabel("f''(x) = " + resultado.getSegundaDerivada()));
@@ -193,20 +193,20 @@ public class CalcularControlador implements Initializable {
 
         // 2. Puntos Críticos
         if (resultado.getPuntosCriticos() != null && resultado.getPuntosCriticos().length > 0) {
-            VBox section = createSection("PUNTOS CRÍTICOS");
+            VBox section = createSection("📍 PUNTOS CRÍTICOS");
             for (com.espoch.inflexpoint.modelos.entidades.PuntoCritico pc : resultado.getPuntosCriticos()) {
-                section.getChildren().add(createItemLabel(String.format("• %s en (%.4f, %.4f)",
-                        pc.getTipoPuntoCritico(), pc.getX(), pc.getY())));
+                section.getChildren().add(createDualLabel(pc.getTipoPuntoCritico() + ":",
+                        String.format("(%.4f, %.4f)", pc.getX(), pc.getY())));
             }
             vboxResultadosTexto.getChildren().add(section);
         }
 
         // 3. Puntos de Inflexión
         if (resultado.getPuntosInflexion() != null && resultado.getPuntosInflexion().length > 0) {
-            VBox section = createSection("PUNTOS DE INFLEXIÓN");
+            VBox section = createSection("💠 PUNTOS DE INFLEXIÓN");
             for (com.espoch.inflexpoint.modelos.entidades.PuntoCritico pi : resultado.getPuntosInflexion()) {
-                section.getChildren().add(createItemLabel(String.format("• Coordenada: (%.4f, %.4f)",
-                        pi.getX(), pi.getY())));
+                section.getChildren().add(createDualLabel("Inflexión en:",
+                        String.format("(%.4f, %.4f)", pi.getX(), pi.getY())));
             }
             vboxResultadosTexto.getChildren().add(section);
         }
@@ -218,16 +218,16 @@ public class CalcularControlador implements Initializable {
                 && resultado.getIntervalosDecrecimiento().length > 0;
 
         if (hasCrec || hasDecr) {
-            VBox section = createSection("MONOTONÍA");
+            VBox section = createSection("📈 MONOTONÍA");
             if (hasCrec) {
                 for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado.getIntervalosCrecimiento()) {
-                    section.getChildren().add(createItemLabel("↑ Creciente: " + formatearIntervalo(inter)));
+                    section.getChildren().add(createDualLabel("Creciente:", formatearIntervalo(inter)));
                 }
             }
             if (hasDecr) {
                 for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado
                         .getIntervalosDecrecimiento()) {
-                    section.getChildren().add(createItemLabel("↓ Decreciente: " + formatearIntervalo(inter)));
+                    section.getChildren().add(createDualLabel("Decreciente:", formatearIntervalo(inter)));
                 }
             }
             vboxResultadosTexto.getChildren().add(section);
@@ -235,23 +235,32 @@ public class CalcularControlador implements Initializable {
 
         // 5. Concavidad
         if (resultado.intervalosConcavidad() != null && resultado.intervalosConcavidad().length > 0) {
-            VBox section = createSection("CONCAVIDAD");
+            VBox section = createSection("☯ CONCAVIDAD");
             for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado.intervalosConcavidad()) {
-                section.getChildren().add(createItemLabel("∪/∩ Concavidad: " + formatearIntervalo(inter)));
+                String label = inter.getTipoIntervalo().toString().contains("POSITIVA") ? "Cóncava (∪):"
+                        : "Convexa (∩):";
+                section.getChildren().add(createDualLabel(label, formatearIntervalo(inter)));
             }
             vboxResultadosTexto.getChildren().add(section);
         }
 
         // Caso sin resultados
         if (vboxResultadosTexto.getChildren().isEmpty()) {
-            Label lblEmpty = new Label("No se seleccionaron opciones o no se encontraron resultados.");
-            lblEmpty.setStyle("-fx-text-fill: #999; -fx-font-style: italic;");
-            vboxResultadosTexto.getChildren().add(lblEmpty);
+            VBox emptyBox = new VBox(10);
+            emptyBox.setAlignment(javafx.geometry.Pos.CENTER);
+            emptyBox.setPadding(new javafx.geometry.Insets(20));
+
+            Label lblEmpty = new Label("No se encontraron resultados para la función o las opciones seleccionadas.");
+            lblEmpty.setWrapText(true);
+            lblEmpty.setStyle("-fx-text-fill: #999; -fx-font-style: italic; -fx-text-alignment: center;");
+
+            emptyBox.getChildren().add(lblEmpty);
+            vboxResultadosTexto.getChildren().add(emptyBox);
         }
     }
 
     private VBox createSection(String title) {
-        VBox card = new VBox(5);
+        VBox card = new VBox(8);
         card.getStyleClass().add("results-card");
 
         Label lblTitle = new Label(title);
@@ -262,11 +271,21 @@ public class CalcularControlador implements Initializable {
         return card;
     }
 
-    private Label createItemLabel(String text) {
-        Label label = new Label(text);
-        label.getStyleClass().add("results-item-label");
-        label.setWrapText(true);
-        return label;
+    private HBox createDualLabel(String key, String value) {
+        HBox hbox = new HBox(5);
+        hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Label lblKey = new Label(key);
+        lblKey.getStyleClass().add("result-label-key");
+
+        Label lblValue = new Label(value);
+        lblValue.getStyleClass().add("result-label-value");
+        if (value.startsWith("(")) {
+            lblValue.getStyleClass().add("coordinate-badge");
+        }
+
+        hbox.getChildren().addAll(lblKey, lblValue);
+        return hbox;
     }
 
     private Label createFormulaLabel(String formula) {
@@ -279,7 +298,7 @@ public class CalcularControlador implements Initializable {
     private String formatearIntervalo(com.espoch.inflexpoint.modelos.entidades.Intervalo intervalo) {
         String inicio = intervalo.getInicio() == null ? "-∞" : String.format("%.2f", intervalo.getInicio());
         String fin = intervalo.getFin() == null ? "∞" : String.format("%.2f", intervalo.getFin());
-        return String.format("(%s, %s) → %s", inicio, fin, intervalo.getTipoIntervalo());
+        return String.format("(%s, %s)", inicio, fin);
     }
 
     /**

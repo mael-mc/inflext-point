@@ -169,6 +169,10 @@ public class AnalizadorFuncion {
                     "Error durante el análisis numérico: " + e.getMessage(), e);
         }
 
+        // Calcular derivadas simbólicas
+        String d1 = DerivadorSimbolico.derivar(expresion);
+        String d2 = DerivadorSimbolico.derivar(d1);
+
         // Crear y retornar resultado
         return new ResultadoAnalisis(
                 puntosCriticos,
@@ -176,9 +180,8 @@ public class AnalizadorFuncion {
                 intervalosCrecimiento,
                 intervalosDecrecimiento,
                 intervalosConcavidad,
-                "Derivada numérica", // TODO: Calcular derivada simbólica
-                "Segunda derivada numérica" // TODO: Calcular segunda derivada simbólica
-        );
+                d1,
+                d2);
     }
 
     /**

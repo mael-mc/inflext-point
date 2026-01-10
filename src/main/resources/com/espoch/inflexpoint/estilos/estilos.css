@@ -127,3 +127,22 @@
 .results-vbox {
     -fx-spacing: 15;
 }
+
+.result-label-key {
+    -fx-text-fill: #777;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 5 0 0;
+}
+
+.result-label-value {
+    -fx-text-fill: #264653;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.coordinate-badge {
+    -fx-background-color: #e9ecef;
+    -fx-padding: 2 8;
+    -fx-background-radius: 4;
+}
