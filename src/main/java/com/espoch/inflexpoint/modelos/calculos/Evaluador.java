@@ -5,7 +5,7 @@ import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
 public class Evaluador {
 
     private final String expresion;
-    private int posicion = -1, ch;
+    private int posicion = -1, caracter;
 
     public Evaluador(String expresion) throws ExpresionInvalidaException {
         if (expresion == null || expresion.trim().isEmpty()) {
@@ -19,7 +19,7 @@ public class Evaluador {
         siguienteCaracter();
         double res = analizarExpresion(x);
         if (posicion < expresion.length()) {
-            throw new ExpresionInvalidaException("Carácter inesperado: " + (char) ch);
+            throw new ExpresionInvalidaException("Carácter inesperado: " + (char) caracter);
         }
         return res;
     }
@@ -28,14 +28,14 @@ public class Evaluador {
         if (expr == null)
             return "";
 
-        String norm = expr.trim().toLowerCase()
+        String normalizarEntrada = expr.trim().toLowerCase()
                 .replace(" ", "")
                 .replace("²", "^2")
                 .replace("³", "^3")
                 .replace("arcsen(", "asin(")
                 .replace("arccos(", "acos(")
                 .replace("arctan(", "atan(")
-                .replace("sen(", "sin(") // sen después de arcsen
+                .replace("sen(", "sin(")
                 .replace("raiz(", "sqrt(");
 
         String[] tokens = {
@@ -53,36 +53,36 @@ public class Evaluador {
         };
 
         for (int i = 0; i < tokens.length; i++) {
-            norm = norm.replace(tokens[i], placeholders[i]);
+            normalizarEntrada = normalizarEntrada.replace(tokens[i], placeholders[i]);
         }
 
         // 3a. Digito seguido de (x, (, T)
-        norm = norm.replaceAll("(?<=\\d)(?=[x\\(T])", "*");
+        normalizarEntrada = normalizarEntrada.replaceAll("(?<=\\d)(?=[x\\(T])", "*");
 
         // 3b. ')' seguido de (Digito, x, (, T)
-        norm = norm.replaceAll("(?<=\\))(?=[\\dx\\(T])", "*");
+        normalizarEntrada = normalizarEntrada.replaceAll("(?<=\\))(?=[\\dx\\(T])", "*");
 
         // 3c. 'x' seguido de (Digito, x, (, T)
-        norm = norm.replaceAll("(?<=x)(?=[\\dx\\(T])", "*");
+        normalizarEntrada = normalizarEntrada.replaceAll("(?<=x)(?=[\\dx\\(T])", "*");
 
-        norm = norm.replaceAll("(?<=TK[OP])(?=[\\dx\\(T])", "*");
+        normalizarEntrada = normalizarEntrada.replaceAll("(?<=TK[OP])(?=[\\dx\\(T])", "*");
 
         // 4. Restauración de tokens
         for (int i = 0; i < tokens.length; i++) {
-            norm = norm.replace(placeholders[i], tokens[i]);
+            normalizarEntrada = normalizarEntrada.replace(placeholders[i], tokens[i]);
         }
 
-        return norm;
+        return normalizarEntrada;
     }
 
     private void siguienteCaracter() {
-        ch = (++posicion < expresion.length()) ? expresion.charAt(posicion) : -1;
+        caracter = (++posicion < expresion.length()) ? expresion.charAt(posicion) : -1;
     }
 
     private boolean consumir(int charToEat) {
-        while (ch == ' ')
+        while (caracter == ' ')
             siguienteCaracter();
-        if (ch == charToEat) {
+        if (caracter == charToEat) {
             siguienteCaracter();
             return true;
         }
@@ -120,21 +120,21 @@ public class Evaluador {
             return -analizarFactor(x); // unario menos
 
         double v;
-        int startPos = this.posicion;
+        int startPosicion = this.posicion;
         if (consumir('(')) { // paréntesis
             v = analizarExpresion(x);
             consumir(')');
-        } else if (ch == 'x' || ch == 'X') { // variable literal
+        } else if (caracter == 'x' || caracter == 'X') { // variable literal
             siguienteCaracter();
             v = x;
-        } else if ((ch >= '0' && ch <= '9') || ch == '.') { // números
-            while ((ch >= '0' && ch <= '9') || ch == '.')
+        } else if ((caracter >= '0' && caracter <= '9') || caracter == '.') { // números
+            while ((caracter >= '0' && caracter <= '9') || caracter == '.')
                 siguienteCaracter();
-            v = Double.parseDouble(expresion.substring(startPos, this.posicion));
-        } else if (ch >= 'a' && ch <= 'z') { // funciones
-            while (ch >= 'a' && ch <= 'z')
+            v = Double.parseDouble(expresion.substring(startPosicion, this.posicion));
+        } else if (caracter >= 'a' && caracter <= 'z') { // funciones
+            while (caracter >= 'a' && caracter <= 'z')
                 siguienteCaracter();
-            String func = expresion.substring(startPos, this.posicion);
+            String func = expresion.substring(startPosicion, this.posicion);
 
             // Primero verificar si es una constante
             if (func.equals("e")) {
@@ -172,7 +172,7 @@ public class Evaluador {
                 };
             }
         } else {
-            throw new ExpresionInvalidaException("Carácter inesperado: " + (char) ch);
+            throw new ExpresionInvalidaException("Carácter inesperado: " + (char) caracter);
         }
 
         if (consumir('^'))

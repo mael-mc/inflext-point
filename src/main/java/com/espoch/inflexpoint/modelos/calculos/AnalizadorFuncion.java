@@ -240,12 +240,12 @@ public class AnalizadorFuncion {
             } catch (ExpresionInvalidaException e) {
                 y = Double.NaN;
             }
-            double segundaDeriv = segundaDerivada(evaluador, x);
+            double segundaDerivada = segundaDerivada(evaluador, x);
 
             TipoPuntoCritico tipo;
-            if (segundaDeriv > 0) {
+            if (segundaDerivada > 0) {
                 tipo = TipoPuntoCritico.MINIMO;
-            } else if (segundaDeriv < 0) {
+            } else if (segundaDerivada < 0) {
                 tipo = TipoPuntoCritico.MAXIMO;
             } else {
                 // Indeterminado, marcar como punto crítico genérico
@@ -258,9 +258,7 @@ public class AnalizadorFuncion {
         return puntos;
     }
 
-    /**
-     * Crea puntos críticos con un tipo específico (o null).
-     */
+    // Crea puntos críticos con un tipo específico (o null)
     private PuntoCritico[] crearPuntosCriticos(
             Evaluador evaluador, List<Double> raices, TipoPuntoCritico tipo) {
 
@@ -284,11 +282,8 @@ public class AnalizadorFuncion {
         return puntos;
     }
 
-    /**
-     * Calcula intervalos de monotonía (crecimiento/decrecimiento).
-     */
-    private Intervalo[] calcularIntervalosMonotonia(
-            Evaluador evaluador, PuntoCritico[] puntosCriticos, double minX, double maxX) {
+    // Calcula intervalos de monotonía (crecimiento/decrecimiento)
+    private Intervalo[] calcularIntervalosMonotonia(Evaluador evaluador, PuntoCritico[] puntosCriticos, double minX, double maxX) {
 
         // Crear puntos de división (límites + puntos críticos)
         List<Double> divisiones = new ArrayList<>();
@@ -321,11 +316,8 @@ public class AnalizadorFuncion {
         return intervalos.toArray(new Intervalo[0]);
     }
 
-    /**
-     * Calcula intervalos de concavidad.
-     */
-    private Intervalo[] calcularIntervalosConcavidad(
-            Evaluador evaluador, PuntoCritico[] puntosInflexion, double minX, double maxX) {
+    // Calcula intervalos de concavidad
+    private Intervalo[] calcularIntervalosConcavidad(Evaluador evaluador, PuntoCritico[] puntosInflexion, double minX, double maxX) {
 
         List<Double> divisiones = new ArrayList<>();
         divisiones.add(minX);
@@ -346,8 +338,7 @@ public class AnalizadorFuncion {
 
             double segundaDerivadaEnMedio = segundaDerivada(evaluador, puntoMedio);
 
-            TipoIntervalo tipo = (segundaDerivadaEnMedio > 0) ? TipoIntervalo.CONCAVIDAD_POSITIVA
-                    : TipoIntervalo.CONCAVIDAD_NEGATIVA;
+            TipoIntervalo tipo = (segundaDerivadaEnMedio > 0) ? TipoIntervalo.CONCAVIDAD_POSITIVA : TipoIntervalo.CONCAVIDAD_NEGATIVA;
 
             intervalos.add(new Intervalo(
                     i == 0 ? null : inicio,
