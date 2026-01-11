@@ -12,16 +12,13 @@ InflexPoint es una aplicación de escritorio desarrollada en **Java 17+ con Java
 
 ## Arquitectura y Diseño
 
-### Restricciones de Diseño (por Requisitos del Proyecto)
-
-- ✓ **NO usar estructuras dinámicas**: Se usan únicamente arreglos simples y atributos individuales
-- ✓ **MVC estricto**: Separación clara de responsabilidades
-  - **Modelo**: Cálculos matemáticos en `AnalizadorFuncion`
-  - **Vista**: Componentes FXML
-  - **Controlador**: Lógica de presentación sin cálculos
-- ✓ **DAO Pattern**: `IFuncion` e `FuncionImpl` como intermediarios
-- ✓ **Encapsulación**: Getters/setters, constructores explícitos
-- ✓ **Código limpio**: Métodos cortos, comentarios académicos
+### Características y Restricciones
+- ✓ **Interfaz Moderna**: Sistema de diseño basado en la paleta **Persian Green** para una experiencia educativa y profesional.
+- ✓ **Navegación Inteligente**: Barra de búsqueda global con mapeo de palabras clave.
+- ✓ **Teclado Virtual**: Entrada de datos optimizada para funciones matemáticas.
+- ✓ **MVC estricto**: Separación clara de responsabilidades.
+- ✓ **DAO Pattern**: Uso de interfaces e implementaciones para el manejo de datos.
+- ✓ **Código limpio**: Métodos cortos, tipado fuerte y comentarios académicos.
 
 ### Estructura de Paquetes
 
@@ -128,17 +125,16 @@ Dibuja en Canvas:
   - 🟢 Verde: Mínimos
   - 🟠 Naranja: Puntos de inflexión
 
-## Sintaxis de Entrada
+### Interfaz de Usuario
+- **Estética Persian Green:** Colores `#2a9d8f` y variaciones para una jerarquía visual clara.
+- **Diseño de Tarjetas:** Organización de componentes en contenedores tipo `card`.
+- **Teclado Matemático:** Soporte para entrada rápida de potencias, raíces y funciones trigonométricas.
 
-Ejemplos de funciones válidas:
-```
-Lineal:          2*x + 3
-Cuadrática:      x^2 + 2*x - 5
-Polinómica:      x^3 + 2*x^2 - x + 1
-Exponencial:     2^x
-Logarítmica:     ln(x)
-Trigonométrica:  sin(x), cos(x), tan(x)
-```
+### Buscador Global
+El sistema cuenta con un motor de búsqueda que permite:
+- Navegar a secciones de ayuda mediante palabras clave (ej. "manual", "equipo").
+- Buscar integrantes directamente por nombre.
+- Regresar al inicio o historial rápidamente.
 
 Operadores: `+`, `-`, `*`, `/`, `^` (potencia)
 
@@ -282,9 +278,15 @@ Este código ha sido desarrollado con enfoque educativo:
 5. **Código limpio**: Métodos cortos, sin duplicación
 6. **Sin atajos**: Respeto estricto a la arquitectura
 
-## Autor
+## Equipo de Desarrollo
 
-Aplicación desarrollada como proyecto universitario de Análisis Matemático Avanzado con herramientas computacionales.
+Este proyecto ha sido desarrollado por estudiantes de la **Escuela Superior Politécnica de Chimborazo (ESPOCH)**:
+
+- **Juan Moreno**
+- **Karla Calvopiña**
+- **Glenda Alvarado**
+- **Jojanci Gómez**
+- **Andrea Quiroga**
 
 ---
 

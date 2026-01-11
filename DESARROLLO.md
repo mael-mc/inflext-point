@@ -219,21 +219,24 @@ public class AnalizadorFuncionTest {
 - [ ] Cálculo de asíntotas
 - [ ] Análisis de límites
 
-**Mediano plazo:**
-- [ ] Interfaz gráfica mejorada (modo oscuro)
-- [ ] Exportar gráficos a imagen (PNG, PDF)
-- [ ] Historial de cálculos
-- [ ] Guardado de funciones frecuentes
-- [ ] Zoom interactivo en gráficos
+### 8. Sistema de Diseño (Persian Green)
 
-**Largo plazo:**
-- [ ] Análisis multivariable (z = f(x,y))
-- [ ] Integración numérica
-- [ ] Resolución de ecuaciones
-- [ ] Interpolación y ajuste de curvas
-- [ ] Sincronización con WolframAlpha API (opcional)
+La aplicación utiliza un sistema de diseño personalizado definido en `estilos.css`:
+- **Variables CSS:** Uso intensivo de tokens de color (`-color-50` a `-color-900`) basados en `#2a9d8f`.
+- **Componentes:**
+  - `.card`: Contenedores con sombra suave y bordes redondeados.
+  - `.button-primary`: Botones con feedback visual en hover.
+  - `.results-container`: Áreas de texto con acento visual en el borde izquierdo.
 
-### 8. Mejores Prácticas Mantenidas
+### 9. Componentes Especiales
+
+#### Teclado Virtual (`TecladoVirtual.java`)
+Inyecta botones dinámicamente en la interfaz. Utiliza el sistema de estilos para mantener la coherencia visual. Permite la entrada de símbolos matemáticos complejos sin depender del teclado físico.
+
+#### Buscador Inteligente (`VistaPrincipalControlador.java`)
+Implementa un motor de decisión basado en palabras clave normalizadas. Utiliza un patrón de acceso estático (`getInstancia()`) para permitir que sub-paneles soliciten navegación al controlador principal.
+
+### 10. Mejores Prácticas Mantenidas
 
 ✓ **Separación MVC estricta**
 - Modelos no importan JavaFX
