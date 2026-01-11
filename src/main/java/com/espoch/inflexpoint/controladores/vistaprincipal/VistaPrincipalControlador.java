@@ -1,6 +1,5 @@
 package com.espoch.inflexpoint.controladores.vistaprincipal;
 
-import com.espoch.inflexpoint.controladores.paneles.CalcularControlador;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -91,7 +90,7 @@ public class VistaPrincipalControlador {
     }
 
     // Cargador de vistas
-    private FXMLLoader cargarVista(String rutaVista) {
+    private void cargarVista(String rutaVista) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaVista));
             AnchorPane vista = loader.load();
@@ -102,10 +101,8 @@ public class VistaPrincipalControlador {
             AnchorPane.setLeftAnchor(vista, 0.0);
             AnchorPane.setRightAnchor(vista, 0.0);
 
-            return loader;
         } catch (Exception e) {
             System.err.println("Error al cargar la vista [" + rutaVista + "]: " + e.getMessage());
-            return null;
         }
     }
 
@@ -133,21 +130,42 @@ public class VistaPrincipalControlador {
 
     @FXML
     private void onBuscar(ActionEvent event) {
-        String expresion = txtBuscar.getText();
-        if (expresion != null && !expresion.trim().isEmpty()) {
-            FXMLLoader loader = cargarVista(RUTA_CALCULAR);
+        String query = txtBuscar.getText();
+        if (query == null || query.trim().isEmpty())
+            return;
 
-            if (loader != null) {
-                // Obtener el controlador
-                CalcularControlador controlador = loader.getController();
-                if (controlador != null) {
-                    controlador.cargarYCalcular(expresion);
-                }
-                // Actualizar visualmente los botones del menú (el ToggleGroup manejará el
-                // resto)
-                btnCalcular.setSelected(true);
-            }
+        String normalizedQuery = normalizar(query);
+
+        // Mapeo de Palabras Clave de Navegación Textual
+        if (contienePalabras(normalizedQuery, "ayuda", "manual", "guia", "instruccion", "sintaxis", "operadores")) {
+            btnAyuda.setSelected(true);
+        } else if (contienePalabras(normalizedQuery, "integrante", "desarrollador", "equipo", "espoch", "juan", "karla",
+                "glenda", "jojanci", "andrea")) {
+            btnAyuda.setSelected(true);
+        } else if (contienePalabras(normalizedQuery, "historial", "reciente", "anteriores", "pasada")) {
+            btnCalcular.setSelected(true);
+            // El historial se encuentra en el panel de cálculo
+        } else if (contienePalabras(normalizedQuery, "inicio", "bienvenida", "portada")) {
+            btnInicio.setSelected(true);
+        } else if (contienePalabras(normalizedQuery, "analizar", "graficar", "calculo", "derivada", "punto",
+                "monotonia",
+                "concavidad")) {
+            btnCalcular.setSelected(true);
         }
+    }
+
+    private boolean contienePalabras(String query, String... palabras) {
+        for (String palabra : palabras) {
+            if (query.contains(palabra))
+                return true;
+        }
+        return false;
+    }
+
+    private String normalizar(String texto) {
+        return texto.toLowerCase()
+                .replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u")
+                .trim();
     }
 
     // Método público para navegar al panel de cálculo desde otros controladores
