@@ -19,7 +19,7 @@ public class VistaPrincipalControlador {
     public static VistaPrincipalControlador getInstancia() {
         return instancia;
     }
-
+    // FINAL
     @FXML
     private HBox hBoxLogo;
     @FXML
