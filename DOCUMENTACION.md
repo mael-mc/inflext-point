@@ -7,11 +7,11 @@
 - **Product Owner:** Facultad de Informática y Electrónica (ESPOCH).
 - **Scrum Master:** Juan Moreno.
 - **Equipo de Desarrollo:**
-  - Karla Calvopiña (Backend & Matemáticas)
-  - Glenda Alvarado (UI/UX Design)
-  - Jojanci Gómez (Backend & Logic)
-  - Andrea Quiroga (QA & Documentation)
-  - Juan Moreno (Fullstack & Integration)
+  - [Karla Calvopiña](https://github.com/KARLACALVOPINA1020) (Backend & Matemáticas)
+  - [Glenda Alvarado](https://github.com/GlendaAlvarado) (UI/UX Design)
+  - [Jojanci Gómez](https://github.com/jojancigomez) (Backend & Logic)
+  - [Andrea Quiroga](https://github.com/andrea21qp) (QA & Documentation)
+  - [Juan Moreno](https://github.com/mael-mc) (Fullstack & Integration)
 
 ## 3. Product Backlog
 | ID | Historia de Usuario | Prioridad | Estado |

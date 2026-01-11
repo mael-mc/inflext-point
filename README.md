@@ -282,11 +282,11 @@ Este código ha sido desarrollado con enfoque educativo:
 
 Este proyecto ha sido desarrollado por estudiantes de la **Escuela Superior Politécnica de Chimborazo (ESPOCH)**:
 
-- **Juan Moreno**
-- **Karla Calvopiña**
-- **Glenda Alvarado**
-- **Jojanci Gómez**
-- **Andrea Quiroga**
+- [Juan Moreno](https://github.com/mael-mc)
+- [Karla Calvopiña](https://github.com/KARLACALVOPINA1020)
+- [Glenda Alvarado](https://github.com/GlendaAlvarado)
+- [Jojanci Gómez](https://github.com/jojancigomez)
+- [Andrea Quiroga](https://github.com/andrea21qp)
 
 ---
 
