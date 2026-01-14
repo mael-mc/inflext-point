@@ -17,7 +17,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import com.espoch.inflexpoint.util.VentanaUtil;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -173,8 +175,7 @@ public class CalcularControlador implements Initializable {
         return true;
     }
 
-
-    //  Muestra los resultados textuales en el área correspondiente.
+    // Muestra los resultados textuales en el área correspondiente.
     private void mostrarResultadosTextuales(ResultadoAnalisis resultado) {
         vboxResultadosTexto.getChildren().clear();
 
@@ -340,6 +341,7 @@ public class CalcularControlador implements Initializable {
         alert.setTitle(titulo);
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        VentanaUtil.aplicarIcono(alert);
         alert.showAndWait();
     }
 
@@ -372,6 +374,7 @@ public class CalcularControlador implements Initializable {
             stage.setTitle("Historial de Funciones");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root));
+            VentanaUtil.aplicarIcono(stage);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

@@ -27,19 +27,19 @@
                     <VBox spacing="15.0">
                         <Label styleClass="card-subtitle" text="Opciones de Cálculo" />
                         <VBox spacing="12.0">
-                            <RadioButton fx:id="chkPuntosCriticos" mnemonicParsing="false" styleClass="radio-button" text="Puntos críticos" />
-                            <RadioButton fx:id="chkIntervalos" mnemonicParsing="false" styleClass="radio-button" text="Intervalos de monotonía" />
-                            <RadioButton fx:id="chkMaxMin" mnemonicParsing="false" styleClass="radio-button" text="Máximos y Mínimos" />
-                            <RadioButton fx:id="chkPuntoInflexion" mnemonicParsing="false" styleClass="radio-button" text="Puntos de Inflexión" />
-                            <RadioButton fx:id="chkConcavidad" mnemonicParsing="false" styleClass="radio-button" text="Intervalos de Concavidad" />
+                            <RadioButton fx:id="chkPuntosCriticos" accessibleRole="RADIO_BUTTON" accessibleText="Calcular puntos críticos" mnemonicParsing="false" styleClass="radio-button" text="Puntos críticos" />
+                            <RadioButton fx:id="chkIntervalos" accessibleRole="RADIO_BUTTON" accessibleText="Calcular intervalos de monotonía" mnemonicParsing="false" styleClass="radio-button" text="Intervalos de monotonía" />
+                            <RadioButton fx:id="chkMaxMin" accessibleRole="RADIO_BUTTON" accessibleText="Calcular máximos y mínimos" mnemonicParsing="false" styleClass="radio-button" text="Máximos y Mínimos" />
+                            <RadioButton fx:id="chkPuntoInflexion" accessibleRole="RADIO_BUTTON" accessibleText="Calcular puntos de inflexión" mnemonicParsing="false" styleClass="radio-button" text="Puntos de Inflexión" />
+                            <RadioButton fx:id="chkConcavidad" accessibleRole="RADIO_BUTTON" accessibleText="Calcular intervalos de concavidad" mnemonicParsing="false" styleClass="radio-button" text="Intervalos de Concavidad" />
                         </VBox>
                     </VBox>
 
                     <VBox spacing="12.0">
                         <Label styleClass="card-subtitle" text="Función Matemática" />
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <TextField fx:id="txtFuncion" prefHeight="42.0" promptText="v.gr. x^3 - 3x + 2" HBox.hgrow="ALWAYS" />
-                            <Button fx:id="btnTeclado" mnemonicParsing="false" onAction="#mostrarTeclado" styleClass="button-icon">
+                            <TextField fx:id="txtFuncion" accessibleRole="TEXT_FIELD" accessibleText="Ingrese la función matemática aquí" prefHeight="42.0" promptText="v.gr. x^3 - 3x + 2" HBox.hgrow="ALWAYS" />
+                            <Button fx:id="btnTeclado" accessibleRole="BUTTON" accessibleText="Abrir teclado virtual" mnemonicParsing="false" onAction="#mostrarTeclado" styleClass="button-icon">
                                 <graphic>
                                     <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                         <Image url="@../iconos/teclado-icono.png" />
@@ -51,10 +51,10 @@
 
                     <VBox alignment="BOTTOM_CENTER" maxHeight="100.0" spacing="15.0" VBox.vgrow="ALWAYS">
                         <HBox alignment="CENTER" spacing="12.0">
-                            <Button fx:id="btnCalcular" mnemonicParsing="false" onAction="#calcular" prefWidth="120.0" styleClass="button-primary" text="CALCULAR" />
-                            <Button fx:id="btnBorrar" mnemonicParsing="false" onAction="#borrar" prefWidth="100.0" styleClass="button-secondary" text="LIMPIAR" />
+                            <Button fx:id="btnCalcular" accessibleRole="BUTTON" accessibleText="Ejecutar análisis de la función" mnemonicParsing="false" onAction="#calcular" prefWidth="120.0" styleClass="button-primary" text="CALCULAR" />
+                            <Button fx:id="btnBorrar" accessibleRole="BUTTON" accessibleText="Limpiar todos los campos" mnemonicParsing="false" onAction="#borrar" prefWidth="100.0" styleClass="button-secondary" text="LIMPIAR" />
                         </HBox>
-                        <Button mnemonicParsing="false" onAction="#verHistorial" prefWidth="232.0" styleClass="button-secondary" text="VER HISTORIAL" />
+                        <Button accessibleRole="BUTTON" accessibleText="Ver el historial de funciones analizadas" mnemonicParsing="false" onAction="#verHistorial" prefWidth="232.0" styleClass="button-secondary" text="VER HISTORIAL" />
                     </VBox>
                 </VBox>
 

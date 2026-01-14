@@ -19,8 +19,9 @@
 
     /* Propiedades de JavaFX sobreescritas */
     -fx-accent: -color-500;
-    -fx-focus-color: -color-300;
     -fx-faint-focus-color: transparent;
+    -fx-focus-color: -color-500;
+    /* Color principal para foco */
 
     /* Tipografía */
     -fx-font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -296,6 +297,7 @@
     -fx-padding: 15;
     -fx-border-color: -color-200;
     -fx-border-width: 1;
+    -fx-spacing: 12;
 }
 
 .key-button {
@@ -311,7 +313,8 @@
 
 .key-button:hover {
     -fx-background-color: -color-100;
-    -fx-border-color: -color-200;
+    -fx-border-color: -color-500;
+    -fx-text-fill: -color-600;
 }
 
 .key-button-active {
@@ -331,14 +334,24 @@
 }
 
 .key-button-success {
-    -fx-background-color: -color-100;
-    -fx-text-fill: -color-700;
-    -fx-border-color: -color-300;
+    -fx-background-color: -color-500;
+    -fx-text-fill: white;
+    -fx-border-color: -color-600;
 }
 
 .key-button-success:hover {
-    -fx-background-color: -color-500;
+    -fx-background-color: -color-600;
     -fx-text-fill: white;
+}
+
+/* FOCO PARA ACCESIBILIDAD */
+.button:focused,
+.text-field:focused,
+.radio-button:focused,
+.toggle-button:focused {
+    -fx-border-color: -color-500;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(42, 157, 143, 0.4), 10, 0, 0, 0);
 }
 
 /* GRÁFICA */

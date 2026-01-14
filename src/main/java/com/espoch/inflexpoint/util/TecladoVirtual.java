@@ -26,6 +26,14 @@ public class TecladoVirtual {
         root.getStyleClass().add("keyboard-card");
         root.setSpacing(10);
 
+        // Cargar estilos para que el Popup reconozca las variables -color-*
+        try {
+            root.getStylesheets()
+                    .add(getClass().getResource("/com/espoch/inflexpoint/estilos/estilos.css").toExternalForm());
+        } catch (Exception e) {
+            System.err.println("No se pudo cargar el stylesheet en el teclado virtual: " + e.getMessage());
+        }
+
         GridPane grid = new GridPane();
         grid.setHgap(5);
         grid.setVgap(5);
@@ -140,9 +148,11 @@ public class TecladoVirtual {
         if (popup.isShowing()) {
             popup.hide();
         } else {
-            // Mostrar debajo del nodo ancla
+            // Mostrar debajo del nodo ancla centrado
             Point2D point = anchorNode.localToScreen(0, 0);
-            popup.show(anchorNode, point.getX(), point.getY() + anchorNode.getBoundsInLocal().getHeight() + 5);
+            double x = point.getX() - (popup.getWidth() / 2) + (anchorNode.getBoundsInLocal().getWidth() / 2);
+            double y = point.getY() + anchorNode.getBoundsInLocal().getHeight() + 8;
+            popup.show(anchorNode, x, y);
         }
     }
 }
