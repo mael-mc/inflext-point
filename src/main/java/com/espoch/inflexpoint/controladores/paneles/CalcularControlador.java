@@ -185,15 +185,31 @@ public class CalcularControlador implements Initializable {
         if (resultado.getPrimeraDerivada() != null && !resultado.getPrimeraDerivada().isEmpty()) {
             VBox section = crearSeccion("𝑓'(𝑥) DERIVADAS");
 
+            // Contenedor para las fórmulas
+            VBox formulasContainer = new VBox(5);
+            formulasContainer.setMinHeight(200);
+            formulasContainer.setPadding(new javafx.geometry.Insets(0, 0, 10, 0)); // Espacio para la scrollbar
+
             // Renderizar primera derivada
             String latex1 = "f'(x) = " + DerivadorSimbolico.toLaTeX(resultado.getPrimeraDerivada());
-            section.getChildren().add(FormulaRenderer.render(latex1));
+            formulasContainer.getChildren().add(FormulaRenderer.render(latex1));
 
             if (resultado.getSegundaDerivada() != null && !resultado.getSegundaDerivada().isEmpty()) {
                 // Renderizar segunda derivada
                 String latex2 = "f''(x) = " + DerivadorSimbolico.toLaTeX(resultado.getSegundaDerivada());
-                section.getChildren().add(FormulaRenderer.render(latex2));
+                formulasContainer.getChildren().add(FormulaRenderer.render(latex2));
             }
+
+            // Envolver en ScrollPane horizontal
+            ScrollPane scrollDerivadas = new ScrollPane(formulasContainer);
+            scrollDerivadas.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            scrollDerivadas.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            scrollDerivadas.setPannable(true);
+            scrollDerivadas.setFitToHeight(true);
+            scrollDerivadas.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+            scrollDerivadas.getStyleClass().add("scroll-pane");
+
+            section.getChildren().add(scrollDerivadas);
             vboxResultadosTexto.getChildren().add(section);
         }
 
