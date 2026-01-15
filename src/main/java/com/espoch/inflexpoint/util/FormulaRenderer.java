@@ -19,7 +19,7 @@ public class FormulaRenderer {
                 "<script type=\"text/javascript\" async src=\"https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML\"></script>"
                 +
                 "<style>" +
-                "body { background-color: transparent; color: #E0E0E0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 5px; display: flex; align-items: center; overflow: hidden; }"
+                "body { background-color: transparent; color: #1c6760; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 5px; display: flex; align-items: center; overflow: hidden; }"
                 +
                 ".mjx-chtml { font-size: 110% !important; }" +
                 "</style>" +
