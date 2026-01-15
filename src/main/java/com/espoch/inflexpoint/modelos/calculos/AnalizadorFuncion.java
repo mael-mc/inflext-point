@@ -153,7 +153,7 @@ public class AnalizadorFuncion {
 
         // Calcular derivadas simbólicas
         String d1 = DerivadorSimbolico.derivar(expresion);
-        String d2 = DerivadorSimbolico.derivar(d1);
+        String d2 = DerivadorSimbolico.derivarSegunda(expresion);
 
         // Crear y retornar resultado
         return new ResultadoAnalisis(
@@ -283,7 +283,8 @@ public class AnalizadorFuncion {
     }
 
     // Calcula intervalos de monotonía (crecimiento/decrecimiento)
-    private Intervalo[] calcularIntervalosMonotonia(Evaluador evaluador, PuntoCritico[] puntosCriticos, double minX, double maxX) {
+    private Intervalo[] calcularIntervalosMonotonia(Evaluador evaluador, PuntoCritico[] puntosCriticos, double minX,
+            double maxX) {
 
         // Crear puntos de división (límites + puntos críticos)
         List<Double> divisiones = new ArrayList<>();
@@ -317,7 +318,8 @@ public class AnalizadorFuncion {
     }
 
     // Calcula intervalos de concavidad
-    private Intervalo[] calcularIntervalosConcavidad(Evaluador evaluador, PuntoCritico[] puntosInflexion, double minX, double maxX) {
+    private Intervalo[] calcularIntervalosConcavidad(Evaluador evaluador, PuntoCritico[] puntosInflexion, double minX,
+            double maxX) {
 
         List<Double> divisiones = new ArrayList<>();
         divisiones.add(minX);
@@ -338,7 +340,8 @@ public class AnalizadorFuncion {
 
             double segundaDerivadaEnMedio = segundaDerivada(evaluador, puntoMedio);
 
-            TipoIntervalo tipo = (segundaDerivadaEnMedio > 0) ? TipoIntervalo.CONCAVIDAD_POSITIVA : TipoIntervalo.CONCAVIDAD_NEGATIVA;
+            TipoIntervalo tipo = (segundaDerivadaEnMedio > 0) ? TipoIntervalo.CONCAVIDAD_POSITIVA
+                    : TipoIntervalo.CONCAVIDAD_NEGATIVA;
 
             intervalos.add(new Intervalo(
                     i == 0 ? null : inicio,

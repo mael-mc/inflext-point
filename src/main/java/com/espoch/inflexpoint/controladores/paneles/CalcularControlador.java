@@ -1,10 +1,12 @@
 package com.espoch.inflexpoint.controladores.paneles;
 
 import com.espoch.inflexpoint.modelos.calculos.AnalizadorFuncion;
+import com.espoch.inflexpoint.modelos.calculos.DerivadorSimbolico;
 import com.espoch.inflexpoint.modelos.calculos.GestorHistorial;
 import com.espoch.inflexpoint.modelos.calculos.ResultadoAnalisis;
 import com.espoch.inflexpoint.modelos.excepciones.CalculoNumericoException;
 import com.espoch.inflexpoint.modelos.excepciones.ExpresionInvalidaException;
+import com.espoch.inflexpoint.util.FormulaRenderer;
 import com.espoch.inflexpoint.util.GraficadorCanvas;
 import com.espoch.inflexpoint.util.TecladoVirtual;
 import javafx.event.ActionEvent;
@@ -182,9 +184,15 @@ public class CalcularControlador implements Initializable {
         // 1. Derivadas
         if (resultado.getPrimeraDerivada() != null && !resultado.getPrimeraDerivada().isEmpty()) {
             VBox section = crearSeccion("𝑓'(𝑥) DERIVADAS");
-            section.getChildren().add(crearEtiquetaFormula("f'(x) = " + resultado.getPrimeraDerivada()));
+
+            // Renderizar primera derivada
+            String latex1 = "f'(x) = " + DerivadorSimbolico.toLaTeX(resultado.getPrimeraDerivada());
+            section.getChildren().add(FormulaRenderer.render(latex1));
+
             if (resultado.getSegundaDerivada() != null && !resultado.getSegundaDerivada().isEmpty()) {
-                section.getChildren().add(crearEtiquetaFormula("f''(x) = " + resultado.getSegundaDerivada()));
+                // Renderizar segunda derivada
+                String latex2 = "f''(x) = " + DerivadorSimbolico.toLaTeX(resultado.getSegundaDerivada());
+                section.getChildren().add(FormulaRenderer.render(latex2));
             }
             vboxResultadosTexto.getChildren().add(section);
         }
