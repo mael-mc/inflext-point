@@ -1,0 +1,21 @@
+// Diagrama de Despliegue
+digraph {
+	rankdir=TB
+	App -> JavaFX [label="\<\<depende\>\>" style=dashed]
+	subgraph cluster_pc {
+		label="PC Usuario (Windows/Linux/macOS)"
+		OS [label="Sistema Operativo" shape=box3d]
+		subgraph cluster_jre {
+			label="Java Runtime Environment (JRE 17+)"
+			color=lightgrey style=filled
+			App [label="\<\<component\>\>\nInflexPoint.jar" shape=component]
+			JavaFX [label="JavaFX SDK" shape=component]
+		}
+	}
+	Mouse [label=Mouse shape=note]
+	Teclado [label=Teclado shape=note]
+	Monitor [label=Monitor shape=note]
+	Mouse -> OS [label="\<\<input\>\>"]
+	Teclado -> OS [label="\<\<input\>\>"]
+	OS -> Monitor [label="\<\<output\>\>"]
+}

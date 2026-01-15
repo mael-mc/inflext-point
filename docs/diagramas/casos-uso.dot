@@ -1,0 +1,30 @@
+// Diagrama de Casos de Uso
+digraph {
+	rankdir=LR
+	U [label="Usuario
+(Estudiante/Profesor)" shape=actor]
+	subgraph cluster_sistema {
+		label="InflexPoint - Sistema de Análisis de Funciones"
+		color=lightgrey style=filled
+		CU1 [label="Ingresar Función Matemática"]
+		CU2 [label="Calcular Derivadas
+(1ra y 2da)"]
+		CU3 [label="Identificar Puntos Críticos
+(Máximos/Mínimos)"]
+		CU4 [label="Identificar Puntos de Inflexión"]
+		CU5 [label="Graficar Funciones y Puntos"]
+		CU6 [label="Ver Historial de Calculos"]
+		CU7 [label="Exportar/Guardar Resultados"]
+	}
+	U -> CU1
+	U -> CU2
+	U -> CU3
+	U -> CU4
+	U -> CU5
+	U -> CU6
+	U -> CU7
+	CU2 -> CU1 [label=<<include>> style=dashed]
+	CU3 -> CU2 [label=<<include>> style=dashed]
+	CU4 -> CU2 [label=<<include>> style=dashed]
+	CU5 -> CU1 [label=<<include>> style=dashed]
+}
