@@ -335,15 +335,18 @@ public class DerivadorSimbolico {
             Nodo sl = izquierda.simplificar();
             Nodo sr = derecha.simplificar();
 
-            if (sl instanceof NodoConstante && ((NodoConstante) sl).valor == 0)
-                return new NodoConstante(0);
             if (sr instanceof NodoConstante) {
                 double v = ((NodoConstante) sr).valor;
+                if (Math.abs(v) < 1e-10)
+                    throw new ArithmeticException("División por cero detectada.");
                 if (v == 1)
                     return sl;
                 if (v == -1)
                     return new NodoMultiplicacion(new NodoConstante(-1), sl).simplificar();
             }
+
+            if (sl instanceof NodoConstante && ((NodoConstante) sl).valor == 0)
+                return new NodoConstante(0);
 
             // (A/B)/C -> A/(B*C)
             if (sl instanceof NodoDivision) {
@@ -430,8 +433,14 @@ public class DerivadorSimbolico {
                         new NodoMultiplicacion(((NodoPotencia) sb).exponente, se)).simplificar();
             }
 
-            if (sb instanceof NodoConstante && ((NodoConstante) sb).valor == 0)
+            if (sb instanceof NodoConstante && ((NodoConstante) sb).valor == 0) {
+                if (se instanceof NodoConstante) {
+                    double v = ((NodoConstante) se).valor;
+                    if (v <= 0)
+                        throw new ArithmeticException("Indeterminación detectada: 0^(" + v + ")");
+                }
                 return new NodoConstante(0);
+            }
             if (sb instanceof NodoConstante && ((NodoConstante) sb).valor == 1)
                 return new NodoConstante(1);
 

@@ -192,6 +192,10 @@ public class AnalizadorFuncion {
             }
         }
 
+        // Detectar y procesar singularidades (Asíntotas, NaN, etc.)
+        List<Singularidad> singularidades = identificarSingularidades(evaluador, minX, maxX);
+        procesarSingularidades(singularidades, resultado);
+
         if (siempreDerivadaCero) {
             resultado.setPuntosCriticos(new PuntoCritico[0]);
             resultado.setIntervalosCrecimiento(new Intervalo[0]);
@@ -203,32 +207,16 @@ public class AnalizadorFuncion {
         } else if (siempreSegundaDerivadaCero) {
             resultado.setPuntosInflexion(new PuntoCritico[0]);
             resultado.setIntervalosConcavidad(new Intervalo[0]);
-            // Una lineal tampoco tiene puntos críticos (máximos/mínimos locales)
             resultado.setPuntosCriticos(new PuntoCritico[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función lineal. No tiene puntos de inflexión, críticos ni concavidad definida.");
-        } else if (siempreSegundaDerivadaConstante) {
-            // Es una cuadrática (o similar con d2 constante)
+        } else if (siempreSegundaDerivadaConstante && !esRacional(expresion)) {
             resultado.setPuntosInflexion(new PuntoCritico[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función cuadrática (parábola). No tiene puntos de inflexión.");
         } else if (esRacional(expresion)) {
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función racional. Puede presentar discontinuidades o asíntotas verticales.");
-            List<Double> asintotas = identificarAsintotas(evaluador, minX, maxX);
-            if (!asintotas.isEmpty()) {
-                StringBuilder sb = new StringBuilder("Posibles asíntotas verticales detectadas cerca de x = {");
-                for (int i = 0; i < asintotas.size(); i++) {
-                    double val = asintotas.get(i);
-                    if (Math.abs(val) < 0.01)
-                        val = 0.0;
-                    sb.append(String.format("%.2f", val));
-                    if (i < asintotas.size() - 1)
-                        sb.append(", ");
-                }
-                sb.append("}.");
-                resultado.agregarMensajeAccesibilidad(sb.toString());
-            }
         } else if (esPolinomio(expresion)) {
             int grado = detectarGradoProbable(evaluador, minX, maxX);
             String msg = "Esta es una función polinómica";
@@ -490,46 +478,99 @@ public class AnalizadorFuncion {
         return expr.contains("/") && expr.toLowerCase().contains("x");
     }
 
-    private List<Double> identificarAsintotas(Evaluador f, double minX, double maxX) {
-        List<Double> asintotas = new java.util.ArrayList<>();
-        double step = 0.05; // Paso fino para detectar saltos
+    private enum TipoSingularidad {
+        ASINTOTA, INDEFINIDO
+    }
+
+    private record Singularidad(double x, TipoSingularidad tipo) {
+    }
+
+    private void procesarSingularidades(List<Singularidad> singularidades, ResultadoAnalisis resultado) {
+        if (singularidades.isEmpty())
+            return;
+
+        List<Double> asintotas = singularidades.stream()
+                .filter(s -> s.tipo == TipoSingularidad.ASINTOTA)
+                .map(s -> s.x).toList();
+        List<Double> indefinidos = singularidades.stream()
+                .filter(s -> s.tipo == TipoSingularidad.INDEFINIDO)
+                .map(s -> s.x).toList();
+
+        if (!asintotas.isEmpty()) {
+            StringBuilder sb = new StringBuilder(
+                    "Asíntotas verticales o divisiones por cero detectadas cerca de x = {");
+            for (int i = 0; i < asintotas.size(); i++) {
+                double val = asintotas.get(i);
+                if (Math.abs(val) < 0.01)
+                    val = 0.0;
+                sb.append(String.format("%.2f", val));
+                if (i < asintotas.size() - 1)
+                    sb.append(", ");
+            }
+            sb.append("}.");
+            resultado.agregarMensajeAccesibilidad(sb.toString());
+        }
+
+        if (!indefinidos.isEmpty()) {
+            StringBuilder sb = new StringBuilder(
+                    "La función no está definida (indeterminación) en algunas zonas, ej. cerca de x = {");
+            for (int i = 0; i < Math.min(indefinidos.size(), 3); i++) {
+                double val = indefinidos.get(i);
+                if (Math.abs(val) < 0.01)
+                    val = 0.0;
+                sb.append(String.format("%.2f", val));
+                if (i < Math.min(indefinidos.size(), 3) - 1)
+                    sb.append(", ");
+            }
+            if (indefinidos.size() > 3)
+                sb.append(", ...");
+            sb.append("}. Esto puede ocurrir en raíces de números negativos o logaritmos de números no positivos.");
+            resultado.agregarMensajeAccesibilidad(sb.toString());
+        }
+    }
+
+    private List<Singularidad> identificarSingularidades(Evaluador f, double minX, double maxX) {
+        List<Singularidad> singularidades = new java.util.ArrayList<>();
+        double step = 0.1;
         double h = 1e-4;
 
         for (double x = minX; x <= maxX; x += step) {
             try {
                 double val = f.evaluar(x);
-                if (Double.isInfinite(val) || Double.isNaN(val)) {
-                    asintotas.add(x);
+                if (Double.isInfinite(val)) {
+                    singularidades.add(new Singularidad(x, TipoSingularidad.ASINTOTA));
+                    continue;
+                }
+                if (Double.isNaN(val)) {
+                    singularidades.add(new Singularidad(x, TipoSingularidad.INDEFINIDO));
                     continue;
                 }
 
-                // Detectar saltos bruscos que indiquen asíntota (cambio de signo con valores
-                // grandes)
+                // Salto brusco
                 double v1 = f.evaluar(x - h);
                 double v2 = f.evaluar(x + h);
-                if (Math.signum(v1) != Math.signum(v2) && Math.abs(v1) > 10 && Math.abs(v2) > 10) {
-                    asintotas.add(x);
+                if (!Double.isNaN(v1) && !Double.isNaN(v2) &&
+                        Math.signum(v1) != Math.signum(v2) && Math.abs(v1) > 10 && Math.abs(v2) > 10) {
+                    singularidades.add(new Singularidad(x, TipoSingularidad.ASINTOTA));
                 }
-            } catch (ExpresionInvalidaException e) {
-                // Posible punto fuera del dominio
-                asintotas.add(x);
+            } catch (Exception e) {
+                singularidades.add(new Singularidad(x, TipoSingularidad.INDEFINIDO));
             }
         }
 
-        // Limpiar asintotas duplicadas (cercanas)
-        List<Double> únicas = new java.util.ArrayList<>();
-        for (double a : asintotas) {
+        // Limpieza de duplicados
+        List<Singularidad> únicas = new java.util.ArrayList<>();
+        for (Singularidad s : singularidades) {
             boolean existe = false;
-            for (double u : únicas) {
-                if (Math.abs(a - u) < 0.2) {
+            for (Singularidad u : únicas) {
+                if (Math.abs(s.x - u.x) < 0.3 && s.tipo == u.tipo) {
                     existe = true;
                     break;
                 }
             }
             if (!existe)
-                únicas.add(a);
+                únicas.add(s);
         }
-
         return únicas;
     }
 

@@ -28,6 +28,50 @@ public class ValidadorExpresion {
         validarCaracteres(expresion);
         validarParentesis(expresion);
         validarSintaxisBasica(expresion);
+        validarIndeterminacionGlobal(expresion);
+    }
+
+    /**
+     * Verifica si la expresión es una indeterminación global (ej. 1/0, x/(x-x)).
+     */
+    private static void validarIndeterminacionGlobal(String expresion) throws ExpresionInvalidaException {
+        try {
+            com.espoch.inflexpoint.modelos.calculos.Evaluador eval = new com.espoch.inflexpoint.modelos.calculos.Evaluador(
+                    expresion);
+            double[] puntosPrueba = { 0.0, 1.0, -1.0, 0.5, Math.PI };
+            boolean todosIndefinidos = true;
+            boolean algunInfinito = false;
+            boolean algunNaN = false;
+
+            for (double x : puntosPrueba) {
+                double val = eval.evaluar(x);
+                if (Double.isFinite(val)) {
+                    todosIndefinidos = false;
+                    break;
+                }
+                if (Double.isInfinite(val))
+                    algunInfinito = true;
+                if (Double.isNaN(val))
+                    algunNaN = true;
+            }
+
+            if (todosIndefinidos) {
+                if (algunInfinito && !algunNaN) {
+                    throw new ExpresionInvalidaException(
+                            "Indeterminación: La expresión resulta en infinito para todo el dominio (posible división por cero)");
+                } else {
+                    throw new ExpresionInvalidaException(
+                            "Indeterminación: La expresión no está definida en ningún punto (ej. división 0/0 o raíz negativa global)");
+                }
+            }
+        } catch (ExpresionInvalidaException e) {
+            // Si es un error de sintaxis que el evaluador ya captó, lo dejamos pasar para
+            // que lo maneje el flujo normal
+            if (e.getMessage().contains("Indeterminación"))
+                throw e;
+        } catch (Exception e) {
+            // Ignorar errores durante la prueba numérica, el flujo principal los captará
+        }
     }
 
     /**
