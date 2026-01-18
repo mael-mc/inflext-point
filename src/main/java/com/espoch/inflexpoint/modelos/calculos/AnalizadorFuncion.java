@@ -180,15 +180,19 @@ public class AnalizadorFuncion {
             double valD1 = derivada(evaluador, x);
             double valD2 = segundaDerivada(evaluador, x);
 
-            if (Math.abs(valD1) >= TOLERANCIA_CERO) {
-                siempreDerivadaCero = false;
+            if (Double.isFinite(valD1)) {
+                if (Math.abs(valD1) >= TOLERANCIA_CERO) {
+                    siempreDerivadaCero = false;
+                }
             }
-            if (Math.abs(valD2) >= TOLERANCIA_CERO) {
-                siempreSegundaDerivadaCero = false;
-            }
-            // Relaxamos la tolerancia para la segunda derivada ya que es más ruidosa
-            if (Math.abs(valD2 - valorReferenciaD2) >= 1e-3) {
-                siempreSegundaDerivadaConstante = false;
+            if (Double.isFinite(valD2)) {
+                if (Math.abs(valD2) >= TOLERANCIA_CERO) {
+                    siempreSegundaDerivadaCero = false;
+                }
+                // Relaxamos la tolerancia para la segunda derivada ya que es más ruidosa
+                if (Double.isFinite(valorReferenciaD2) && Math.abs(valD2 - valorReferenciaD2) >= 1e-3) {
+                    siempreSegundaDerivadaConstante = false;
+                }
             }
         }
 
@@ -204,19 +208,34 @@ public class AnalizadorFuncion {
             resultado.setIntervalosConcavidad(new Intervalo[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función constante. No tiene puntos críticos, extremos ni intervalos de crecimiento/decrecimiento.");
+            return resultado; // Si es constante, no evaluamos más
         } else if (siempreSegundaDerivadaCero) {
             resultado.setPuntosInflexion(new PuntoCritico[0]);
             resultado.setIntervalosConcavidad(new Intervalo[0]);
             resultado.setPuntosCriticos(new PuntoCritico[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función lineal. No tiene puntos de inflexión, críticos ni concavidad definida.");
-        } else if (siempreSegundaDerivadaConstante && !esRacional(expresion)) {
+            return resultado; // Si es lineal, no evaluamos más
+        }
+
+        if (esIrracional(expresion)) {
+            resultado.agregarMensajeAccesibilidad("Esta es una función irracional (contiene raíces).");
+            if (expresion.contains("sqrt") || expresion.contains("^0.5") || expresion.contains("^0.2")
+                    || expresion.contains("^0.4") || expresion.contains("^0.6") || expresion.contains("^0.8")) {
+                resultado.agregarMensajeAccesibilidad(
+                        "Al contener una raíz par, el dominio está restringido a los valores que hacen que el argumento sea no negativo.");
+            }
+        }
+
+        if (esRacional(expresion)) {
+            resultado.agregarMensajeAccesibilidad(
+                    "Esta es una función racional. Puede presentar discontinuidades o asíntotas verticales.");
+        }
+
+        if (siempreSegundaDerivadaConstante && !esRacional(expresion) && !esIrracional(expresion)) {
             resultado.setPuntosInflexion(new PuntoCritico[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función cuadrática (parábola). No tiene puntos de inflexión.");
-        } else if (esRacional(expresion)) {
-            resultado.agregarMensajeAccesibilidad(
-                    "Esta es una función racional. Puede presentar discontinuidades o asíntotas verticales.");
         } else if (esPolinomio(expresion)) {
             int grado = detectarGradoProbable(evaluador, minX, maxX);
             String msg = "Esta es una función polinómica";
@@ -476,6 +495,11 @@ public class AnalizadorFuncion {
 
     private boolean esRacional(String expr) {
         return expr.contains("/") && expr.toLowerCase().contains("x");
+    }
+
+    private boolean esIrracional(String expr) {
+        String lower = expr.toLowerCase();
+        return lower.contains("sqrt") || lower.contains("^0.") || lower.contains("^ (") || lower.contains("^(");
     }
 
     private enum TipoSingularidad {
