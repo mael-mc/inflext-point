@@ -212,6 +212,21 @@ public class AnalizadorFuncion {
             resultado.setPuntosInflexion(new PuntoCritico[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función cuadrática (parábola). No tiene puntos de inflexión.");
+        } else if (esPolinomio(expresion)) {
+            int grado = detectarGradoProbable(evaluador, minX, maxX);
+            String msg = "Esta es una función polinómica";
+            if (grado > 2)
+                msg += " de grado " + grado;
+            msg += ". Es continua y derivable en todo su dominio.";
+            resultado.agregarMensajeAccesibilidad(msg);
+
+            if (grado > 0) {
+                if (grado % 2 == 0) {
+                    resultado.agregarMensajeAccesibilidad("Al ser de grado par, posee al menos un extremo absoluto.");
+                } else if (grado >= 3) {
+                    resultado.agregarMensajeAccesibilidad("Al ser de grado impar, posee al menos una raíz real.");
+                }
+            }
         }
 
         return resultado;
@@ -437,6 +452,71 @@ public class AnalizadorFuncion {
                     / (PASO_DERIVADA * PASO_DERIVADA);
         } catch (ExpresionInvalidaException e) {
             return Double.NaN;
+        }
+    }
+
+    private boolean esPolinomio(String expr) {
+        // Heurística simple: solo contiene x, números, +, -, *, /, ^ y paréntesis
+        // Y no contiene funciones como sin, cos, log, etc.
+        String lower = expr.toLowerCase();
+        String[] funciones = { "sin", "cos", "tan", "log", "ln", "sqrt", "asin", "acos", "atan", "abs", "exp" };
+        for (String func : funciones) {
+            if (lower.contains(func))
+                return false;
+        }
+        return lower.contains("x");
+    }
+
+    private int detectarGradoProbable(Evaluador f, double minX, double maxX) {
+        // Grado 1 y 2 ya se manejan por flags booleanos en analizarEnRango
+        if (esDerivadaConstante(f, 3, minX, maxX))
+            return 3;
+        if (esDerivadaConstante(f, 4, minX, maxX))
+            return 4;
+        if (esDerivadaConstante(f, 5, minX, maxX))
+            return 5;
+
+        return -1; // Desconocido o grado muy alto
+    }
+
+    private boolean esDerivadaConstante(Evaluador f, int orden, double minX, double maxX) {
+        double step = (maxX - minX) / 10.0;
+        if (step < 0.5)
+            step = 0.5;
+
+        double valorRef = calcularDerivadaOrdenN(f, orden, minX + step);
+
+        for (double x = minX + 2 * step; x < maxX; x += step) {
+            double val = calcularDerivadaOrdenN(f, orden, x);
+            // Tolerancia escalada según el valor de referencia
+            double tol = Math.max(1.0, Math.abs(valorRef) * 0.1);
+            if (Math.abs(val - valorRef) > tol) {
+                return false;
+            }
+        }
+        return Math.abs(valorRef) > 1e-3;
+    }
+
+    private double calcularDerivadaOrdenN(Evaluador f, int orden, double x) {
+        double h = 0.1; // h más grande para reducir ruido en órdenes altos
+        switch (orden) {
+            case 1:
+                return derivada(f, x);
+            case 2:
+                return segundaDerivada(f, x);
+            case 3:
+                return (segundaDerivada(f, x + h) - segundaDerivada(f, x - h)) / (2 * h);
+            case 4:
+                return (segundaDerivada(f, x + h) - 2 * segundaDerivada(f, x) + segundaDerivada(f, x - h)) / (h * h);
+            case 5: {
+                double d4_plus = (segundaDerivada(f, x + 2 * h) - 2 * segundaDerivada(f, x + h) + segundaDerivada(f, x))
+                        / (h * h);
+                double d4_minus = (segundaDerivada(f, x) - 2 * segundaDerivada(f, x - h)
+                        + segundaDerivada(f, x - 2 * h)) / (h * h);
+                return (d4_plus - d4_minus) / (2 * h);
+            }
+            default:
+                return 0;
         }
     }
 }
