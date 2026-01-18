@@ -145,9 +145,11 @@ public class DerivadorSimbolico {
                 return new NodoConstante(((NodoConstante) sl).valor + ((NodoConstante) sr).valor);
             }
 
-            // Simplificación de términos idénticos (x + x -> 2*x)
-            if (sl.toMathExpression().equals(sr.toMathExpression())) {
-                return new NodoMultiplicacion(new NodoConstante(2), sl).simplificar();
+            // Combinar términos semejantes (ej: 2x + 3x = 5x)
+            TermInfo tiL = TermInfo.extract(sl);
+            TermInfo tiR = TermInfo.extract(sr);
+            if (tiL.base.toMathExpression().equals(tiR.base.toMathExpression())) {
+                return new NodoMultiplicacion(new NodoConstante(tiL.coeff + tiR.coeff), tiL.base).simplificar();
             }
 
             return new NodoSuma(sl, sr);
@@ -193,8 +195,11 @@ public class DerivadorSimbolico {
                 return new NodoConstante(((NodoConstante) sl).valor - ((NodoConstante) sr).valor);
             }
 
-            if (sl.toMathExpression().equals(sr.toMathExpression())) {
-                return new NodoConstante(0);
+            // Combinar términos semejantes (ej: 2x - 4x = -2x)
+            TermInfo tiL = TermInfo.extract(sl);
+            TermInfo tiR = TermInfo.extract(sr);
+            if (tiL.base.toMathExpression().equals(tiR.base.toMathExpression())) {
+                return new NodoMultiplicacion(new NodoConstante(tiL.coeff - tiR.coeff), tiL.base).simplificar();
             }
 
             return new NodoResta(sl, sr);
@@ -573,6 +578,27 @@ public class DerivadorSimbolico {
 
         public double getPrioridad() {
             return 10;
+        }
+    }
+
+    // --- CLASES DE APOYO PARA SIMPLIFICACIÓN ---
+    static class TermInfo {
+        double coeff;
+        Nodo base;
+
+        TermInfo(double c, Nodo b) {
+            this.coeff = c;
+            this.base = b;
+        }
+
+        static TermInfo extract(Nodo n) {
+            if (n instanceof NodoMultiplicacion) {
+                NodoMultiplicacion m = (NodoMultiplicacion) n;
+                if (m.izquierda instanceof NodoConstante) {
+                    return new TermInfo(((NodoConstante) m.izquierda).valor, m.derecha);
+                }
+            }
+            return new TermInfo(1.0, n);
         }
     }
 
