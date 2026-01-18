@@ -203,6 +203,21 @@ public class CalcularControlador implements Initializable {
     private void mostrarResultadosTextuales(ResultadoAnalisis resultado) {
         vboxResultadosTexto.getChildren().clear();
 
+        // 0. Mensajes de Accesibilidad / Avisos
+        if (resultado.getMensajesAccesibilidad() != null && !resultado.getMensajesAccesibilidad().isEmpty()) {
+            VBox alertBox = new VBox(5);
+            alertBox.setStyle(
+                    "-fx-background-color: #fff3cd; -fx-border-color: #ffeeba; -fx-padding: 10; -fx-border-radius: 5; -fx-background-radius: 5;");
+
+            for (String msg : resultado.getMensajesAccesibilidad()) {
+                Label lbl = new Label("⚠ " + msg);
+                lbl.setStyle("-fx-text-fill: #856404; -fx-font-weight: bold;");
+                lbl.setWrapText(true);
+                alertBox.getChildren().add(lbl);
+            }
+            vboxResultadosTexto.getChildren().add(alertBox);
+        }
+
         // 1. Derivadas
         if (resultado.getPrimeraDerivada() != null && !resultado.getPrimeraDerivada().isEmpty()) {
             VBox section = crearSeccion("𝑓'(𝑥) DERIVADAS");

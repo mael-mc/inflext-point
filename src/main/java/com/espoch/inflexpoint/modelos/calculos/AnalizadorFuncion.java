@@ -26,6 +26,7 @@ public class AnalizadorFuncion {
     private static final double PASO_DERIVADA = 0.0001;
     private static final double TOLERANCIA_BISECCION = 1e-6;
     private static final int MAX_ITERACIONES_BISECCION = 50;
+    private static final double TOLERANCIA_CERO = 1e-7;
 
     // Rango de análisis por defecto
     private static final double MIN_X_DEFECTO = -10.0;
@@ -156,7 +157,7 @@ public class AnalizadorFuncion {
         String d2 = DerivadorSimbolico.derivarSegunda(expresion);
 
         // Crear y retornar resultado
-        return new ResultadoAnalisis(
+        ResultadoAnalisis resultado = new ResultadoAnalisis(
                 puntosCriticos,
                 puntosInflexion,
                 intervalosCrecimiento,
@@ -164,6 +165,31 @@ public class AnalizadorFuncion {
                 intervalosConcavidad,
                 d1,
                 d2);
+
+        // --- LÓGICA DE ACCESIBILIDAD ---
+        // Validar si la función es constante o lineal en el rango para informar al
+        // usuario
+        boolean siempreDerivadaCero = true;
+        boolean siempreSegundaDerivadaCero = true;
+
+        for (double x = minX; x <= maxX; x += step) {
+            if (Math.abs(derivada(evaluador, x)) >= TOLERANCIA_CERO) {
+                siempreDerivadaCero = false;
+            }
+            if (Math.abs(segundaDerivada(evaluador, x)) >= TOLERANCIA_CERO) {
+                siempreSegundaDerivadaCero = false;
+            }
+        }
+
+        if (siempreDerivadaCero) {
+            resultado.agregarMensajeAccesibilidad(
+                    "Esta es una función constante. No tiene puntos críticos, extremos ni intervalos de crecimiento/decrecimiento.");
+        } else if (siempreSegundaDerivadaCero) {
+            resultado.agregarMensajeAccesibilidad(
+                    "Esta es una función lineal. No tiene puntos de inflexión ni concavidad definida.");
+        }
+
+        return resultado;
     }
 
     /**
@@ -306,6 +332,10 @@ public class AnalizadorFuncion {
 
             double derivadaEnMedio = derivada(evaluador, puntoMedio);
 
+            if (Math.abs(derivadaEnMedio) < TOLERANCIA_CERO) {
+                continue; // Ignorar tramos constantes
+            }
+
             TipoIntervalo tipo = (derivadaEnMedio > 0) ? TipoIntervalo.CRECIENTE : TipoIntervalo.DECRECIENTE;
 
             intervalos.add(new Intervalo(
@@ -339,6 +369,10 @@ public class AnalizadorFuncion {
             double puntoMedio = (inicio + fin) / 2;
 
             double segundaDerivadaEnMedio = segundaDerivada(evaluador, puntoMedio);
+
+            if (Math.abs(segundaDerivadaEnMedio) < TOLERANCIA_CERO) {
+                continue; // Ignorar tramos lineales o constantes
+            }
 
             TipoIntervalo tipo = (segundaDerivadaEnMedio > 0) ? TipoIntervalo.CONCAVIDAD_POSITIVA
                     : TipoIntervalo.CONCAVIDAD_NEGATIVA;

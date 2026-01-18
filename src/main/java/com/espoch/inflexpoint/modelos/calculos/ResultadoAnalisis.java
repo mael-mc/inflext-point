@@ -24,7 +24,13 @@ public class ResultadoAnalisis {
     private String primeraDerivada;
     private String segundaDerivada;
 
+    // Mensajes de accesibilidad para informar limitaciones de la función
+    private java.util.List<String> mensajesAccesibilidad = new java.util.ArrayList<>();
+
     // Constructores
+    public ResultadoAnalisis() {
+    }
+
     // Completo.
     public ResultadoAnalisis(
             PuntoCritico[] puntosCriticos,
@@ -131,5 +137,20 @@ public class ResultadoAnalisis {
                 (intervalosCrecimiento != null && intervalosCrecimiento.length > 0) ||
                 (intervalosDecrecimiento != null && intervalosDecrecimiento.length > 0) ||
                 (intervalosConcavidad != null && intervalosConcavidad.length > 0);
+    }
+
+    public java.util.List<String> getMensajesAccesibilidad() {
+        return mensajesAccesibilidad;
+    }
+
+    public void setMensajesAccesibilidad(java.util.List<String> mensajesAccesibilidad) {
+        this.mensajesAccesibilidad = mensajesAccesibilidad;
+    }
+
+    public void agregarMensajeAccesibilidad(String mensaje) {
+        if (this.mensajesAccesibilidad == null) {
+            this.mensajesAccesibilidad = new java.util.ArrayList<>();
+        }
+        this.mensajesAccesibilidad.add(mensaje);
     }
 }
