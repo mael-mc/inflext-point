@@ -224,8 +224,7 @@ public class CalcularControlador implements Initializable {
 
             // Contenedor para las fórmulas
             VBox formulasContainer = new VBox(5);
-            formulasContainer.setMinHeight(200);
-            formulasContainer.setPadding(new javafx.geometry.Insets(0, 0, 10, 0)); // Espacio para la scrollbar
+            formulasContainer.setPadding(new javafx.geometry.Insets(0, 0, 5, 0)); // Espacio para la scrollbar
 
             // Renderizar primera derivada
             String latex1 = "f'(x) = " + DerivadorSimbolico.toLaTeX(resultado.getPrimeraDerivada());

@@ -7,10 +7,10 @@ public class FormulaRenderer {
 
     public static WebView render(String latex) {
         WebView webView = new WebView();
-        // Ajustar altura para que se adapte mejor al contenido
-        webView.setPrefHeight(75);
-        webView.setMinHeight(60);
-        webView.setMaxHeight(120);
+        // Ajustar altura para que sea más compacta
+        webView.setPrefHeight(45);
+        webView.setMinHeight(40);
+        webView.setMaxHeight(80);
         webView.setStyle("-fx-background-color: transparent;");
 
         WebEngine engine = webView.getEngine();
@@ -23,6 +23,8 @@ public class FormulaRenderer {
                 "<script type=\"text/javascript\">" +
                 "  window.MathJax = {" +
                 "    tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']]}," +
+                "    displayAlign: 'left'," +
+                "    displayIndent: '0em'," +
                 "    AuthorInit: function () {" +
                 "      MathJax.Hub.Register.StartupHook('End', function () {" +
                 "        document.getElementById('fallback').style.display = 'none';" +
@@ -34,9 +36,8 @@ public class FormulaRenderer {
                 "<script type=\"text/javascript\" async src=\"https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML\"></script>"
                 +
                 "<style>" +
-                "  body { background-color: transparent; color: #1c6760; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; overflow: hidden; }"
-                +
-                "  #content { visibility: hidden; }" +
+                "  body { background-color: transparent; color: #1c6760; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 5px; overflow: hidden; }"
+                + "  #content { visibility: hidden; }" +
                 "  #fallback { " +
                 "    display: block; " +
                 "    font-family: 'Consolas', monospace; " +
@@ -52,7 +53,7 @@ public class FormulaRenderer {
                 "<body>" +
                 "  <div id=\"fallback\">" + latex + "</div>" +
                 "  <div id=\"content\">" +
-                "    $$ " + latex + " $$" +
+                "    \\( \\displaystyle " + latex + " \\)" +
                 "  </div>" +
                 "  <script>" +
                 "    // Si MathJax no carga en 3 segundos, mostrar fallback confirmadamente" +
