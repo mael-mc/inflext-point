@@ -593,7 +593,7 @@ public class DerivadorSimbolico {
             while (pos < entrada.length()) {
                 if (entrada.charAt(pos) == '+') {
                     pos++;
-                    nodo = new NodoSuma(nodo, analizarSumaResta());
+                    nodo = new NodoSuma(nodo, analizarMultiDiv());
                 } else if (entrada.charAt(pos) == '-') {
                     pos++;
                     nodo = new NodoResta(nodo, analizarMultiDiv());
@@ -604,25 +604,37 @@ public class DerivadorSimbolico {
         }
 
         Nodo analizarMultiDiv() {
-            Nodo nodo = analizarPotencia();
+            Nodo nodo = analizarUnary();
             while (pos < entrada.length()) {
                 if (entrada.charAt(pos) == '*') {
                     pos++;
-                    nodo = new NodoMultiplicacion(nodo, analizarPotencia());
+                    nodo = new NodoMultiplicacion(nodo, analizarUnary());
                 } else if (entrada.charAt(pos) == '/') {
                     pos++;
-                    nodo = new NodoDivision(nodo, analizarPotencia());
+                    nodo = new NodoDivision(nodo, analizarUnary());
                 } else
                     break;
             }
             return nodo;
         }
 
+        Nodo analizarUnary() {
+            if (pos < entrada.length() && entrada.charAt(pos) == '+') {
+                pos++;
+                return analizarUnary();
+            }
+            if (pos < entrada.length() && entrada.charAt(pos) == '-') {
+                pos++;
+                return new NodoResta(new NodoConstante(0), analizarUnary());
+            }
+            return analizarPotencia();
+        }
+
         Nodo analizarPotencia() {
             Nodo nodo = analizarFactor();
             if (pos < entrada.length() && entrada.charAt(pos) == '^') {
                 pos++;
-                nodo = new NodoPotencia(nodo, analizarPotencia());
+                nodo = new NodoPotencia(nodo, analizarUnary()); // Potencia puede tener exponente unario
             }
             return nodo;
         }
@@ -631,14 +643,6 @@ public class DerivadorSimbolico {
             if (pos >= entrada.length())
                 return new NodoConstante(0);
             char c = entrada.charAt(pos);
-            if (c == '+') {
-                pos++;
-                return analizarFactor();
-            }
-            if (c == '-') {
-                pos++;
-                return new NodoResta(new NodoConstante(0), analizarFactor());
-            }
             if (c == '(') {
                 pos++;
                 Nodo n = analizarSumaResta();

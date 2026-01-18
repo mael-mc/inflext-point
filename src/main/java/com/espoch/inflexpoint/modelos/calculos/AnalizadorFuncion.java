@@ -169,15 +169,26 @@ public class AnalizadorFuncion {
         // --- LÓGICA DE ACCESIBILIDAD ---
         // Validar si la función es constante o lineal en el rango para informar al
         // usuario
+        // Validar si la función es constante, lineal o cuadrática en el rango
         boolean siempreDerivadaCero = true;
         boolean siempreSegundaDerivadaCero = true;
+        boolean siempreSegundaDerivadaConstante = true;
+
+        double valorReferenciaD2 = segundaDerivada(evaluador, minX);
 
         for (double x = minX; x <= maxX; x += step) {
-            if (Math.abs(derivada(evaluador, x)) >= TOLERANCIA_CERO) {
+            double valD1 = derivada(evaluador, x);
+            double valD2 = segundaDerivada(evaluador, x);
+
+            if (Math.abs(valD1) >= TOLERANCIA_CERO) {
                 siempreDerivadaCero = false;
             }
-            if (Math.abs(segundaDerivada(evaluador, x)) >= TOLERANCIA_CERO) {
+            if (Math.abs(valD2) >= TOLERANCIA_CERO) {
                 siempreSegundaDerivadaCero = false;
+            }
+            // Relaxamos la tolerancia para la segunda derivada ya que es más ruidosa
+            if (Math.abs(valD2 - valorReferenciaD2) >= 1e-3) {
+                siempreSegundaDerivadaConstante = false;
             }
         }
 
@@ -196,6 +207,11 @@ public class AnalizadorFuncion {
             resultado.setPuntosCriticos(new PuntoCritico[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función lineal. No tiene puntos de inflexión, críticos ni concavidad definida.");
+        } else if (siempreSegundaDerivadaConstante) {
+            // Es una cuadrática (o similar con d2 constante)
+            resultado.setPuntosInflexion(new PuntoCritico[0]);
+            resultado.agregarMensajeAccesibilidad(
+                    "Esta es una función cuadrática (parábola). No tiene puntos de inflexión.");
         }
 
         return resultado;
@@ -220,7 +236,10 @@ public class AnalizadorFuncion {
                 if (Math.abs(valorActual) > TOLERANCIA_CERO || Math.abs(prevValor) > TOLERANCIA_CERO) {
                     double raiz = biseccion(funcion, x - step, x);
                     if (!Double.isNaN(raiz)) {
-                        raices.add(raiz);
+                        // Evitar duplicados (especialmente en fronteras de intervalos)
+                        if (raices.isEmpty() || Math.abs(raiz - raices.get(raices.size() - 1)) > step / 2.0) {
+                            raices.add(raiz);
+                        }
                     }
                 }
             }
@@ -235,8 +254,14 @@ public class AnalizadorFuncion {
         double fa = funcion.calcular(a);
         double fb = funcion.calcular(b);
 
+        // Si ya es casi cero en los extremos, retornar el extremo
+        if (Math.abs(fa) < TOLERANCIA_BISECCION)
+            return a;
+        if (Math.abs(fb) < TOLERANCIA_BISECCION)
+            return b;
+
         // Verificar que hay cambio de signo
-        if (fa * fb >= 0) {
+        if (Math.signum(fa) == Math.signum(fb)) {
             return Double.NaN;
         }
 

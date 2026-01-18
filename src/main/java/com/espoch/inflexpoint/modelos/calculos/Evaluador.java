@@ -102,23 +102,33 @@ public class Evaluador {
     }
 
     private double analizarTermino(double x) throws ExpresionInvalidaException {
-        double v = analizarFactor(x);
+        double v = analizarUnary(x);
         for (;;) {
             if (consumir('*'))
-                v *= analizarFactor(x); // multiplicación
+                v *= analizarUnary(x); // multiplicación
             else if (consumir('/'))
-                v /= analizarFactor(x); // división
+                v /= analizarUnary(x); // división
             else
                 return v;
         }
     }
 
-    private double analizarFactor(double x) throws ExpresionInvalidaException {
+    private double analizarUnary(double x) throws ExpresionInvalidaException {
         if (consumir('+'))
-            return analizarFactor(x); // unario más
+            return analizarUnary(x); // unario más
         if (consumir('-'))
-            return -analizarFactor(x); // unario menos
+            return -analizarUnary(x); // unario menos
+        return analizarPotencia(x);
+    }
 
+    private double analizarPotencia(double x) throws ExpresionInvalidaException {
+        double v = analizarFactor(x);
+        if (consumir('^'))
+            v = Math.pow(v, analizarUnary(x)); // exponenciación (puede ser negativa)
+        return v;
+    }
+
+    private double analizarFactor(double x) throws ExpresionInvalidaException {
         double v;
         int startPosicion = this.posicion;
         if (consumir('(')) { // paréntesis
@@ -174,9 +184,6 @@ public class Evaluador {
         } else {
             throw new ExpresionInvalidaException("Carácter inesperado: " + (char) caracter);
         }
-
-        if (consumir('^'))
-            v = Math.pow(v, analizarFactor(x)); // exponenciación
 
         return v;
     }

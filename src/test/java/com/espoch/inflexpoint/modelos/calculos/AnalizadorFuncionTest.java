@@ -69,4 +69,19 @@ public class AnalizadorFuncionTest {
         assertEquals(0, res.getIntervalosCrecimiento().length, "No debe ser creciente");
         assertTrue(res.getIntervalosDecrecimiento().length > 0, "Debe ser decreciente");
     }
+
+    @Test
+    public void testFuncionesCuadraticas() throws Exception {
+        AnalizadorFuncion analizador = new AnalizadorFuncion();
+        // f(x) = x^2 + x
+        // f'(x) = 2x + 1 -> Raíz en x = -0.5 (Mínimo)
+        // f''(x) = 2 -> Siempre positiva (Cóncava hacia arriba, no hay inflexión)
+        ResultadoAnalisis res = analizador.analizarEnRango("x^2 + x", -10, 10, 0.1, true, true, true, true, true);
+
+        assertTrue(res.getPuntosCriticos().length > 0, "Debe encontrar el mínimo en x = -0.5");
+        assertEquals(0, res.getPuntosInflexion().length, "No debe haber puntos de inflexión");
+        assertTrue(res.getIntervalosCrecimiento().length > 0, "Debe haber intervalo creciente");
+        assertTrue(res.getIntervalosDecrecimiento().length > 0, "Debe haber intervalo decreciente");
+        assertTrue(res.intervalosConcavidad().length > 0, "Debe haber concavidad definida");
+    }
 }

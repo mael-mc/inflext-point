@@ -224,8 +224,8 @@ public class CalcularControlador implements Initializable {
 
             // Contenedor para las fórmulas
             VBox formulasContainer = new VBox(5);
-            formulasContainer.setMinHeight(120); // Altura mínima para asegurar visibilidad
-            formulasContainer.setPadding(new javafx.geometry.Insets(0, 0, 10, 0)); // Espacio para la scrollbar
+            formulasContainer.setMinHeight(170); // Altura mínima para asegurar visibilidad
+            formulasContainer.setPadding(new javafx.geometry.Insets(0, 0, 15, 0)); // Espacio para la scrollbar
 
             // Renderizar primera derivada
             String latex1 = "f'(x) = " + DerivadorSimbolico.toLaTeX(resultado.getPrimeraDerivada());
@@ -242,7 +242,8 @@ public class CalcularControlador implements Initializable {
             scrollDerivadas.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
             scrollDerivadas.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             scrollDerivadas.setPannable(true);
-            scrollDerivadas.setFitToHeight(true);
+            scrollDerivadas.setFitToHeight(false); // No forzar altura al viewport
+            scrollDerivadas.setMinHeight(180); // Asegurar espacio suficiente para 2 derivadas
             scrollDerivadas.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
             scrollDerivadas.getStyleClass().add("scroll-pane");
 

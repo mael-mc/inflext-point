@@ -8,9 +8,9 @@ public class FormulaRenderer {
     public static WebView render(String latex) {
         WebView webView = new WebView();
         // Altura mínima mayor para evitar cortes y asegurar visibilidad
-        webView.setPrefHeight(60);
-        webView.setMinHeight(50);
-        webView.setMaxHeight(100);
+        webView.setPrefHeight(90);
+        webView.setMinHeight(85);
+        webView.setMaxHeight(200);
         webView.setStyle("-fx-background-color: transparent;");
 
         WebEngine engine = webView.getEngine();
@@ -36,7 +36,7 @@ public class FormulaRenderer {
                 "<script type=\"text/javascript\" async src=\"https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML\"></script>"
                 +
                 "<style>" +
-                "  body { background-color: transparent; color: #1c6760; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 5px; overflow: hidden; }"
+                "  body { background-color: transparent; color: #1c6760; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; overflow: hidden; }"
                 +
                 "  #content { visibility: hidden; }" +
                 "  #fallback { " +
