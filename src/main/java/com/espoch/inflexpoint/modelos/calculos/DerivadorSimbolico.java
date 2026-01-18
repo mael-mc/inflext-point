@@ -49,6 +49,9 @@ public class DerivadorSimbolico {
 
     private static String normalizar(String expresion) {
         return expresion.toLowerCase().replaceAll("\\s+", "")
+                .replace("arcsen", "asin")
+                .replace("arccos", "acos")
+                .replace("arctan", "atan")
                 .replace("sen", "sin")
                 .replace("raiz", "sqrt");
     }
@@ -469,6 +472,39 @@ public class DerivadorSimbolico {
                 case "tan":
                     derivadoExterno = new NodoPotencia(new NodoFuncion("sec", argumento), new NodoConstante(2));
                     break;
+                case "sec":
+                    derivadoExterno = new NodoMultiplicacion(new NodoFuncion("sec", argumento),
+                            new NodoFuncion("tan", argumento));
+                    break;
+                case "csc":
+                    derivadoExterno = new NodoMultiplicacion(new NodoConstante(-1),
+                            new NodoMultiplicacion(new NodoFuncion("csc", argumento),
+                                    new NodoFuncion("cot", argumento)));
+                    break;
+                case "cot":
+                    derivadoExterno = new NodoMultiplicacion(new NodoConstante(-1),
+                            new NodoPotencia(new NodoFuncion("csc", argumento), new NodoConstante(2)));
+                    break;
+                case "asin":
+                    derivadoExterno = new NodoDivision(new NodoConstante(1),
+                            new NodoFuncion("sqrt", new NodoResta(new NodoConstante(1),
+                                    new NodoPotencia(argumento, new NodoConstante(2)))));
+                    break;
+                case "acos":
+                    derivadoExterno = new NodoMultiplicacion(new NodoConstante(-1),
+                            new NodoDivision(new NodoConstante(1),
+                                    new NodoFuncion("sqrt", new NodoResta(new NodoConstante(1),
+                                            new NodoPotencia(argumento, new NodoConstante(2))))));
+                    break;
+                case "atan":
+                    derivadoExterno = new NodoDivision(new NodoConstante(1),
+                            new NodoSuma(new NodoConstante(1), new NodoPotencia(argumento, new NodoConstante(2))));
+                    break;
+                case "log":
+                    // log10(u)' = 1/(u*ln(10)) * u'
+                    derivadoExterno = new NodoDivision(new NodoConstante(1),
+                            new NodoMultiplicacion(argumento, new NodoFuncion("ln", new NodoConstante(10))));
+                    break;
                 case "ln":
                     derivadoExterno = new NodoDivision(new NodoConstante(1), argumento);
                     break;
@@ -478,6 +514,10 @@ public class DerivadorSimbolico {
                 case "sqrt":
                     derivadoExterno = new NodoDivision(new NodoConstante(1),
                             new NodoMultiplicacion(new NodoConstante(2), new NodoFuncion("sqrt", argumento)));
+                    break;
+                case "abs":
+                    // abs(u)' = u/abs(u) * u'
+                    derivadoExterno = new NodoDivision(argumento, new NodoFuncion("abs", argumento));
                     break;
                 default:
                     return new NodoConstante(0);
@@ -502,12 +542,28 @@ public class DerivadorSimbolico {
                 n = "\\cos";
             else if (n.equals("tan"))
                 n = "\\tan";
+            else if (n.equals("sec"))
+                n = "\\sec";
+            else if (n.equals("csc"))
+                n = "\\csc";
+            else if (n.equals("cot"))
+                n = "\\cot";
+            else if (n.equals("asin"))
+                n = "\\arcsin";
+            else if (n.equals("acos"))
+                n = "\\arccos";
+            else if (n.equals("atan"))
+                n = "\\arctan";
+            else if (n.equals("log"))
+                n = "\\log_{10}";
             else if (n.equals("ln"))
                 n = "\\ln";
             else if (n.equals("exp"))
                 return "e^{" + argumento.toLaTeX() + "}";
             else if (n.equals("sqrt"))
                 return "\\sqrt{" + argumento.toLaTeX() + "}";
+            else if (n.equals("abs"))
+                return "\\left| " + argumento.toLaTeX() + " \\right|";
 
             return n + "(" + argumento.toLaTeX() + ")";
         }

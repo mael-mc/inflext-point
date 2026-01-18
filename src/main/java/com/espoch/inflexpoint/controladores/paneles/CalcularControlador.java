@@ -54,6 +54,10 @@ public class CalcularControlador implements Initializable {
 
     @FXML
     private TextField txtFuncion;
+    @FXML
+    private TextField txtMinX;
+    @FXML
+    private TextField txtMaxX;
 
     @FXML
     private Button btnTeclado;
@@ -114,22 +118,40 @@ public class CalcularControlador implements Initializable {
         limpiarResultados();
 
         try {
-            // 4. Llamar servicio de análisis
-            ResultadoAnalisis resultado = analizador.analizar(
+            // 4. Obtener rango
+            double minX = -10.0;
+            double maxX = 10.0;
+            try {
+                minX = Double.parseDouble(txtMinX.getText());
+                maxX = Double.parseDouble(txtMaxX.getText());
+                if (minX >= maxX) {
+                    mostrarAlerta("Rango Inválido", "El valor mínimo debe ser menor al máximo.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                mostrarAlerta("Rango Inválido", "Ingrese valores numéricos válidos para el rango.");
+                return;
+            }
+
+            // 5. Llamar servicio de análisis
+            ResultadoAnalisis resultado = analizador.analizarEnRango(
                     expresion,
+                    minX,
+                    maxX,
+                    0.1, // Paso por defecto
                     chkPuntosCriticos.isSelected(),
                     chkIntervalos.isSelected(),
                     chkMaxMin.isSelected(),
                     chkPuntoInflexion.isSelected(),
                     chkConcavidad.isSelected());
 
-            // 5. Mostrar resultados textuales
+            // 6. Mostrar resultados textuales
             mostrarResultadosTextuales(resultado);
 
-            // 5.1 Guardar en el historial
+            // 6.1 Guardar en el historial
             GestorHistorial.getInstancia().agregarExpresion(expresion);
 
-            // 6. Graficar usando Canvas interactivo
+            // 7. Graficar usando Canvas interactivo
             System.out.println("Intentando graficar: " + expresion);
             try {
                 graficadorCanvas.graficar(expresion, resultado);
@@ -343,6 +365,8 @@ public class CalcularControlador implements Initializable {
         chkMaxMin.setSelected(false);
         chkPuntoInflexion.setSelected(false);
         chkConcavidad.setSelected(false);
+        txtMinX.setText("-10");
+        txtMaxX.setText("10");
         limpiarResultados();
     }
 

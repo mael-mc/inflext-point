@@ -39,6 +39,15 @@
                             <RadioButton fx:id="chkPuntoInflexion" accessibleRole="RADIO_BUTTON" accessibleText="Calcular puntos de inflexión" mnemonicParsing="false" styleClass="radio-button" text="Puntos de Inflexión" />
                             <RadioButton fx:id="chkConcavidad" accessibleRole="RADIO_BUTTON" accessibleText="Calcular intervalos de concavidad" mnemonicParsing="false" styleClass="radio-button" text="Intervalos de Concavidad" />
                         </VBox>
+                        <VBox spacing="8.0">
+                            <Label styleClass="card-subtitle" text="Rango de Análisis (x)" />
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                <Label text="Min:" />
+                                <TextField fx:id="txtMinX" prefWidth="60.0" text="-10" />
+                                <Label text="Max:" />
+                                <TextField fx:id="txtMaxX" prefWidth="60.0" text="10" />
+                            </HBox>
+                        </VBox>
                     </VBox>
       
                     <VBox prefHeight="71.0" prefWidth="249.0" spacing="12.0">
