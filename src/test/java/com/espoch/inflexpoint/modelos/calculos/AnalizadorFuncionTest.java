@@ -44,4 +44,29 @@ public class AnalizadorFuncionTest {
                 false);
         assertTrue(resExtendido.getPuntosCriticos().length > 0, "Debería encontrar el punto en [15, 25]");
     }
+
+    @Test
+    public void testFuncionesLinealesCombinadas() throws Exception {
+        AnalizadorFuncion analizador = new AnalizadorFuncion();
+        // f(x) = 2*x + 5*x + 3 = 7x + 3
+        ResultadoAnalisis res = analizador.analizarEnRango("2*x + 5*x + 3", -10, 10, 0.1, true, true, true, true, true);
+
+        assertEquals(0, res.getPuntosCriticos().length, "Lineal combinada no tiene puntos críticos");
+        assertEquals(0, res.getPuntosInflexion().length, "Lineal combinada no tiene inflexión");
+        assertTrue(res.getIntervalosCrecimiento().length > 0, "Debe ser creciente (7x)");
+        assertEquals(0, res.getIntervalosDecrecimiento().length, "No debe ser decreciente");
+        assertEquals(0, res.intervalosConcavidad().length, "Lineal combinada no tiene concavidad");
+    }
+
+    @Test
+    public void testFuncionesLinealesNegativas() throws Exception {
+        AnalizadorFuncion analizador = new AnalizadorFuncion();
+        // f(x) = -2*x
+        ResultadoAnalisis res = analizador.analizarEnRango("-2*x", -10, 10, 0.1, true, true, true, true, true);
+
+        assertEquals(0, res.getPuntosCriticos().length, "Lineal negativa no tiene puntos críticos");
+        assertEquals(0, res.getPuntosInflexion().length, "Lineal negativa no tiene inflexión");
+        assertEquals(0, res.getIntervalosCrecimiento().length, "No debe ser creciente");
+        assertTrue(res.getIntervalosDecrecimiento().length > 0, "Debe ser decreciente");
+    }
 }

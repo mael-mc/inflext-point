@@ -7,10 +7,10 @@ public class FormulaRenderer {
 
     public static WebView render(String latex) {
         WebView webView = new WebView();
-        // Ajustar altura para que sea más compacta
-        webView.setPrefHeight(45);
-        webView.setMinHeight(40);
-        webView.setMaxHeight(80);
+        // Altura mínima mayor para evitar cortes y asegurar visibilidad
+        webView.setPrefHeight(60);
+        webView.setMinHeight(50);
+        webView.setMaxHeight(100);
         webView.setStyle("-fx-background-color: transparent;");
 
         WebEngine engine = webView.getEngine();
@@ -37,7 +37,8 @@ public class FormulaRenderer {
                 +
                 "<style>" +
                 "  body { background-color: transparent; color: #1c6760; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 5px; overflow: hidden; }"
-                + "  #content { visibility: hidden; }" +
+                +
+                "  #content { visibility: hidden; }" +
                 "  #fallback { " +
                 "    display: block; " +
                 "    font-family: 'Consolas', monospace; " +
@@ -53,7 +54,7 @@ public class FormulaRenderer {
                 "<body>" +
                 "  <div id=\"fallback\">" + latex + "</div>" +
                 "  <div id=\"content\">" +
-                "    \\( \\displaystyle " + latex + " \\)" +
+                "    $$ " + latex + " $$" +
                 "  </div>" +
                 "  <script>" +
                 "    // Si MathJax no carga en 3 segundos, mostrar fallback confirmadamente" +

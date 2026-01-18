@@ -26,7 +26,7 @@ public class AnalizadorFuncion {
     private static final double PASO_DERIVADA = 0.0001;
     private static final double TOLERANCIA_BISECCION = 1e-6;
     private static final int MAX_ITERACIONES_BISECCION = 50;
-    private static final double TOLERANCIA_CERO = 1e-7;
+    private static final double TOLERANCIA_CERO = 1e-5;
 
     // Rango de análisis por defecto
     private static final double MIN_X_DEFECTO = -10.0;
@@ -182,11 +182,20 @@ public class AnalizadorFuncion {
         }
 
         if (siempreDerivadaCero) {
+            resultado.setPuntosCriticos(new PuntoCritico[0]);
+            resultado.setIntervalosCrecimiento(new Intervalo[0]);
+            resultado.setIntervalosDecrecimiento(new Intervalo[0]);
+            resultado.setPuntosInflexion(new PuntoCritico[0]);
+            resultado.setIntervalosConcavidad(new Intervalo[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función constante. No tiene puntos críticos, extremos ni intervalos de crecimiento/decrecimiento.");
         } else if (siempreSegundaDerivadaCero) {
+            resultado.setPuntosInflexion(new PuntoCritico[0]);
+            resultado.setIntervalosConcavidad(new Intervalo[0]);
+            // Una lineal tampoco tiene puntos críticos (máximos/mínimos locales)
+            resultado.setPuntosCriticos(new PuntoCritico[0]);
             resultado.agregarMensajeAccesibilidad(
-                    "Esta es una función lineal. No tiene puntos de inflexión ni concavidad definida.");
+                    "Esta es una función lineal. No tiene puntos de inflexión, críticos ni concavidad definida.");
         }
 
         return resultado;
@@ -205,11 +214,14 @@ public class AnalizadorFuncion {
         for (double x = minX + step; x <= maxX; x += step) {
             double valorActual = funcion.calcular(x);
 
-            // Detectar cambio de signo
+            // Detectar cambio de signo, pero solo si no son ambos ruidosos (cercanos a
+            // cero)
             if (Math.signum(valorActual) != Math.signum(prevValor)) {
-                double raiz = biseccion(funcion, x - step, x);
-                if (!Double.isNaN(raiz)) {
-                    raices.add(raiz);
+                if (Math.abs(valorActual) > TOLERANCIA_CERO || Math.abs(prevValor) > TOLERANCIA_CERO) {
+                    double raiz = biseccion(funcion, x - step, x);
+                    if (!Double.isNaN(raiz)) {
+                        raices.add(raiz);
+                    }
                 }
             }
 

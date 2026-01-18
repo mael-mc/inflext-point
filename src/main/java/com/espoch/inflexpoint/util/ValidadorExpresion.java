@@ -85,8 +85,8 @@ public class ValidadorExpresion {
             // Operadores binarios consecutivos inválidos
             if (esOperadorBinario(actual) && esOperadorBinario(siguiente)) {
                 // Permitir casos como "+-" o "-+" que son válidos
-                if (!((actual == '+' || actual == '-') && (siguiente == '+' || siguiente == '−'))) {
-                    // Excluir casos donde uno es unario
+                if (!((actual == '+' || actual == '-') && (siguiente == '+' || siguiente == '-'))) {
+                    // Permitir unarios al inicio (i=0) o después de otro operador si es +/-
                     if (i > 0 || !((actual == '+' || actual == '-'))) {
                         throw new ExpresionInvalidaException(
                                 "Operadores consecutivos inválidos: '" + actual + siguiente + "' en posición " + i);

@@ -49,11 +49,11 @@ public class DerivadorSimbolico {
 
     private static String normalizar(String expresion) {
         return expresion.toLowerCase().replaceAll("\\s+", "")
-                .replace("arcsen", "asin")
-                .replace("arccos", "acos")
-                .replace("arctan", "atan")
-                .replace("sen", "sin")
-                .replace("raiz", "sqrt");
+                .replace("arcsen(", "asin(")
+                .replace("arccos(", "acos(")
+                .replace("arctan(", "atan(")
+                .replace("sen(", "sin(")
+                .replace("raiz(", "sqrt(");
     }
 
     public interface Nodo {
@@ -231,6 +231,12 @@ public class DerivadorSimbolico {
             Nodo sl = izquierda.simplificar();
             Nodo sr = derecha.simplificar();
 
+            // 1. Ambos son constantes -> Operar directamente
+            if (sl instanceof NodoConstante && sr instanceof NodoConstante) {
+                return new NodoConstante(((NodoConstante) sl).valor * ((NodoConstante) sr).valor);
+            }
+
+            // 2. Simplificar con 0, 1, -1
             if (sl instanceof NodoConstante) {
                 double v = ((NodoConstante) sl).valor;
                 if (v == 0)
@@ -252,11 +258,8 @@ public class DerivadorSimbolico {
                     return new NodoConstante(0);
                 if (v == 1)
                     return sl;
-                return new NodoMultiplicacion(sr, sl).simplificar(); // Mover constante a la izquierda
-            }
-
-            if (sl instanceof NodoConstante && sr instanceof NodoConstante) {
-                return new NodoConstante(((NodoConstante) sl).valor * ((NodoConstante) sr).valor);
+                // Mover constante a la izquierda para estandarizar
+                return new NodoMultiplicacion(sr, sl).simplificar();
             }
 
             // Constante * (Constante * X) -> (C1*C2) * X
@@ -628,6 +631,14 @@ public class DerivadorSimbolico {
             if (pos >= entrada.length())
                 return new NodoConstante(0);
             char c = entrada.charAt(pos);
+            if (c == '+') {
+                pos++;
+                return analizarFactor();
+            }
+            if (c == '-') {
+                pos++;
+                return new NodoResta(new NodoConstante(0), analizarFactor());
+            }
             if (c == '(') {
                 pos++;
                 Nodo n = analizarSumaResta();
