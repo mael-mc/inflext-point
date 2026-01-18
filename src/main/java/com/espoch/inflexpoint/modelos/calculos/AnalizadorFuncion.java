@@ -212,6 +212,23 @@ public class AnalizadorFuncion {
             resultado.setPuntosInflexion(new PuntoCritico[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función cuadrática (parábola). No tiene puntos de inflexión.");
+        } else if (esRacional(expresion)) {
+            resultado.agregarMensajeAccesibilidad(
+                    "Esta es una función racional. Puede presentar discontinuidades o asíntotas verticales.");
+            List<Double> asintotas = identificarAsintotas(evaluador, minX, maxX);
+            if (!asintotas.isEmpty()) {
+                StringBuilder sb = new StringBuilder("Posibles asíntotas verticales detectadas cerca de x = {");
+                for (int i = 0; i < asintotas.size(); i++) {
+                    double val = asintotas.get(i);
+                    if (Math.abs(val) < 0.01)
+                        val = 0.0;
+                    sb.append(String.format("%.2f", val));
+                    if (i < asintotas.size() - 1)
+                        sb.append(", ");
+                }
+                sb.append("}.");
+                resultado.agregarMensajeAccesibilidad(sb.toString());
+            }
         } else if (esPolinomio(expresion)) {
             int grado = detectarGradoProbable(evaluador, minX, maxX);
             String msg = "Esta es una función polinómica";
@@ -456,15 +473,64 @@ public class AnalizadorFuncion {
     }
 
     private boolean esPolinomio(String expr) {
-        // Heurística simple: solo contiene x, números, +, -, *, /, ^ y paréntesis
-        // Y no contiene funciones como sin, cos, log, etc.
+        // Heurística simple: no tiene división por x
         String lower = expr.toLowerCase();
+        if (lower.contains("/"))
+            return false;
+
         String[] funciones = { "sin", "cos", "tan", "log", "ln", "sqrt", "asin", "acos", "atan", "abs", "exp" };
         for (String func : funciones) {
             if (lower.contains(func))
                 return false;
         }
         return lower.contains("x");
+    }
+
+    private boolean esRacional(String expr) {
+        return expr.contains("/") && expr.toLowerCase().contains("x");
+    }
+
+    private List<Double> identificarAsintotas(Evaluador f, double minX, double maxX) {
+        List<Double> asintotas = new java.util.ArrayList<>();
+        double step = 0.05; // Paso fino para detectar saltos
+        double h = 1e-4;
+
+        for (double x = minX; x <= maxX; x += step) {
+            try {
+                double val = f.evaluar(x);
+                if (Double.isInfinite(val) || Double.isNaN(val)) {
+                    asintotas.add(x);
+                    continue;
+                }
+
+                // Detectar saltos bruscos que indiquen asíntota (cambio de signo con valores
+                // grandes)
+                double v1 = f.evaluar(x - h);
+                double v2 = f.evaluar(x + h);
+                if (Math.signum(v1) != Math.signum(v2) && Math.abs(v1) > 10 && Math.abs(v2) > 10) {
+                    asintotas.add(x);
+                }
+            } catch (ExpresionInvalidaException e) {
+                // Posible punto fuera del dominio
+                asintotas.add(x);
+            }
+        }
+
+        // Limpiar asintotas duplicadas (cercanas)
+        List<Double> únicas = new java.util.ArrayList<>();
+        for (double a : asintotas) {
+            boolean existe = false;
+            for (double u : únicas) {
+                if (Math.abs(a - u) < 0.2) {
+                    existe = true;
+                    break;
+                }
+            }
+            if (!existe)
+                únicas.add(a);
+        }
+
+        return únicas;
     }
 
     private int detectarGradoProbable(Evaluador f, double minX, double maxX) {
