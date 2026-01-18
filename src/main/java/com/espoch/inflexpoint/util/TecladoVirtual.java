@@ -9,6 +9,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 
+import java.util.Objects;
+
 // Teclado virtual flotante para ingreso de expresiones matemáticas.
 public class TecladoVirtual {
 
@@ -29,7 +31,7 @@ public class TecladoVirtual {
         // Cargar estilos para que el Popup reconozca las variables -color-*
         try {
             root.getStylesheets()
-                    .add(getClass().getResource("/com/espoch/inflexpoint/estilos/estilos.css").toExternalForm());
+                    .add(Objects.requireNonNull(getClass().getResource("/com/espoch/inflexpoint/estilos/estilos.css")).toExternalForm());
         } catch (Exception e) {
             System.err.println("No se pudo cargar el stylesheet en el teclado virtual: " + e.getMessage());
         }
