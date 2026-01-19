@@ -84,4 +84,23 @@ public class AnalizadorFuncionTest {
         assertTrue(res.getIntervalosDecrecimiento().length > 0, "Debe haber intervalo decreciente");
         assertTrue(res.intervalosConcavidad().length > 0, "Debe haber concavidad definida");
     }
+
+    @Test
+    public void testFuncionesTrigonometricas() throws Exception {
+        AnalizadorFuncion analizador = new AnalizadorFuncion();
+        // f(x) = sin(x)
+        ResultadoAnalisis res = analizador.analizarEnRango("sin(x)", -10, 10, 0.1, true, true, true, true, true);
+
+        assertTrue(res.getMensajesAccesibilidad().stream().anyMatch(m -> m.contains("trigonométrica")),
+                "Debe informar que es trigonométrica");
+        assertTrue(res.getMensajesAccesibilidad().stream().anyMatch(m -> m.contains("periodo de 2π")),
+                "Debe informar sobre el periodo de 2π");
+
+        // f(x) = tan(x)
+        ResultadoAnalisis resTan = analizador.analizarEnRango("tan(x)", -2, 2, 0.1, true, false, true, false, false);
+        assertTrue(resTan.getMensajesAccesibilidad().stream().anyMatch(m -> m.contains("tangente")),
+                "Debe informar sobre la función tangente");
+        assertTrue(resTan.getMensajesAccesibilidad().stream().anyMatch(m -> m.contains("asíntotas")),
+                "Debe informar sobre asíntotas");
+    }
 }

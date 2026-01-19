@@ -218,6 +218,35 @@ public class AnalizadorFuncion {
             return resultado; // Si es lineal, no evaluamos más
         }
 
+        // --- DETECCIÓN DE FUNCIONES TRIGONOMÉTRICAS ---
+        if (esTrigonometrica(expresion)) {
+            resultado.agregarMensajeAccesibilidad("Esta es una función trigonométrica.");
+
+            if (expresion.contains("sin") || expresion.contains("cos") || expresion.contains("sen")) {
+                resultado.agregarMensajeAccesibilidad(
+                        "Las funciones seno y coseno son periódicas con un periodo de 2π (aprox. 6.28).");
+                resultado.agregarMensajeAccesibilidad(
+                        "Debido a su periodicidad, los puntos críticos y de inflexión se repiten infinitamente.");
+            }
+
+            if (expresion.contains("tan") || expresion.contains("sec")) {
+                resultado.agregarMensajeAccesibilidad(
+                        "Las funciones tangente y secante tienen asíntotas verticales en (2k+1)π/2.");
+                resultado.agregarMensajeAccesibilidad("El dominio está restringido y presenta saltos infinitos.");
+            }
+
+            if (expresion.contains("cot") || expresion.contains("csc")) {
+                resultado.agregarMensajeAccesibilidad(
+                        "Las funciones cotangente y cosecante tienen asíntotas verticales en kπ.");
+                resultado.agregarMensajeAccesibilidad("El dominio está restringido en múltiplos de π.");
+            }
+
+            if (expresion.contains("tan") || expresion.contains("cot")) {
+                resultado.agregarMensajeAccesibilidad(
+                        "El periodo de las funciones tangente y cotangente es π (aprox. 3.14).");
+            }
+        }
+
         if (esIrracional(expresion)) {
             resultado.agregarMensajeAccesibilidad("Esta es una función irracional (contiene raíces).");
             if (expresion.contains("sqrt") || expresion.contains("^0.5") || expresion.contains("^0.2")
@@ -500,6 +529,16 @@ public class AnalizadorFuncion {
     private boolean esIrracional(String expr) {
         String lower = expr.toLowerCase();
         return lower.contains("sqrt") || lower.contains("^0.") || lower.contains("^ (") || lower.contains("^(");
+    }
+
+    private boolean esTrigonometrica(String expr) {
+        String lower = expr.toLowerCase();
+        String[] funciones = { "sin", "cos", "tan", "cot", "sec", "csc", "sen" };
+        for (String func : funciones) {
+            if (lower.contains(func))
+                return true;
+        }
+        return false;
     }
 
     private enum TipoSingularidad {
