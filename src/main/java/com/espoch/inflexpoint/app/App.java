@@ -18,8 +18,9 @@ public class App extends Application {
         stage.setScene(scene);
         stage.setTitle("InflexPoint");
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/espoch/inflexpoint/imagenes/Logo/inflex-point-logo.jpeg"))));
-        stage.setWidth(1000);
-        stage.setHeight(600);
+        stage.setMaximized(true);
+//        stage.setWidth(1000);
+//        stage.setHeight(600);
         stage.show();
     }
 

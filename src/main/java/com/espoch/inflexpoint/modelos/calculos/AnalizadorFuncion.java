@@ -172,9 +172,8 @@ public class AnalizadorFuncion {
         // Validar si la función es constante, lineal o cuadrática en el rango
         boolean siempreDerivadaCero = true;
         boolean siempreSegundaDerivadaCero = true;
+        double valorReferenciaD2 = Double.NaN;
         boolean siempreSegundaDerivadaConstante = true;
-
-        double valorReferenciaD2 = segundaDerivada(evaluador, minX);
 
         for (double x = minX; x <= maxX; x += step) {
             double valD1 = derivada(evaluador, x);
@@ -189,11 +188,20 @@ public class AnalizadorFuncion {
                 if (Math.abs(valD2) >= TOLERANCIA_CERO) {
                     siempreSegundaDerivadaCero = false;
                 }
-                // Relaxamos la tolerancia para la segunda derivada ya que es más ruidosa
-                if (Double.isFinite(valorReferenciaD2) && Math.abs(valD2 - valorReferenciaD2) >= 1e-3) {
+
+                if (Double.isNaN(valorReferenciaD2)) {
+                    valorReferenciaD2 = valD2;
+                } else if (Math.abs(valD2 - valorReferenciaD2) >= 1e-3) {
+                    // Relaxamos la tolerancia para la segunda derivada ya que es más ruidosa
                     siempreSegundaDerivadaConstante = false;
                 }
             }
+        }
+
+        // Si nunca encontramos un valor finito para D2, no podemos decir que sea
+        // constante
+        if (Double.isNaN(valorReferenciaD2)) {
+            siempreSegundaDerivadaConstante = false;
         }
 
         // Detectar y procesar singularidades (Asíntotas, NaN, etc.)
@@ -247,6 +255,15 @@ public class AnalizadorFuncion {
             }
         }
 
+        // --- DETECCIÓN DE FUNCIONES LOGARÍTMICAS ---
+        if (esLogaritmica(expresion)) {
+            resultado.agregarMensajeAccesibilidad("Esta es una función logarítmica.");
+            resultado.agregarMensajeAccesibilidad(
+                    "El dominio está restringido: el argumento del logaritmo debe ser estrictamente mayor que cero.");
+            resultado.agregarMensajeAccesibilidad(
+                    "Presenta una asíntota vertical en el valor donde el argumento es igual a cero.");
+        }
+
         if (esIrracional(expresion)) {
             resultado.agregarMensajeAccesibilidad("Esta es una función irracional (contiene raíces).");
             if (expresion.contains("sqrt") || expresion.contains("^0.5") || expresion.contains("^0.2")
@@ -261,7 +278,8 @@ public class AnalizadorFuncion {
                     "Esta es una función racional. Puede presentar discontinuidades o asíntotas verticales.");
         }
 
-        if (siempreSegundaDerivadaConstante && !esRacional(expresion) && !esIrracional(expresion)) {
+        if (siempreSegundaDerivadaConstante && !esRacional(expresion) && !esIrracional(expresion)
+                && !esTrigonometrica(expresion) && !esLogaritmica(expresion)) {
             resultado.setPuntosInflexion(new PuntoCritico[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función cuadrática (parábola). No tiene puntos de inflexión.");
@@ -305,7 +323,7 @@ public class AnalizadorFuncion {
                     double raiz = biseccion(funcion, x - step, x);
                     if (!Double.isNaN(raiz)) {
                         // Evitar duplicados (especialmente en fronteras de intervalos)
-                        if (raices.isEmpty() || Math.abs(raiz - raices.get(raices.size() - 1)) > step / 2.0) {
+                        if (raices.isEmpty() || Math.abs(raiz - raices.getLast()) > step / 2.0) {
                             raices.add(raiz);
                         }
                     }
@@ -541,6 +559,11 @@ public class AnalizadorFuncion {
         return false;
     }
 
+    private boolean esLogaritmica(String expr) {
+        String lower = expr.toLowerCase();
+        return lower.contains("ln") || lower.contains("log");
+    }
+
     private enum TipoSingularidad {
         ASINTOTA, INDEFINIDO
     }
@@ -622,19 +645,19 @@ public class AnalizadorFuncion {
         }
 
         // Limpieza de duplicados
-        List<Singularidad> únicas = new java.util.ArrayList<>();
+        List<Singularidad> unicas = new java.util.ArrayList<>();
         for (Singularidad s : singularidades) {
             boolean existe = false;
-            for (Singularidad u : únicas) {
+            for (Singularidad u : unicas) {
                 if (Math.abs(s.x - u.x) < 0.3 && s.tipo == u.tipo) {
                     existe = true;
                     break;
                 }
             }
             if (!existe)
-                únicas.add(s);
+                unicas.add(s);
         }
-        return únicas;
+        return unicas;
     }
 
     private int detectarGradoProbable(Evaluador f, double minX, double maxX) {

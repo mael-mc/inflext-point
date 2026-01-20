@@ -175,7 +175,6 @@ public class CalcularControlador implements Initializable {
     }
 
     // Válida que la entrada del usuario sea correcta.
-
     private boolean validarEntrada(String expresion) {
         // Validar que la expresión no esté vacía
         if (expresion == null || expresion.trim().isEmpty()) {

@@ -38,15 +38,15 @@ public class ValidadorExpresion {
         try {
             com.espoch.inflexpoint.modelos.calculos.Evaluador eval = new com.espoch.inflexpoint.modelos.calculos.Evaluador(
                     expresion);
-            double[] puntosPrueba = { 0.0, 1.0, -1.0, 0.5, Math.PI, Math.PI / 2.0, -Math.PI / 2.0 };
-            boolean todosIndefinidos = true;
+            double[] puntosPrueba = { 0.5, 1.0, 2.0, 5.0, Math.PI, 0.1, -1.0, -0.5 };
+            boolean algunDefinido = false;
             boolean algunInfinito = false;
             boolean algunNaN = false;
 
             for (double x : puntosPrueba) {
                 double val = eval.evaluar(x);
                 if (Double.isFinite(val)) {
-                    todosIndefinidos = false;
+                    algunDefinido = true;
                     break;
                 }
                 if (Double.isInfinite(val))
@@ -55,13 +55,13 @@ public class ValidadorExpresion {
                     algunNaN = true;
             }
 
-            if (todosIndefinidos) {
+            if (!algunDefinido) {
                 if (algunInfinito && !algunNaN) {
                     throw new ExpresionInvalidaException(
-                            "Indeterminación: La expresión resulta en infinito para los puntos de prueba clave (posible división por cero o asíntota vertical)");
+                            "Indeterminación: La expresión resulta en infinito para los puntos de prueba (posible división por cero o asíntota vertical)");
                 } else {
                     throw new ExpresionInvalidaException(
-                            "Indeterminación: La expresión no está definida en puntos clave de prueba (ej. división 0/0, raíz negativa o fuera del dominio trigonométrico)");
+                            "Indeterminación: La expresión no está definida en los puntos de prueba (ej. logaritmo de negativo, raíz negativa o división 0/0)");
                 }
             }
         } catch (ExpresionInvalidaException e) {
