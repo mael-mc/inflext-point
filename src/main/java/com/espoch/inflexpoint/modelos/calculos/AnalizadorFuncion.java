@@ -10,6 +10,9 @@ import com.espoch.inflexpoint.util.ValidadorExpresion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Servicio de análisis matemático de funciones.
@@ -96,45 +99,57 @@ public class AnalizadorFuncion {
         Intervalo[] intervalosCrecimiento = new Intervalo[0];
         Intervalo[] intervalosDecrecimiento = new Intervalo[0];
         Intervalo[] intervalosConcavidad = new Intervalo[0];
+        // Detectar y procesar singularidades (Asíntotas, NaN, etc.) primero para
+        // usarlas en el filtrado
+        List<Singularidad> singularidades = identificarSingularidades(evaluador, minX, maxX);
 
         try {
-            // Encontrar puntos críticos si se solicita
-            if (calcPuntosCriticos || calcMaxMin) {
-                List<Double> raicesPrimeraDerivada = encontrarRaices(
-                        x -> derivada(evaluador, x), minX, maxX, step);
+            // CALCULAR SIEMPRE LAS RAÍCES para poder dividir los intervalos correctamente,
+            // incluso si el usuario no pide ver los puntos críticos.
+            List<Double> raicesPrimeraDerivada = encontrarRaices(
+                    x -> derivada(evaluador, x), minX, maxX, step);
 
-                if (calcMaxMin) {
-                    // Clasificar como máximos o mínimos
-                    puntosCriticos = clasificarPuntosCriticos(evaluador, raicesPrimeraDerivada);
-                } else {
-                    // Solo puntos críticos sin clasificar
-                    puntosCriticos = crearPuntosCriticos(evaluador, raicesPrimeraDerivada, null);
+            // Filtrar raíces que están en singularidades
+            List<Double> raicesPrimeraFiltradas = new ArrayList<>();
+            for (double r : raicesPrimeraDerivada) {
+                if (!esPuntoEnSingularidad(r, singularidades)) {
+                    raicesPrimeraFiltradas.add(r);
                 }
             }
 
-            // Encontrar puntos de inflexión si se solicita
-            // Encontrar puntos de inflexión si se solicita
-            if (calcInflexion) {
-                List<Double> raicesSegundaDerivada = encontrarRaices(
-                        x -> segundaDerivada(evaluador, x), minX, maxX, step);
-
-                // Filtrar raíces para asegurar que hay un cambio de signo real (concavidad
-                // cambia)
-                List<Double> raicesValidadas = new ArrayList<>();
-                for (double raiz : raicesSegundaDerivada) {
-                    if (verificarCambioSigno(x -> segundaDerivada(evaluador, x), raiz, step / 10.0)) {
-                        raicesValidadas.add(raiz);
-                    }
+            // Encontrar puntos críticos (para visualización)
+            if (calcPuntosCriticos || calcMaxMin) {
+                if (calcMaxMin) {
+                    puntosCriticos = clasificarPuntosCriticos(evaluador, raicesPrimeraFiltradas);
+                } else {
+                    puntosCriticos = crearPuntosCriticos(evaluador, raicesPrimeraFiltradas, null);
                 }
+            }
 
+            // Encontrar puntos de inflexión
+            List<Double> raicesSegundaDerivada = encontrarRaices(
+                    x -> segundaDerivada(evaluador, x), minX, maxX, step);
+
+            // Filtrar raíces: cambio de signo real Y no estar en singularidad
+            List<Double> raicesSegundaFiltradas = new ArrayList<>();
+            for (double raiz : raicesSegundaDerivada) {
+                if (!esPuntoEnSingularidad(raiz, singularidades) &&
+                        verificarCambioSigno(x -> segundaDerivada(evaluador, x), raiz, step / 10.0)) {
+                    raicesSegundaFiltradas.add(raiz);
+                }
+            }
+
+            if (calcInflexion) {
                 puntosInflexion = crearPuntosCriticos(
-                        evaluador, raicesValidadas, TipoPuntoCritico.INFLEXION);
+                        evaluador, raicesSegundaFiltradas, TipoPuntoCritico.INFLEXION);
             }
 
             // Calcular intervalos de monotonía si se solicita
             if (calcIntervalos) {
+                // Usar TODAS las raíces detectadas para dividir los intervalos, no solo los
+                // clasificados
                 Intervalo[] intervalosMonotonia = calcularIntervalosMonotonia(
-                        evaluador, puntosCriticos, minX, maxX);
+                        evaluador, raicesPrimeraFiltradas, singularidades, minX, maxX);
 
                 // Separar en crecientes y decrecientes
                 List<Intervalo> crecientes = new ArrayList<>();
@@ -155,7 +170,7 @@ public class AnalizadorFuncion {
             // Calcular intervalos de concavidad si se solicita
             if (calcConcavidad) {
                 intervalosConcavidad = calcularIntervalosConcavidad(
-                        evaluador, puntosInflexion, minX, maxX);
+                        evaluador, raicesSegundaFiltradas, singularidades, minX, maxX);
             }
 
         } catch (Exception e) {
@@ -215,8 +230,7 @@ public class AnalizadorFuncion {
             siempreSegundaDerivadaConstante = false;
         }
 
-        // Detectar y procesar singularidades (Asíntotas, NaN, etc.)
-        List<Singularidad> singularidades = identificarSingularidades(evaluador, minX, maxX);
+        // Procesar singularidades para mensajes de accesibilidad
         procesarSingularidades(singularidades, resultado);
 
         if (siempreDerivadaCero) {
@@ -227,14 +241,15 @@ public class AnalizadorFuncion {
             resultado.setIntervalosConcavidad(new Intervalo[0]);
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función constante. No tiene puntos críticos, extremos ni intervalos de crecimiento/decrecimiento.");
-            return resultado; // Si es constante, no evaluamos más
+            return resultado;
         } else if (siempreSegundaDerivadaCero) {
             resultado.setPuntosInflexion(new PuntoCritico[0]);
             resultado.setIntervalosConcavidad(new Intervalo[0]);
             resultado.setPuntosCriticos(new PuntoCritico[0]);
+            // Mantener los intervalos calculados previamente
             resultado.agregarMensajeAccesibilidad(
                     "Esta es una función lineal. No tiene puntos de inflexión, críticos ni concavidad definida.");
-            return resultado; // Si es lineal, no evaluamos más
+            return resultado;
         }
 
         // --- DETECCIÓN DE FUNCIONES TRIGONOMÉTRICAS ---
@@ -312,7 +327,7 @@ public class AnalizadorFuncion {
 
         if (esRacional(expresion)) {
             resultado.agregarMensajeAccesibilidad(
-                    "Esta es una función racional. Puede presentar discontinuidades o asíntotas verticales.");
+                    "Función racional. Puede presentar asíntotas verticales donde el denominador se anula.");
         }
 
         if (siempreSegundaDerivadaConstante && !esRacional(expresion) && !esIrracional(expresion)
@@ -425,8 +440,22 @@ public class AnalizadorFuncion {
             return false;
         }
 
+        // Si son infinitos de distinto signo, sigue siendo un cambio de signo
+        if (Double.isInfinite(v1) || Double.isInfinite(v2)) {
+            return Math.signum(v1) != Math.signum(v2);
+        }
+
         // Para inflexión necesitamos un cambio de signo real (concavidad cambia)
         return Math.signum(v1) * Math.signum(v2) < 0;
+    }
+
+    private boolean esPuntoEnSingularidad(double x, List<Singularidad> singularidades) {
+        for (Singularidad s : singularidades) {
+            if (Math.abs(x - s.x) < 0.1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private PuntoCritico[] clasificarPuntosCriticos(Evaluador evaluador, List<Double> raices) {
@@ -444,9 +473,9 @@ public class AnalizadorFuncion {
             } catch (ExpresionInvalidaException e) {
                 y = Double.NaN;
             }
-            // Validar que el valor sea finito para evitar reportar falsos positivos en
-            // bordes de dominio
-            if (!Double.isFinite(y)) {
+            // Validar que el valor sea finito y no excesivamente grande para evitar
+            // reportar falsos positivos
+            if (!Double.isFinite(y) || Math.abs(y) > 1e6) {
                 continue;
             }
 
@@ -497,119 +526,188 @@ public class AnalizadorFuncion {
     }
 
     // Calcula intervalos de monotonía (crecimiento/decrecimiento)
-    private Intervalo[] calcularIntervalosMonotonia(Evaluador evaluador, PuntoCritico[] puntosCriticos, double minX,
-            double maxX) {
+    private Intervalo[] calcularIntervalosMonotonia(Evaluador evaluador, List<Double> raices,
+            List<Singularidad> singularidades, double minX, double maxX) {
 
-        // Crear puntos de división (límites + puntos críticos)
-        List<Double> divisiones = new ArrayList<>();
-        divisiones.add(minX);
+        TreeSet<Double> setDivisiones = new TreeSet<>();
+        setDivisiones.add(minX);
+        for (Double r : raices)
+            setDivisiones.add(r);
+        for (Singularidad s : singularidades)
+            setDivisiones.add(s.x);
+        setDivisiones.add(maxX);
 
-        for (PuntoCritico pc : puntosCriticos) {
-            divisiones.add(pc.getX());
-        }
+        List<Double> divisionesSorted = new ArrayList<>(setDivisiones);
+        List<Intervalo> todosLosIntervalos = new ArrayList<>();
 
-        divisiones.add(maxX);
+        for (int i = 0; i < divisionesSorted.size() - 1; i++) {
+            double inicio = divisionesSorted.get(i);
+            double fin = divisionesSorted.get(i + 1);
 
-        // Calcular intervalos
-        List<Intervalo> intervalos = new ArrayList<>();
+            if (Math.abs(fin - inicio) < 1e-4)
+                continue;
 
-        for (int i = 0; i < divisiones.size() - 1; i++) {
-            double inicio = divisiones.get(i);
-            double fin = divisiones.get(i + 1);
-            double puntoMedio = (inicio + fin) / 2;
-            double derivadaEnMedio = derivada(evaluador, puntoMedio);
-
-            // Si es NaN, intentar buscar un punto válido en el intervalo (para funciones
-            // con dominio restringido)
-            if (Double.isNaN(derivadaEnMedio)) {
-                for (int j = 1; j <= 4; j++) {
-                    double testX = inicio + (fin - inicio) * (j / 5.0);
-                    double d = derivada(evaluador, testX);
-                    if (!Double.isNaN(d)) {
-                        derivadaEnMedio = d;
-                        break;
-                    }
+            // Probar varios puntos en el intervalo para encontrar uno con derivada no nula
+            double derivadaRepresentativa = Double.NaN;
+            double[] puntosPrueba = { 0.5, 0.25, 0.75, 0.1, 0.9 };
+            for (double p : puntosPrueba) {
+                double testX = inicio + (fin - inicio) * p;
+                double d = derivada(evaluador, testX);
+                if (!Double.isNaN(d) && Math.abs(d) > 1e-7) {
+                    derivadaRepresentativa = d;
+                    break;
                 }
             }
 
-            if (Double.isNaN(derivadaEnMedio) || Math.abs(derivadaEnMedio) < TOLERANCIA_CERO) {
-                continue; // Ignorar tramos constantes o fuera del dominio
+            if (Double.isNaN(derivadaRepresentativa)) {
+                continue;
             }
 
-            TipoIntervalo tipo = (derivadaEnMedio > 0) ? TipoIntervalo.CRECIENTE : TipoIntervalo.DECRECIENTE;
-
-            intervalos.add(new Intervalo(
-                    i == 0 ? null : inicio,
-                    i == divisiones.size() - 2 ? null : fin,
-                    tipo));
+            TipoIntervalo tipo = (derivadaRepresentativa > 0) ? TipoIntervalo.CRECIENTE : TipoIntervalo.DECRECIENTE;
+            todosLosIntervalos.add(new Intervalo(inicio, fin, tipo));
         }
 
-        return intervalos.toArray(new Intervalo[0]);
+        return fusionarIntervalos(todosLosIntervalos, singularidades, minX, maxX);
     }
 
     // Calcula intervalos de concavidad
-    private Intervalo[] calcularIntervalosConcavidad(Evaluador evaluador, PuntoCritico[] puntosInflexion, double minX,
-            double maxX) {
+    private Intervalo[] calcularIntervalosConcavidad(Evaluador evaluador, List<Double> raices,
+            List<Singularidad> singularidades, double minX, double maxX) {
 
-        List<Double> divisiones = new ArrayList<>();
-        divisiones.add(minX);
+        TreeSet<Double> setDivisiones = new TreeSet<>();
+        setDivisiones.add(minX);
+        for (Double r : raices)
+            setDivisiones.add(r);
+        for (Singularidad s : singularidades)
+            setDivisiones.add(s.x);
+        setDivisiones.add(maxX);
 
-        for (PuntoCritico pi : puntosInflexion) {
-            divisiones.add(pi.getX());
-        }
+        List<Double> divisionesSorted = new ArrayList<>(setDivisiones);
+        List<Intervalo> todosLosIntervalos = new ArrayList<>();
 
-        divisiones.add(maxX);
+        for (int i = 0; i < divisionesSorted.size() - 1; i++) {
+            double inicio = divisionesSorted.get(i);
+            double fin = divisionesSorted.get(i + 1);
 
-        // Calcular intervalos
-        List<Intervalo> intervalos = new ArrayList<>();
+            if (Math.abs(fin - inicio) < 1e-4)
+                continue;
 
-        for (int i = 0; i < divisiones.size() - 1; i++) {
-            double inicio = divisiones.get(i);
-            double fin = divisiones.get(i + 1);
-            double puntoMedio = (inicio + fin) / 2;
-            double segundaDerivadaEnMedio = segundaDerivada(evaluador, puntoMedio);
-
-            // Intentar buscar punto válido si es NaN
-            if (Double.isNaN(segundaDerivadaEnMedio)) {
-                for (int j = 1; j <= 4; j++) {
-                    double testX = inicio + (fin - inicio) * (j / 5.0);
-                    double d2 = segundaDerivada(evaluador, testX);
-                    if (!Double.isNaN(d2)) {
-                        segundaDerivadaEnMedio = d2;
-                        break;
-                    }
+            double segundaDerivadaRepresentativa = Double.NaN;
+            // Probar puntos alejados de los bordes para evitar ruido de singularidades
+            double[] puntosPrueba = { 0.5, 0.3, 0.7, 0.2, 0.8 };
+            for (double p : puntosPrueba) {
+                double testX = inicio + (fin - inicio) * p;
+                double d2 = segundaDerivada(evaluador, testX);
+                // Ignorar valores absurdamente grandes que indican cercanía a asintota
+                if (!Double.isNaN(d2) && Math.abs(d2) > 1e-7 && Math.abs(d2) < 1e9) {
+                    segundaDerivadaRepresentativa = d2;
+                    break;
                 }
             }
 
-            if (Double.isNaN(segundaDerivadaEnMedio) || Math.abs(segundaDerivadaEnMedio) < TOLERANCIA_CERO) {
-                continue; // Ignorar tramos lineales, constantes o fuera del dominio
+            if (Double.isNaN(segundaDerivadaRepresentativa)) {
+                continue;
             }
 
-            TipoIntervalo tipo = (segundaDerivadaEnMedio > 0) ? TipoIntervalo.CONCAVIDAD_POSITIVA
+            TipoIntervalo tipo = (segundaDerivadaRepresentativa > 0) ? TipoIntervalo.CONCAVIDAD_POSITIVA
                     : TipoIntervalo.CONCAVIDAD_NEGATIVA;
-
-            intervalos.add(new Intervalo(
-                    i == 0 ? null : inicio,
-                    i == divisiones.size() - 2 ? null : fin,
-                    tipo));
+            todosLosIntervalos.add(new Intervalo(inicio, fin, tipo));
         }
 
-        return intervalos.toArray(new Intervalo[0]);
+        return fusionarIntervalos(todosLosIntervalos, singularidades, minX, maxX);
+    }
+
+    /**
+     * Fusiona intervalos adyacentes del mismo tipo para simplificar el resultado,
+     * cuidando de NO fusionar si hay una singularidad entre ellos.
+     */
+    private Intervalo[] fusionarIntervalos(List<Intervalo> intervalos, List<Singularidad> singularidades, double minX,
+            double maxX) {
+        if (intervalos.isEmpty())
+            return new Intervalo[0];
+
+        List<Intervalo> fusionados = new ArrayList<>();
+        Intervalo actual = intervalos.getFirst();
+
+        for (int i = 1; i < intervalos.size(); i++) {
+            Intervalo siguiente = intervalos.get(i);
+
+            // Verificar si hay alguna singularidad entre el fin del actual y el inicio del
+            // siguiente
+            boolean haySingularidadIntermedia = false;
+            double gMin = Math.min(actual.getFin(), siguiente.getInicio()) - 0.1;
+            double gMax = Math.max(actual.getFin(), siguiente.getInicio()) + 0.1;
+            for (Singularidad s : singularidades) {
+                if (s.x >= gMin && s.x <= gMax) {
+                    haySingularidadIntermedia = true;
+                    break;
+                }
+            }
+
+            // Si son del mismo tipo, adyacentes y NO hay singularidad entre ellos, fusionar
+            if (!haySingularidadIntermedia &&
+                    actual.getTipoIntervalo() == siguiente.getTipoIntervalo() &&
+                    Math.abs(actual.getFin() - siguiente.getInicio()) < 1e-3) {
+                actual = new Intervalo(actual.getInicio(), siguiente.getFin(), actual.getTipoIntervalo());
+            } else {
+                fusionados.add(actual);
+                actual = siguiente;
+            }
+        }
+        fusionados.add(actual);
+
+        // Convertir bordes de análisis a infinitos para mejor presentación numérica
+        // (opcional)
+        return fusionados.stream().map(inter -> {
+            Double ini = (inter.getInicio() != null && Math.abs(inter.getInicio() - minX) < 1e-3) ? null
+                    : inter.getInicio();
+            Double fin = (inter.getFin() != null && Math.abs(inter.getFin() - maxX) < 1e-3) ? null : inter.getFin();
+            return new Intervalo(ini, fin, inter.getTipoIntervalo());
+        }).toArray(Intervalo[]::new);
     }
 
     private double derivada(Evaluador f, double x) {
         try {
-            return (f.evaluar(x + PASO_DERIVADA) - f.evaluar(x - PASO_DERIVADA)) / (2 * PASO_DERIVADA);
-        } catch (ExpresionInvalidaException e) {
+            double v_plus = f.evaluar(x + PASO_DERIVADA);
+            double v_minus = f.evaluar(x - PASO_DERIVADA);
+
+            if (Double.isNaN(v_plus) && Double.isNaN(v_minus))
+                return Double.NaN;
+
+            // Si un lado es NaN (borde de dominio), usar diferencia lateral
+            if (Double.isNaN(v_plus)) {
+                return (f.evaluar(x) - v_minus) / PASO_DERIVADA;
+            }
+            if (Double.isNaN(v_minus)) {
+                return (v_plus - f.evaluar(x)) / PASO_DERIVADA;
+            }
+
+            return (v_plus - v_minus) / (2 * PASO_DERIVADA);
+        } catch (Exception e) {
             return Double.NaN;
         }
     }
 
     private double segundaDerivada(Evaluador f, double x) {
         try {
-            return (f.evaluar(x + PASO_DERIVADA) - 2 * f.evaluar(x) + f.evaluar(x - PASO_DERIVADA))
-                    / (PASO_DERIVADA * PASO_DERIVADA);
-        } catch (ExpresionInvalidaException e) {
+            double v = f.evaluar(x);
+            double v_plus = f.evaluar(x + PASO_DERIVADA);
+            double v_minus = f.evaluar(x - PASO_DERIVADA);
+
+            if (Double.isNaN(v) || Double.isNaN(v_plus) || Double.isNaN(v_minus)) {
+                // Si estamos en un borde, intentar una aproximación lateral para f''
+                // f''(x) ≈ (f(x+2h) - 2f(x+h) + f(x)) / h^2
+                if (!Double.isNaN(v_plus)) {
+                    double v_plus2 = f.evaluar(x + 2 * PASO_DERIVADA);
+                    if (!Double.isNaN(v_plus2)) {
+                        return (v_plus2 - 2 * v_plus + v) / (PASO_DERIVADA * PASO_DERIVADA);
+                    }
+                }
+                return Double.NaN;
+            }
+
+            return (v_plus - 2 * v + v_minus) / (PASO_DERIVADA * PASO_DERIVADA);
+        } catch (Exception e) {
             return Double.NaN;
         }
     }
@@ -629,7 +727,13 @@ public class AnalizadorFuncion {
     }
 
     private boolean esRacional(String expr) {
-        return expr.contains("/") && expr.toLowerCase().contains("x");
+        String lower = expr.toLowerCase();
+        // Heurística: contiene '/' y tiene una 'x' en el denominador (después del '/')
+        if (!lower.contains("/"))
+            return false;
+        int idx = lower.indexOf("/");
+        String denominador = lower.substring(idx + 1);
+        return denominador.contains("x");
     }
 
     private boolean esIrracional(String expr) {
@@ -719,31 +823,46 @@ public class AnalizadorFuncion {
     }
 
     private List<Singularidad> identificarSingularidades(Evaluador f, double minX, double maxX) {
-        List<Singularidad> singularidades = new java.util.ArrayList<>();
-        double step = 0.1;
+        List<Singularidad> singularidades = new ArrayList<>();
+        double scanStep = 0.05;
         double h = 1e-4;
 
-        for (double x = minX; x <= maxX; x += step) {
+        double prevVal = Double.NaN;
+        try {
+            prevVal = f.evaluar(minX);
+        } catch (Exception e) {
+        }
+
+        for (double x = minX + scanStep; x <= maxX; x += scanStep) {
             try {
                 double val = f.evaluar(x);
+
+                // 1. Detectar infinito o NaN directo
                 if (Double.isInfinite(val)) {
                     singularidades.add(new Singularidad(x, TipoSingularidad.ASINTOTA));
-                    continue;
-                }
-                if (Double.isNaN(val)) {
+                } else if (Double.isNaN(val)) {
                     singularidades.add(new Singularidad(x, TipoSingularidad.INDEFINIDO));
-                    continue;
                 }
 
-                // Salto brusco
-                double v1 = f.evaluar(x - h);
-                double v2 = f.evaluar(x + h);
-                if (!Double.isNaN(v1) && !Double.isNaN(v2) &&
-                        Math.signum(v1) != Math.signum(v2) && Math.abs(v1) > 10 && Math.abs(v2) > 10) {
-                    singularidades.add(new Singularidad(x, TipoSingularidad.ASINTOTA));
+                // 2. Detectar salto brusco (asíntota vertical)
+                // Si el valor cambia de signo y ambos son relativamente grandes, hay una
+                // asíntota en medio
+                if (!Double.isNaN(prevVal) && !Double.isNaN(val) && Math.signum(prevVal) != Math.signum(val)) {
+                    if (Math.abs(prevVal) > 5 && Math.abs(val) > 5) {
+                        singularidades.add(new Singularidad(x - scanStep / 2.0, TipoSingularidad.ASINTOTA));
+                    }
                 }
+
+                // 3. Verificación adicional para asíntotas: evaluar muy cerca
+                double vMid = f.evaluar(x - scanStep / 2.0);
+                if (Double.isInfinite(vMid) || Math.abs(vMid) > 1e4) {
+                    singularidades.add(new Singularidad(x - scanStep / 2.0, TipoSingularidad.ASINTOTA));
+                }
+
+                prevVal = val;
             } catch (Exception e) {
                 singularidades.add(new Singularidad(x, TipoSingularidad.INDEFINIDO));
+                prevVal = Double.NaN;
             }
         }
 

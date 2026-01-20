@@ -79,7 +79,7 @@ public class ResultadoAnalisis {
         return intervalosDecrecimiento;
     }
 
-    public Intervalo[] intervalosConcavidad() {
+    public Intervalo[] getIntervalosConcavidad() {
         return intervalosConcavidad;
     }
 

@@ -292,9 +292,9 @@ public class CalcularControlador implements Initializable {
         }
 
         // 5. Concavidad
-        if (resultado.intervalosConcavidad() != null && resultado.intervalosConcavidad().length > 0) {
+        if (resultado.getIntervalosConcavidad() != null && resultado.getIntervalosConcavidad().length > 0) {
             VBox section = crearSeccion("CONCAVIDAD");
-            for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado.intervalosConcavidad()) {
+            for (com.espoch.inflexpoint.modelos.entidades.Intervalo inter : resultado.getIntervalosConcavidad()) {
                 String label = inter.getTipoIntervalo().toString().contains("POSITIVA") ? "Cóncava (∪):"
                         : "Convexa (∩):";
                 section.getChildren().add(crearEtiquetaDual(label, formatearIntervalo(inter)));
