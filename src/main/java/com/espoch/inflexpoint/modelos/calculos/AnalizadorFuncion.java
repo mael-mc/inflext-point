@@ -113,11 +113,22 @@ public class AnalizadorFuncion {
             }
 
             // Encontrar puntos de inflexión si se solicita
+            // Encontrar puntos de inflexión si se solicita
             if (calcInflexion) {
                 List<Double> raicesSegundaDerivada = encontrarRaices(
                         x -> segundaDerivada(evaluador, x), minX, maxX, step);
+
+                // Filtrar raíces para asegurar que hay un cambio de signo real (concavidad
+                // cambia)
+                List<Double> raicesValidadas = new ArrayList<>();
+                for (double raiz : raicesSegundaDerivada) {
+                    if (verificarCambioSigno(x -> segundaDerivada(evaluador, x), raiz, step / 10.0)) {
+                        raicesValidadas.add(raiz);
+                    }
+                }
+
                 puntosInflexion = crearPuntosCriticos(
-                        evaluador, raicesSegundaDerivada, TipoPuntoCritico.INFLEXION);
+                        evaluador, raicesValidadas, TipoPuntoCritico.INFLEXION);
             }
 
             // Calcular intervalos de monotonía si se solicita
@@ -265,11 +276,37 @@ public class AnalizadorFuncion {
         }
 
         if (esIrracional(expresion)) {
-            resultado.agregarMensajeAccesibilidad("Esta es una función irracional (contiene raíces).");
-            if (expresion.contains("sqrt") || expresion.contains("^0.5") || expresion.contains("^0.2")
-                    || expresion.contains("^0.4") || expresion.contains("^0.6") || expresion.contains("^0.8")) {
-                resultado.agregarMensajeAccesibilidad(
-                        "Al contener una raíz par, el dominio está restringido a los valores que hacen que el argumento sea no negativo.");
+            // Detectar dominio y rango en el intervalo de análisis
+            boolean tieneNaN = false;
+            double primerX = Double.NaN, ultimoX = Double.NaN;
+            double minY = Double.POSITIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
+
+            for (double x = minX; x <= maxX; x += step) {
+                try {
+                    double val = evaluador.evaluar(x);
+                    if (Double.isNaN(val)) {
+                        tieneNaN = true;
+                    } else if (Double.isFinite(val)) {
+                        if (Double.isNaN(primerX))
+                            primerX = x;
+                        ultimoX = x;
+                        if (val < minY)
+                            minY = val;
+                        if (val > maxY)
+                            maxY = val;
+                    }
+                } catch (Exception e) {
+                    tieneNaN = true;
+                }
+            }
+
+            if (tieneNaN && !Double.isNaN(primerX)) {
+                String inicio = (Math.abs(primerX - minX) < step * 1.5) ? "-∞" : String.format("%.2f", primerX);
+                String fin = (Math.abs(ultimoX - maxX) < step * 1.5) ? "+∞" : String.format("%.2f", ultimoX);
+                resultado.agregarMensajeAccesibilidad(String.format(
+                        "Función irracional. Dominio restringido: [%s, %s].", inicio, fin));
+            } else if (!tieneNaN) {
+                resultado.agregarMensajeAccesibilidad("Función irracional de dominio continuo (posible raíz impar).");
             }
         }
 
@@ -316,9 +353,11 @@ public class AnalizadorFuncion {
         for (double x = minX + step; x <= maxX; x += step) {
             double valorActual = funcion.calcular(x);
 
-            // Detectar cambio de signo, pero solo si no son ambos ruidosos (cercanos a
-            // cero)
-            if (Math.signum(valorActual) != Math.signum(prevValor)) {
+            // Detectar cambio de signo, pero solo si no son NaN
+            // (para evitar saltos en bordes de dominio, pero permitir infinitos como en
+            // x^(1/3))
+            if (!Double.isNaN(valorActual) && !Double.isNaN(prevValor) &&
+                    Math.signum(valorActual) != Math.signum(prevValor)) {
                 if (Math.abs(valorActual) > TOLERANCIA_CERO || Math.abs(prevValor) > TOLERANCIA_CERO) {
                     double raiz = biseccion(funcion, x - step, x);
                     if (!Double.isNaN(raiz)) {
@@ -346,8 +385,8 @@ public class AnalizadorFuncion {
         if (Math.abs(fb) < TOLERANCIA_BISECCION)
             return b;
 
-        // Verificar que hay cambio de signo
-        if (Math.signum(fa) == Math.signum(fb)) {
+        // Verificar que hay cambio de signo y no son NaN
+        if (Double.isNaN(fa) || Double.isNaN(fb) || Math.signum(fa) == Math.signum(fb)) {
             return Double.NaN;
         }
 
@@ -374,12 +413,28 @@ public class AnalizadorFuncion {
         return c;
     }
 
+    /**
+     * Verifica si una función realmente cambia de signo alrededor de un punto.
+     * Útil para validar puntos de inflexión.
+     */
+    private boolean verificarCambioSigno(FuncionDerivada f, double x, double h) {
+        double v1 = f.calcular(x - h);
+        double v2 = f.calcular(x + h);
+
+        if (Double.isNaN(v1) || Double.isNaN(v2)) {
+            return false;
+        }
+
+        // Para inflexión necesitamos un cambio de signo real (concavidad cambia)
+        return Math.signum(v1) * Math.signum(v2) < 0;
+    }
+
     private PuntoCritico[] clasificarPuntosCriticos(Evaluador evaluador, List<Double> raices) {
-        if (raices.isEmpty()) {
+        if (raices == null || raices.isEmpty()) {
             return new PuntoCritico[0];
         }
 
-        PuntoCritico[] puntos = new PuntoCritico[raices.size()];
+        List<PuntoCritico> puntosList = new ArrayList<>();
 
         for (int i = 0; i < raices.size(); i++) {
             double x = raices.get(i);
@@ -389,22 +444,28 @@ public class AnalizadorFuncion {
             } catch (ExpresionInvalidaException e) {
                 y = Double.NaN;
             }
+            // Validar que el valor sea finito para evitar reportar falsos positivos en
+            // bordes de dominio
+            if (!Double.isFinite(y)) {
+                continue;
+            }
+
             double segundaDerivada = segundaDerivada(evaluador, x);
 
             TipoPuntoCritico tipo;
-            if (segundaDerivada > 0) {
+            if (segundaDerivada > 1e-5) {
                 tipo = TipoPuntoCritico.MINIMO;
-            } else if (segundaDerivada < 0) {
+            } else if (segundaDerivada < -1e-5) {
                 tipo = TipoPuntoCritico.MAXIMO;
             } else {
                 // Indeterminado, marcar como punto crítico genérico
-                tipo = null; // Se podría tener un tipo INDETERMINADO
+                tipo = null;
             }
 
-            puntos[i] = new PuntoCritico(x, y, tipo);
+            puntosList.add(new PuntoCritico(x, y, tipo));
         }
 
-        return puntos;
+        return puntosList.toArray(new PuntoCritico[0]);
     }
 
     // Crea puntos críticos con un tipo específico (o null)
@@ -415,7 +476,7 @@ public class AnalizadorFuncion {
             return new PuntoCritico[0];
         }
 
-        PuntoCritico[] puntos = new PuntoCritico[raices.size()];
+        List<PuntoCritico> puntosList = new ArrayList<>();
 
         for (int i = 0; i < raices.size(); i++) {
             double x = raices.get(i);
@@ -425,10 +486,14 @@ public class AnalizadorFuncion {
             } catch (ExpresionInvalidaException e) {
                 y = Double.NaN;
             }
-            puntos[i] = new PuntoCritico(x, y, tipo);
+
+            // Validar que el valor sea finito para evitar reportar falsos positivos
+            if (Double.isFinite(y)) {
+                puntosList.add(new PuntoCritico(x, y, tipo));
+            }
         }
 
-        return puntos;
+        return puntosList.toArray(new PuntoCritico[0]);
     }
 
     // Calcula intervalos de monotonía (crecimiento/decrecimiento)
@@ -452,18 +517,30 @@ public class AnalizadorFuncion {
             double inicio = divisiones.get(i);
             double fin = divisiones.get(i + 1);
             double puntoMedio = (inicio + fin) / 2;
-
             double derivadaEnMedio = derivada(evaluador, puntoMedio);
 
-            if (Math.abs(derivadaEnMedio) < TOLERANCIA_CERO) {
-                continue; // Ignorar tramos constantes
+            // Si es NaN, intentar buscar un punto válido en el intervalo (para funciones
+            // con dominio restringido)
+            if (Double.isNaN(derivadaEnMedio)) {
+                for (int j = 1; j <= 4; j++) {
+                    double testX = inicio + (fin - inicio) * (j / 5.0);
+                    double d = derivada(evaluador, testX);
+                    if (!Double.isNaN(d)) {
+                        derivadaEnMedio = d;
+                        break;
+                    }
+                }
+            }
+
+            if (Double.isNaN(derivadaEnMedio) || Math.abs(derivadaEnMedio) < TOLERANCIA_CERO) {
+                continue; // Ignorar tramos constantes o fuera del dominio
             }
 
             TipoIntervalo tipo = (derivadaEnMedio > 0) ? TipoIntervalo.CRECIENTE : TipoIntervalo.DECRECIENTE;
 
             intervalos.add(new Intervalo(
-                    i == 0 ? null : inicio, // null para -∞
-                    i == divisiones.size() - 2 ? null : fin, // null para +∞
+                    i == 0 ? null : inicio,
+                    i == divisiones.size() - 2 ? null : fin,
                     tipo));
         }
 
@@ -490,11 +567,22 @@ public class AnalizadorFuncion {
             double inicio = divisiones.get(i);
             double fin = divisiones.get(i + 1);
             double puntoMedio = (inicio + fin) / 2;
-
             double segundaDerivadaEnMedio = segundaDerivada(evaluador, puntoMedio);
 
-            if (Math.abs(segundaDerivadaEnMedio) < TOLERANCIA_CERO) {
-                continue; // Ignorar tramos lineales o constantes
+            // Intentar buscar punto válido si es NaN
+            if (Double.isNaN(segundaDerivadaEnMedio)) {
+                for (int j = 1; j <= 4; j++) {
+                    double testX = inicio + (fin - inicio) * (j / 5.0);
+                    double d2 = segundaDerivada(evaluador, testX);
+                    if (!Double.isNaN(d2)) {
+                        segundaDerivadaEnMedio = d2;
+                        break;
+                    }
+                }
+            }
+
+            if (Double.isNaN(segundaDerivadaEnMedio) || Math.abs(segundaDerivadaEnMedio) < TOLERANCIA_CERO) {
+                continue; // Ignorar tramos lineales, constantes o fuera del dominio
             }
 
             TipoIntervalo tipo = (segundaDerivadaEnMedio > 0) ? TipoIntervalo.CONCAVIDAD_POSITIVA
@@ -546,7 +634,22 @@ public class AnalizadorFuncion {
 
     private boolean esIrracional(String expr) {
         String lower = expr.toLowerCase();
-        return lower.contains("sqrt") || lower.contains("^0.") || lower.contains("^ (") || lower.contains("^(");
+        if (lower.contains("sqrt"))
+            return true;
+
+        // Buscar potencias no enteras (ej: ^0.5, ^(1/3), ^.2)
+        // Evitamos marcar ^2, ^3 como irracionales
+        if (lower.contains("^")) {
+            int idx = lower.indexOf("^");
+            String resto = lower.substring(idx + 1).trim();
+            if (resto.startsWith("0.") || resto.startsWith(".") || resto.startsWith("(")) {
+                // Heurística: si hay paréntesis después de ^, es muy probable que sea una
+                // fracción
+                // o una expresión compleja que solemos usar para raíces x^(1/3)
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean esTrigonometrica(String expr) {
